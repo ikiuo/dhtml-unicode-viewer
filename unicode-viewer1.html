@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title>Unicode 文字表</title>
+    <style>
+      table {
+          border: solid 1px #ccc;
+          border-collaspe: collaspe;
+          border-spacing: 0;
+      }
+      th, td {
+          border: solid 1px #ccc;
+          padding: 6px;
+      }
+      th {
+          background: #eee;
+      }
+      .left { text-align: left; }
+      .center { text-align: center; }
+      .right { text-align: right; }
+    </style>
+  </head>
+  <body>
+    <h1>Unicode 文字表</h1>
+    <table>
+      <tr>
+        <th colspan="4">Basic Multilingual Plane</th>
+        <th colspan="4">Supplementary Multilingual Plane</th>
+        <th colspan="4">Other Plane</th>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="0000-00FF" checked>ASCII &amp; Latin-1 Compatibility</label></td>
+        <td>0000</td><td>-</td><td>00FF</td>
+        <td rowspan="2"><label><input type="radio" name="alloc" value="10000-107FF">General Script</label></td>
+        <td rowspan="2">10000</td><td rowspan="2">-</td><td rowspan="2">107FF</td>
+        <td><label><input type="radio" name="alloc" value="20000-2FFFF">Supplementary Ideographic</label></td>
+        <td>020000</td><td>-</td><td>02FFFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="0100-058F">General Script</label></td>
+        <td>0100</td><td>-</td><td>058F</td>
+        <td><label><input type="radio" name="alloc" value="30000-3FFFF">Plane 3</label></td>
+        <td>030000</td><td>-</td><td>03FFFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="0590-08FF">General Script (RTL)</label></td>
+        <td>0590</td><td>-</td><td>08FF</td>
+        <td><label><input type="radio" name="alloc" value="10800-10FFF">General Script (RTL)</label></td>
+        <td>10800</td><td>-</td><td>10FFF</td>
+        <td rowspan="8"><label><input type="radio" name="alloc" value="40000-DFFFF" disabled>Plane 4 〜 13</label></td>
+        <td rowspan="8">040000</td><td rowspan="8">-</td><td rowspan="8">0DFFFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="0900-1FFF">General Script</label></td>
+        <td>0900</td><td>-</td><td>1FFF</td>
+        <td><label><input type="radio" name="alloc" value="11000-11FFF">General Script</label></td>
+        <td>11000</td><td>-</td><td>11FFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="2000-2BFF">Punctuation &amp; Symbols</label></td>
+        <td>2000</td><td>-</td><td>2BFF</td>
+        <td rowspan="4"><label><input type="radio" name="alloc" value="12000-15FFF">Cuneiform &amp; Hieroglyphic</label></td>
+        <td rowspan="4">12000</td><td rowspan="4">-</td><td rowspan="4">15FFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="2C00-2DFF">General Script</label></td>
+        <td>2C00</td><td>-</td><td>2DFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="2E00-2E7F">Supplemental Punctuation</label></td>
+        <td>2E00</td><td>-</td><td>2E7F</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="2E80-33FF">CJK Miscellaneous</label></td>
+        <td>2E80</td><td>-</td><td>33FF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="3400-9FFF">CJKV Unified Ideographs</label></td>
+        <td>3400</td><td>-</td><td>9FFF</td>
+        <td><label><input type="radio" name="alloc" value="16000-16FFF">General Script</label></td>
+        <td>16000</td><td>-</td><td>16FFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="A000-ABFF">General Script (Asia &amp; Africa)</label></td>
+        <td>A000</td><td>-</td><td>ABFF</td>
+        <td><label><input type="radio" name="alloc" value="17000-1BBFF">Ideographic Script</label></td>
+        <td>17000</td><td>-</td><td>1BBFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="AC00-D7FF">Hangul Syllables</label></td>
+        <td>AC00</td><td>-</td><td>D7FF</td>
+        <td><label><input type="radio" name="alloc" value="1BC00-1CFFF">General Script</label></td>
+        <td>1BC00</td><td>-</td><td>1CFFF</td>
+        <td style="color: #f00;"><label><input type="radio" name="alloc" value="E0000-E0FFF" disabled>Plane 14 (Ignorable)</label></td>
+        <td>0E0000</td><td>-</td><td>0E0FFF</td>
+      </tr>
+      <tr>
+        <td style="color: #f00;"><label><input type="radio" name="alloc" value="D800-DFFF" disabled>Surrogate Codes</label></td>
+        <td>D800</td><td>-</td><td>DFFF</td>
+        <td><label><input type="radio" name="alloc" value="1D000-1E7FF">Symbols</label></td>
+        <td>1D000</td><td>-</td><td>1E7FF</td>
+        <td><label><input type="radio" name="alloc" value="E1000-EFFFF" disabled>Plane 14 (Reserved)</label></td>
+        <td>0E1000</td><td>-</td><td>0EFFFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="E000-F8FF">Private Use</label></td>
+        <td>E000</td><td>-</td><td>F8FF</td>
+        <td><label><input type="radio" name="alloc" value="1E800-1EFFF">General Script (RTL)</label></td>
+        <td>1E800</td><td>-</td><td>1EFFF</td>
+        <td><label><input type="radio" name="alloc" value="F0000-FFFFF">Plane 15 (Private Use)</label></td>
+        <td>0F0000</td><td>-</td><td>0FFFFF</td>
+      </tr>
+      <tr>
+        <td><label><input type="radio" name="alloc" value="F900-FFFF">Compatibility &amp; Specials</label></td>
+        <td>F900</td><td>-</td><td>FFFF</td>
+        <td><label><input type="radio" name="alloc" value="1F000-1FFFF">General Script</label></td>
+        <td>1F000</td><td>-</td><td>1FFFF</td>
+        <td><label><input type="radio" name="alloc" value="100000-10FFFF">Plane 16 (Private Use)</label></td>
+        <td>100000</td><td>-</td><td>10FFFF</td>
+      </tr>
+    </table>
+    <div>&nbsp;</div>
+    <table>
+      <tr>
+        <th>幅</th>
+        <td>
+          <label><input type="radio" name="width" value="16" checked>16</label>
+          <label><input type="radio" name="width" value="32">32</label>
+          <label><input type="radio" name="width" value="64">64</label>
+          <label><input type="radio" name="width" value="128">128</label>
+          <label><input type="radio" name="width" value="256">256</label>
+        </td>
+        <th><input id="button" type="button" name="generate" value="更新" onclick="onUpdate();"></th>
+    </table>
+    <hr>
+    <table id="ctab">
+    </table>
+
+    <script type="text/javascript">
+    <!--
+
+      function setTable(start, end, width) {
+          const table = document.getElementById('ctab');
+          if (false) {
+              const tr = document.createElement('tr');
+              const th = document.createElement('th');
+              th.innerText = 'UTF-8';
+              th.setAttribute('colspan', (width + 1).toString());
+              tr.appendChild(th);
+              table.appendChild(tr);
+          }
+          {
+              const tr = document.createElement('tr');
+              tr.appendChild(document.createElement('th'));
+              const s = ((width == 16) ? -1 : -2);
+              for (let i = 0; i < width; i++) {
+                  const th = document.createElement('th');
+                  th.innerText = ('00' + i.toString(16).toUpperCase()).slice(s);
+                  tr.appendChild(th);
+              }
+              table.appendChild(tr);
+          }
+          {
+              for (let y = start; y < end; y += width) {
+                  const tr = document.createElement('tr');
+
+                  const th = document.createElement('th');
+                  th.innerText = ('000000' + y.toString(16).toUpperCase()).slice(-6);
+                  tr.appendChild(th);
+
+                  for (let x = 0; x < width; x++) {
+                      const td = document.createElement('td');
+                      td.setAttribute('class', 'center');
+
+                      const code = x + y;
+                      if (code < 0x10000)
+                          td.innerText = String.fromCharCode(code);
+                      else {
+                          const h = code >> 16;
+                          const l = code & 0xffff;
+                          const code1 = 0xd800 | ((h - 1) << 6) | (l >> 10);
+                          const code2 = 0xdc00 | (l & 0x3ff);
+                          td.innerText = String.fromCharCode(code1, code2);
+                      }
+
+                      tr.appendChild(td);
+                  }
+
+                  table.appendChild(tr);
+              }
+          }
+
+      }
+
+      function updateTable() {
+          const inp_range = document.querySelector("input[name='alloc']:checked").value;
+          const inp_width = document.querySelector("input[name='width']:checked").value;
+          const [start, end] = inp_range.split('-').map((v) => Number('0x' + v));
+          const width = Number(inp_width);
+          setTable(start, end + 1, width);
+      }
+
+      function onUpdate() {
+          const table = document.getElementById('ctab');
+          while (table.firstChild != undefined)
+              table.removeChild(table.firstChild);
+          updateTable();
+      }
+
+      onUpdate();
+
+      -->
+    </script>
+  </body>
+</html>
