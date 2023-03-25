@@ -1,1928 +1,1935 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8">
     <title>Unicode 文字表</title>
   </head>
   <body>
-    <script type="text/javascript">
-    <!--
-
-      class UnicodeViewer {
-
-          /*
-           * DOM
-           */
-
-          static mergeMap(a, b) {
-              const r = new Map();
-              a.forEach((v, k) => r.set(k, v));
-              b.forEach((v, k) => r.set(k, v));
-              return r;
-          };
-
-          static mapFromList(data) {
-              const r = new Map();
-              for (const kv of data)
-                  if (kv != undefined)
-                      r.set(kv[0], kv[1]);
-              return r;
-          };
-          static attributeFrom = ((attributes) => UnicodeViewer.mapFromList(attributes));
-          static styleFrom = ((options) => UnicodeViewer.mapFromList(options));
-
-          static toNonBreak = ((s) => s.replaceAll(' ', '\xa0').replaceAll('-', '\u2011'));
-
-          static getCodeString(code) {
-              if (code < 0x10000)
-                  return String.fromCharCode(code);
-              const h = (code >> 16);
-              const l = (code & 0xffff);
-              const code1 = 0xd800 | ((h - 1) << 6) | (l >> 10);
-              const code2 = 0xdc00 | (l & 0x3ff);
-              return String.fromCharCode(code1, code2);
-          };
-
-          /* ** */
-
-          static widthSelectorName = '表';
-          static matrixTransposeName = '転置';
-          static matrixWidthName = '幅';
-          static specialCodeName = '直文字';
-          static planeSelectorName = '面';
-          static planeDetailName = '詳細';
-
-          static defaultStyle = new Map();
-          static defaultFlexStyle = UnicodeViewer.styleFrom([
-              ['display', 'flex'],
-          ]);
-          static defaultHeaderStyle = UnicodeViewer.defaultStyle;
-          static defaultFooterStyle = UnicodeViewer.defaultFlexStyle;
-          static defaultSectionStyle = UnicodeViewer.defaultFlexStyle;
-          static defaultArticleStyle = UnicodeViewer.defaultStyle;
-
-          static defaultTableBaseStyle = UnicodeViewer.styleFrom([
-              ['border-style', 'solid'],
-              ['border-width', '1px'],
-              ['border-color', '#d0d0d0'],
-          ]);
-          static defaultTableStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultTableBaseStyle,
-              UnicodeViewer.styleFrom([
-                  ['border-collapse', 'collapse'],
-                  ['border-spacing', '0'],
-              ]));
-
-          static defaultThTdStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultTableBaseStyle,
-              UnicodeViewer.styleFrom([
-                  ['margin', '0'],
-                  ['padding', '0 2px'],
-              ]));
-
-          static defaultThStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultThTdStyle,
-              UnicodeViewer.styleFrom([
-                  ['background', '#f0f0f0'],
-              ]));
-          static defaultThCharStyle = UnicodeViewer.defaultThStyle;
-
-          static defaultTdStyle = UnicodeViewer.defaultThTdStyle;
-          static defaultTdCenterStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultTdStyle,
-              UnicodeViewer.styleFrom([
-                  ['text-align', 'center'],
-              ]));
-          static defaultTdCharStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultTdCenterStyle,
-              UnicodeViewer.styleFrom([
-                  ['padding', '4px'],
-              ]));
-
-          static defaultDivStyle = UnicodeViewer.defaultStyle;
-          static defaultDivCharStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultTdStyle,
-              UnicodeViewer.styleFrom([
-                  ['border-style', 'dotted'],
-                  ['border-width', '1px'],
-                  ['border-color', '#fcc'],
-                  ['background', '#f7f7f7'],
-                  ['color', '#b77'],
-                  ['font-size', '10%'],
-                  ['line-height', '95%'],
-              ]));
-          static defaultDivNotCharStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultDivCharStyle,
-              UnicodeViewer.styleFrom([
-                  ['border-color', '#bbb'],
-                  ['background', '#000'],
-                  ['color', '#bbb'],
-              ]));
-          static defaultDivUnassignedCharStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultDivCharStyle,
-              UnicodeViewer.styleFrom([
-                  ['border-color', '#eee'],
-                  ['background', '#eee'],
-                  ['color', '#ccc'],
-              ]));
-
-          static defaultSpanStyle = UnicodeViewer.defaultStyle;
-          static defaultSpanLargeStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultSpanStyle,
-              UnicodeViewer.styleFrom([
-                  ['color', '#733'],
-              ]));
-          static defaultSpanCharStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultSpanStyle,
-              UnicodeViewer.styleFrom([
-                  ['margin', '0'],
-                  ['border', '0'],
-                  ['padding', '0'],
-                  ['background', '#f7f7f7'],
-              ]));
-          static defaultSpanReservedStyle = UnicodeViewer.mergeMap(
-              UnicodeViewer.defaultSpanCharStyle,
-              UnicodeViewer.styleFrom([
-                  ['background', '#eee'],
-                  ['color', '#ccc'],
-              ]));
-
-          static defaultOption = {
-              header: { style: UnicodeViewer.defaultHeaderStyle },
-              footer: { style: UnicodeViewer.defaultFooterStyle },
-              section: { style: UnicodeViewer.defaultSectionStyle },
-              article: { style: UnicodeViewer.defaultArticleStyle },
-
-              table: { style: UnicodeViewer.defaultTableStyle },
-              th: { style: UnicodeViewer.defaultThStyle },
-              td: { style: UnicodeViewer.defaultTdStyle },
-              td_center: { style: UnicodeViewer.defaultTdCenterStyle },
-
-              th_char: { style: UnicodeViewer.defaultThCharStyle },
-              td_char: { style: UnicodeViewer.defaultTdCharStyle },
-              span_char: { style: UnicodeViewer.defaultSpanCharStyle },
-
-              div_char: { style: UnicodeViewer.defaultDivCharStyle },
-          };
-
-          /*
-           * Unicode
-           */
-
-          static defineProperties(target) {
-              for (let i = 1; i < arguments.length; i++)
-                  arguments[i].map((p) => Object.defineProperty(target, p[0], { value: p[1] }));
-              return target;
-          };
-
-          static makeAreaTable(plane, name, count=16, offset=0) {
-              return [...Array(count)].map((_, i) => ({
-                  start: ((plane * 16 + i + offset) << 12),
-                  end: (((plane * 16 + i + offset + 1) << 12) - 1),
-                  name: `${name} [${(i + offset).toString(16).toUpperCase()}]`
-              }));
-          };
-
-          static makeMaskSet() {
-              const r = new Set();
-              let base = 0;
-              for (let i = 0; i < arguments.length; i++) {
-                  const arg = arguments[i];
-                  if (typeof(arg) == 'string')
-                      base = UnicodeViewer.makeMaskSetSub(r, base, arg);
-                  else for (const s of arg)
-                      base = UnicodeViewer.makeMaskSetSub(r, base, s);
-              };
-              return r;
-          };
-          static makeMaskSetSub(r, base, src) {
-              const args = src.split(',');
-              const atop = args.shift();
-              if (atop[0] == '+')
-                  base += Number('0x' + atop.slice(1));
-              else
-                  base = Number('0x' + atop);
-              if (args.length == 0) {
-                  r.add(base);
-                  return base;
-              };
-              for (const arg of args) {
-                  const span = arg.split('-');
-                  const s = Number('0x' + span.shift());
-                  if (span.length == 0) {
-                      r.add(base + s)
-                      continue;
-                  };
-                  const e = Number('0x' + span.shift());
-                  for (let o = s; o <= e; o++)
-                      r.add(base + o);
-              };
-              return base;
-          };
-
-          static UndefinedName = '(Reserved)';
-
-          static PlaneName = [
-              /*  0 */ 'Basic Multilingual Plane',
-              /*  1 */ 'Supplementary Multilingual Plane',
-              /*  2 */ 'Supplementary Ideographic Plane',
-              /*  3 */ 'Tertiary Ideographic Plane',
-              /*  4 */ 'Plane 4',
-              /*  5 */ 'Plane 5',
-              /*  6 */ 'Plane 6',
-              /*  7 */ 'Plane 7',
-              /*  8 */ 'Plane 8',
-              /*  9 */ 'Plane 9',
-              /* 10 */ 'Plane 10',
-              /* 11 */ 'Plane 11',
-              /* 12 */ 'Plane 12',
-              /* 13 */ 'Plane 13',
-              /* 14 */ 'Plane 14',
-              /* 15 */ 'Supplementary Private Use Area-A',
-              /* 16 */ 'Supplementary Private Use Area-B',
-          ];
-
-          static SimplePlaneTable = [
-              { start: 0x000000, end: 0x00ffff, name: 'BMP', header: '0' },
-              { start: 0x010000, end: 0x01ffff, name: 'SMP', header: '1' },
-              { start: 0x020000, end: 0x02ffff, name: 'SIP', header: '2' },
-              { start: 0x030000, end: 0x03ffff, name: 'TIP', header: '3' },
-
-              [...Array(10)].map((_, p) => ({
-                  start: ((4 + p) << 16),
-                  end: (((5 + p) << 16) - 1),
-                  name: '予約',
-                  header: `${4 + p}`
-              })),
-
-              { start: 0x0e0000, end: 0x0effff, name: '制御', header: '14' },
-              { start: 0x0f0000, end: 0x0fffff, name: '外字A', header: '15' },
-              { start: 0x100000, end: 0x10ffff, name: '外字B', header: '16' },
-          ].flat();
-
-          static SimpleAreaTable = [
-              { start: 0x000000, end: 0x0000ff, name: 'ASCII, Latin-1 Compatibility' },
-              { start: 0x000100, end: 0x00058f, name: 'General Script' },
-              { start: 0x000590, end: 0x0008ff, name: 'General Script (RTL)' },
-              { start: 0x000900, end: 0x001fff, name: 'General Script' },
-              { start: 0x002000, end: 0x002bff, name: 'Punctuation & Symbols' },
-              { start: 0x002c00, end: 0x002dff, name: 'General Script' },
-              { start: 0x002e00, end: 0x002e7f, name: 'Supplemental Punctuation' },
-              { start: 0x002e80, end: 0x0033ff, name: 'CJK Miscellaneous' },
-              { start: 0x003400, end: 0x009fff, name: 'CJKV Unified Ideographs', large: true },
-              { start: 0x00a000, end: 0x00abff, name: 'General Script (Asia & Africa)' },
-              { start: 0x00ac00, end: 0x00d7ff, name: 'Hangul Syllables', large: true },
-              { start: 0x00d800, end: 0x00dfff, name: 'Surrogate Codes', disabled: true },
-              { start: 0x00e000, end: 0x00f8ff, name: 'Private Use' },
-              { start: 0x00f900, end: 0x00ffff, name: 'Compatibility & Specials' },
-
-              { start: 0x010000, end: 0x0107ff, name: 'General Script' },
-              { start: 0x010800, end: 0x010fff, name: 'General Script (RTL)' },
-              { start: 0x011000, end: 0x011fff, name: 'General Script' },
-              { start: 0x012000, end: 0x015fff, name: 'Cuneiform & Hieroglyphic' },
-              { start: 0x016000, end: 0x016fff, name: 'General Script' },
-              { start: 0x017000, end: 0x01bbff, name: 'Ideographic Script' },
-              { start: 0x01bc00, end: 0x01cfff, name: 'General Script' },
-              { start: 0x01d000, end: 0x01e7ff, name: 'Symbols' },
-              { start: 0x01e800, end: 0x01efff, name: 'General Script (RTL)' },
-              { start: 0x01f000, end: 0x01ffff, name: 'General Script' },
-
-              UnicodeViewer.makeAreaTable(2, 'Supplementary Ideographic'),
-              UnicodeViewer.makeAreaTable(3, 'Tertiary Ideographic'),
-
-              [...Array(10)].map((_, p) =>
-                  UnicodeViewer.makeAreaTable(4 + p, `Plane ${4+p} (Reserved)`)
-              ).flat(),
-
-              { start: 0x0e0000, end: 0x0e0fff, name: 'Default_Ignorable_Code_Point' },
-              UnicodeViewer.makeAreaTable(14, 'Plane 14', 15, 1),
-
-              UnicodeViewer.makeAreaTable(15, 'Supplementary Private Use Area-A'),
-              UnicodeViewer.makeAreaTable(16, 'Supplementary Private Use Area-B'),
-
-              // Plane
-              { start: 0x000000, end: 0x00ffff, large: true, name: 'Basic Multilingual Plane' },
-              { start: 0x010000, end: 0x01ffff, large: true, name: 'Supplementary Multilingual Plane' },
-              { start: 0x020000, end: 0x02ffff, large: true, name: 'Supplementary Ideographic Plane' },
-              { start: 0x030000, end: 0x03ffff, large: true, name: 'Tertiary Ideographic Plane' },
-              [...Array(10)].map((_, p) => ({
-                  large: true, start: ((4 + p) << 16), end: (((5 + p) << 16) - 1), name: `Plane ${4+p} (Reserved)`
-              })),
-              { start: 0x0e0000, end: 0x0effff, large: true, name: 'Plane 14' },
-              { start: 0x0f0000, end: 0x0fffff, large: true, name: 'Supplementary Private Use Area-A' },
-              { start: 0x100000, end: 0x10ffff, large: true, name: 'Supplementary Private Use Area-B' },
-          ].flat();
-
-          static DetailPlaneList = [
-              { start: 0x000000, end: 0x00ffff, name: '0\xa0BMP' },
-              { start: 0x010000, end: 0x01ffff, name: '1\xa0SMP' },
-              { start: 0x020000, end: 0x03ffff, name: '2\xa0〜\xa03' },
-              { start: 0x040000, end: 0x0dffff, name: '予約' },
-              { start: 0x0e0000, end: 0x10ffff, name: '14\xa0〜\xa016' },
-          ];
-
-          static DetailPlaneTable = [
-              { start: 0x000000, end: 0x0007ff, name: '0000〜' },
-              { start: 0x000800, end: 0x000fff, name: '0800〜' },
-              { start: 0x001000, end: 0x0017ff, name: '1000〜' },
-              { start: 0x001800, end: 0x001fff, name: '1800〜' },
-              { start: 0x002000, end: 0x0027ff, name: '2000〜' },
-              { start: 0x002800, end: 0x002fff, name: '2800〜', separator: true },
-              { start: 0x003000, end: 0x004dff, name: '3000〜' },
-              { start: 0x004e00, end: 0x009fff, name: '4E00〜' },
-              { start: 0x00a000, end: 0x00a7ff, name: 'A000〜' },
-              { start: 0x00a800, end: 0x00abff, name: 'A800〜' },
-              { start: 0x00ac00, end: 0x00d7af, name: 'AC00〜' },
-              { start: 0x00d7b0, end: 0x00ffff, name: 'D700〜' },
-
-              { start: 0x010000, end: 0x0103ff, name: '0000〜' },
-              { start: 0x010400, end: 0x0107ff, name: '0400〜' },
-              { start: 0x010800, end: 0x0109ff, name: '0800〜' },
-              { start: 0x010a00, end: 0x010bff, name: '0A00〜' },
-              { start: 0x010c00, end: 0x010fff, name: '0C00〜' },
-              { start: 0x011000, end: 0x0113ff, name: '1000〜', separator: true },
-              { start: 0x011400, end: 0x0117ff, name: '1400〜' },
-              { start: 0x011800, end: 0x011bff, name: '1800〜' },
-              { start: 0x011c00, end: 0x011fff, name: '1C00〜' },
-              { start: 0x012000, end: 0x0167ff, name: '2000〜' },
-              { start: 0x016800, end: 0x016fff, name: '6800〜' },
-              { start: 0x017000, end: 0x01afff, name: '7000〜', separator: true },
-              { start: 0x01b000, end: 0x01cfff, name: 'B000〜' },
-              { start: 0x01d000, end: 0x01dfff, name: 'D000〜' },
-              { start: 0x01e000, end: 0x01efff, name: 'E000〜' },
-              { start: 0x01f000, end: 0x01f7ff, name: 'F000〜' },
-              { start: 0x01f800, end: 0x01ffff, name: 'F800〜' },
-
-              { start: 0x020000, end: 0x02ffff, name: '面2（SIP）' },
-              { start: 0x030000, end: 0x03ffff, name: '面3（TIP）' },
-
-              [...Array(10)].map((_, p) => ({
-                  start: ((4 + p) << 16),
-                  end: (((5 + p) << 16) - 1),
-                  name: `面${4 + p} `
-              })),
-
-              { start: 0x0e0000, end: 0x0effff, name: '面14（制御）' },
-              { start: 0x0f0000, end: 0x0fffff, name: '面15（外字A）' },
-              { start: 0x100000, end: 0x10ffff, name: '面16（外字B）' },
-          ].flat();
-
-          static DetailAreaTable = [
-              //
-              // Basic Multilingual Plane
-              //
-
-              { start: 0x000000, end: 0x00007f, name: 'C0 Controls and Basic Latin' },
-              { start: 0x000080, end: 0x0000ff, name: 'C1 Controls and Latin-1 Supplement' },
-
-              { start: 0x000100, end: 0x00017f, name: 'Latin Extended-A' },
-              { start: 0x000180, end: 0x00024f, name: 'Latin Extended-B' },
-              { start: 0x000250, end: 0x0002af, name: 'IPA Extensions' },
-              { start: 0x0002b0, end: 0x0002ff, name: 'Spacing Modifier Letters' },
-
-              { start: 0x000300, end: 0x00036f, name: 'Combining Diacritical Marks' },
-              { start: 0x000370, end: 0x0003ff, name: 'Greek and Coptic' },
-
-              { start: 0x000400, end: 0x0004ff, name: 'Cyrillic' },
-
-              { start: 0x000500, end: 0x00052f, name: 'Cyrillic Supplement' },
-              { start: 0x000530, end: 0x00058f, name: 'Armenian' },
-              { start: 0x000590, end: 0x0005ff, name: 'Hebrew' },
-
-              { start: 0x000600, end: 0x0006ff, name: 'Arabic' },
-
-              { start: 0x000700, end: 0x00074f, name: 'Syriac' },
-              { start: 0x000750, end: 0x00077f, name: 'Arabic Supplement' },
-              { start: 0x000780, end: 0x0007bf, name: 'Thaana' },
-              { start: 0x0007c0, end: 0x0007ff, name: 'NKo' },
-
-              { start: 0x000800, end: 0x00083f, name: 'Samaritan' },
-              { start: 0x000840, end: 0x00085f, name: 'Mandaic' },
-              { start: 0x000860, end: 0x00086f, name: 'Syriac Supplement' },
-              { start: 0x000870, end: 0x00089f, name: 'Arabic Extended-B' },
-              { start: 0x0008a0, end: 0x0008ff, name: 'Arabic Extended-A' },
-
-              { start: 0x000900, end: 0x00097f, name: 'Devanagari' },
-              { start: 0x000980, end: 0x0009ff, name: 'Bengali' },
-
-              { start: 0x000a00, end: 0x000a7f, name: 'Gurmukhi' },
-              { start: 0x000a80, end: 0x000aff, name: 'Gujarati' },
-
-              { start: 0x000b00, end: 0x000b7f, name: 'Oriya' },
-              { start: 0x000b80, end: 0x000bff, name: 'Tamil' },
-
-              { start: 0x000c00, end: 0x000c7f, name: 'Telugu' },
-              { start: 0x000c80, end: 0x000cff, name: 'Kannada' },
-
-              { start: 0x000d00, end: 0x000d7f, name: 'Malayalam' },
-              { start: 0x000d80, end: 0x000dff, name: 'Sinhala' },
-
-              { start: 0x000e00, end: 0x000e7f, name: 'Thai' },
-              { start: 0x000e80, end: 0x000eff, name: 'Lao' },
-
-              { start: 0x000f00, end: 0x000fff, name: 'Tibetan' },
-
-              { start: 0x001000, end: 0x00109f, name: 'Myanmar' },
-              { start: 0x0010a0, end: 0x0010ff, name: 'Georgian' },
-
-              { start: 0x001100, end: 0x0011ff, name: 'Hangul Jamo' },
-
-              { start: 0x001200, end: 0x00137f, name: 'Ethiopic' },
-              { start: 0x001380, end: 0x00139f, name: 'Ethiopic Supplement' },
-              { start: 0x0013a0, end: 0x0013ff, name: 'Cherokee' },
-
-              { start: 0x001400, end: 0x00167f, name: 'Unified Canadian Aboriginal Syllabics' },
-              { start: 0x001680, end: 0x00169f, name: 'Ogham' },
-              { start: 0x0016a0, end: 0x0016ff, name: 'Runic' },
-
-              { start: 0x001700, end: 0x00171f, name: 'Tagalog' },
-              { start: 0x001720, end: 0x00173f, name: 'Hanunoo' },
-              { start: 0x001740, end: 0x00175f, name: 'Buhid' },
-              { start: 0x001760, end: 0x00177f, name: 'Tagbanwa' },
-              { start: 0x001780, end: 0x0017ff, name: 'Khmer' },
-
-              { start: 0x001800, end: 0x0018af, name: 'Mongolian' },
-              { start: 0x0018b0, end: 0x0018ff, name: 'Unified Canadian Aboriginal Syllabics Extended' },
-
-              { start: 0x001900, end: 0x00194f, name: 'Limbu' },
-              { start: 0x001950, end: 0x00197f, name: 'Tai Le' },
-              { start: 0x001980, end: 0x0019df, name: 'New Tai Lue' },
-              { start: 0x0019e0, end: 0x0019ff, name: 'Khmer Symbols' },
-
-              { start: 0x001a00, end: 0x001a1f, name: 'Buginese' },
-              { start: 0x001a20, end: 0x001aaf, name: 'Tai Tham' },
-              { start: 0x001ab0, end: 0x001aff, name: 'Combining Diacritical Marks Extended' },
-
-              { start: 0x001b00, end: 0x001b7f, name: 'Balinese' },
-              { start: 0x001b80, end: 0x001bbf, name: 'Sundanese' },
-              { start: 0x001bc0, end: 0x001bff, name: 'Batak' },
-
-              { start: 0x001c00, end: 0x001c4f, name: 'Lepcha' },
-              { start: 0x001c50, end: 0x001c7f, name: 'Ol Chiki' },
-              { start: 0x001c80, end: 0x001c8f, name: 'Cyrillic Extended-C' },
-              { start: 0x001c90, end: 0x001cbf, name: 'Georgian Extended' },
-              { start: 0x001cc0, end: 0x001ccf, name: 'Sundanese Supplement' },
-              { start: 0x001cd0, end: 0x001cff, name: 'Vedic Extensions' },
-
-              { start: 0x001d00, end: 0x001d7f, name: 'Phonetic Extensions' },
-              { start: 0x001d80, end: 0x001dbf, name: 'Phonetic Extensions Supplement' },
-              { start: 0x001dc0, end: 0x001dff, name: 'Combining Diacritical Marks Supplement' },
-
-              { start: 0x001e00, end: 0x001eff, name: 'Latin Extended Additional' },
-
-              { start: 0x001f00, end: 0x001fff, name: 'Greek Extended' },
-
-              { start: 0x002000, end: 0x00206f, name: 'General Punctuation' },
-              { start: 0x002070, end: 0x00209f, name: 'Superscripts and Subscripts' },
-              { start: 0x0020a0, end: 0x0020cf, name: 'Currency Symbols' },
-              { start: 0x0020d0, end: 0x0020ff, name: 'Combining Diacritical Marks for Symbols' },
-
-              { start: 0x002100, end: 0x00214f, name: 'Letterlike Symbols' },
-              { start: 0x002150, end: 0x00218f, name: 'Number Forms' },
-              { start: 0x002190, end: 0x0021ff, name: 'Arrows' },
-
-              { start: 0x002200, end: 0x0022ff, name: 'Mathematical Operators' },
-
-              { start: 0x002300, end: 0x0023ff, name: 'Miscellaneous Technical' },
-
-              { start: 0x002400, end: 0x00243f, name: 'Control Pictures' },
-              { start: 0x002440, end: 0x00245f, name: 'Optical Character Recognition' },
-              { start: 0x002460, end: 0x0024ff, name: 'Enclosed Alphanumerics' },
-
-              { start: 0x002500, end: 0x00257f, name: 'Box Drawing' },
-              { start: 0x002580, end: 0x00259f, name: 'Block Elements' },
-              { start: 0x0025a0, end: 0x0025ff, name: 'Geometric Shapes' },
-
-              { start: 0x002600, end: 0x0026ff, name: 'Miscellaneous Symbols' },
-
-              { start: 0x002700, end: 0x0027bf, name: 'Dingbats' },
-              { start: 0x0027c0, end: 0x0027ef, name: 'Miscellaneous Mathematical Symbols-A' },
-              { start: 0x0027f0, end: 0x0027ff, name: 'Supplemental Arrows-A' },
-
-              { start: 0x002800, end: 0x0028ff, name: 'Braille Patterns' },
-
-              { start: 0x002900, end: 0x00297f, name: 'Supplemental Arrows-B' },
-              { start: 0x002980, end: 0x0029ff, name: 'Miscellaneous Mathematical Symbols-B' },
-
-              { start: 0x002a00, end: 0x002aff, name: 'Supplemental Mathematical Operators' },
-
-              { start: 0x002b00, end: 0x002bff, name: 'Miscellaneous Symbols and Arrows' },
-
-              { start: 0x002c00, end: 0x002c5f, name: 'Glagolitic' },
-              { start: 0x002c60, end: 0x002c7f, name: 'Latin Extended-C' },
-              { start: 0x002c80, end: 0x002cff, name: 'Coptic' },
-
-              { start: 0x002d00, end: 0x002d2f, name: 'Georgian Supplement' },
-              { start: 0x002d30, end: 0x002d7f, name: 'Tifinagh' },
-              { start: 0x002d80, end: 0x002ddf, name: 'Ethiopic Extended' },
-              { start: 0x002de0, end: 0x002dff, name: 'Cyrillic Extended-A' },
-
-              { start: 0x002e00, end: 0x002e7f, name: 'Supplemental Punctuation' },
-              { start: 0x002e80, end: 0x002eff, name: 'CJK Radicals Supplement' },
-
-              { start: 0x002f00, end: 0x002fdf, name: 'Kangxi Radicals' },
-              { start: 0x002fe0, end: 0x002fef, name: UnicodeViewer.UndefinedName },
-              { start: 0x002ff0, end: 0x002fff, name: 'Ideographic Description Characters' },
-
-              { start: 0x003000, end: 0x00303f, name: 'CJK Symbols and Punctuation' },
-              { start: 0x003040, end: 0x00309f, name: 'Hiragana' },
-              { start: 0x0030a0, end: 0x0030ff, name: 'Katakana' },
-              { start: 0x003100, end: 0x00312f, name: 'Bopomofo' },
-              { start: 0x003130, end: 0x00318f, name: 'Hangul Compatibility Jamo' },
-              { start: 0x003190, end: 0x00319f, name: 'Kanbun' },
-              { start: 0x0031a0, end: 0x0031bf, name: 'Bopomofo Extended' },
-              { start: 0x0031c0, end: 0x0031ef, name: 'CJK Strokes' },
-              { start: 0x0031f0, end: 0x0031ff, name: 'Katakana Phonetic Extensions' },
-              { start: 0x003200, end: 0x0032ff, name: 'Enclosed CJK Letters and Months' },
-              { start: 0x003300, end: 0x0033ff, name: 'CJK Compatibility' },
-              { start: 0x003400, end: 0x003fff, name: 'CJK Unified Ideographs Extension A [1]' },
-              { start: 0x004000, end: 0x004dbf, name: 'CJK Unified Ideographs Extension A [2]' },
-              { start: 0x003400, end: 0x004dbf, name: 'CJK Unified Ideographs Extension A', large: true },
-              { start: 0x004dc0, end: 0x004dff, name: 'Yijing Hexagram Symbols' },
-
-              { start: 0x004e00, end: 0x004fff, name: 'CJK Unified Ideographs [1]' },
-              { start: 0x005000, end: 0x005fff, name: 'CJK Unified Ideographs [2]' },
-              { start: 0x006000, end: 0x006fff, name: 'CJK Unified Ideographs [3]' },
-              { start: 0x007000, end: 0x007fff, name: 'CJK Unified Ideographs [4]' },
-              { start: 0x008000, end: 0x008fff, name: 'CJK Unified Ideographs [5]' },
-              { start: 0x009000, end: 0x009fff, name: 'CJK Unified Ideographs [6]' },
-              { start: 0x004e00, end: 0x009fff, name: 'CJK Unified Ideographs', large: true },
-
-              { start: 0x00a000, end: 0x00a48f, name: 'Yi Syllables' },
-              { start: 0x00a490, end: 0x00a4cf, name: 'Yi Radicals' },
-              { start: 0x00a4d0, end: 0x00a4ff, name: 'Lisu' },
-
-              { start: 0x00a500, end: 0x00a63f, name: 'Vai' },
-              { start: 0x00a640, end: 0x00a69f, name: 'Cyrillic Extended-B' },
-              { start: 0x00a6a0, end: 0x00a6ff, name: 'Bamum' },
-
-              { start: 0x00a700, end: 0x00a71f, name: 'Modifier Tone Letters' },
-              { start: 0x00a720, end: 0x00a7ff, name: 'Latin Extended-D' },
-
-              { start: 0x00a800, end: 0x00a82f, name: 'Syloti Nagri' },
-              { start: 0x00a830, end: 0x00a83f, name: 'Common Indic Number Forms' },
-              { start: 0x00a840, end: 0x00a87f, name: 'Phags-pa' },
-              { start: 0x00a880, end: 0x00a8df, name: 'Saurashtra' },
-              { start: 0x00a8e0, end: 0x00a8ff, name: 'Devanagari Extended' },
-
-              { start: 0x00a900, end: 0x00a92f, name: 'Kayah Li' },
-              { start: 0x00a930, end: 0x00a95f, name: 'Rejang' },
-              { start: 0x00a960, end: 0x00a97f, name: 'Hangul Jamo Extended-A' },
-              { start: 0x00a980, end: 0x00a9df, name: 'Javanese' },
-              { start: 0x00a9e0, end: 0x00a9ff, name: 'Myanmar Extended-B' },
-
-              { start: 0x00aa00, end: 0x00aa5f, name: 'Cham' },
-              { start: 0x00aa60, end: 0x00aa7f, name: 'Myanmar Extended-A' },
-              { start: 0x00aa80, end: 0x00aadf, name: 'Tai Viet' },
-              { start: 0x00aae0, end: 0x00aaff, name: 'Meetei Mayek Extensions' },
-
-              { start: 0x00ab00, end: 0x00ab2f, name: 'Ethiopic Extended-A' },
-              { start: 0x00ab30, end: 0x00ab6f, name: 'Latin Extended-E' },
-              { start: 0x00ab70, end: 0x00abbf, name: 'Cherokee Supplement' },
-              { start: 0x00abc0, end: 0x00abff, name: 'Meetei Mayek' },
-
-              { start: 0x00ac00, end: 0x00afff, name: 'Hangul Syllables [1]' },
-              { start: 0x00b000, end: 0x00bfff, name: 'Hangul Syllables [2]' },
-              { start: 0x00c000, end: 0x00cfff, name: 'Hangul Syllables [3]' },
-              { start: 0x00d000, end: 0x00d7af, name: 'Hangul Syllables [4]' },
-              { start: 0x00ac00, end: 0x00d7af, name: 'Hangul Syllables', large: true },
-
-              { start: 0x00d7b0, end: 0x00d7ff, name: 'Hangul Jamo Extended-B' },
-
-              { start: 0x00d800, end: 0x00dfff, name: 'Surrogate Codes' },
-
-              { start: 0x00e000, end: 0x00efff, name: 'Private Use [1]' },
-              { start: 0x00f000, end: 0x00f8ff, name: 'Private Use [2]' },
-              { start: 0x00e000, end: 0x00f8ff, name: 'Private Use', large: true },
-
-              { start: 0x00f900, end: 0x00faff, name: 'CJK Compatibility Ideographs' },
-              { start: 0x00fb00, end: 0x00fb4f, name: 'Alphabetic Presentation Forms' },
-              { start: 0x00fb50, end: 0x00fdff, name: 'Arabic Presentation Forms-A' },
-
-              { start: 0x00fe00, end: 0x00fe0f, name: 'Variation Selectors' },
-              { start: 0x00fe10, end: 0x00fe1f, name: 'Vertical Forms' },
-              { start: 0x00fe20, end: 0x00fe2f, name: 'Combining Half Marks' },
-              { start: 0x00fe30, end: 0x00fe4f, name: 'CJK Compatibility Forms' },
-              { start: 0x00fe50, end: 0x00fe6f, name: 'Small Form Variants' },
-              { start: 0x00fe70, end: 0x00feff, name: 'Arabic Presentation Forms-B' },
-
-              { start: 0x00ff00, end: 0x00ffef, name: 'Halfwidth and Fullwidth Forms' },
-              { start: 0x00fff0, end: 0x00ffff, name: 'Specials' },
-
-              //
-              // Supplementary Multilingual Plane
-              //
-
-              { start: 0x010000, end: 0x01007f, name: 'Linear B Syllabary' },
-              { start: 0x010080, end: 0x0100ff, name: 'Linear B Ideograms' },
-
-              { start: 0x010100, end: 0x01013f, name: 'Aegean Numbers' },
-              { start: 0x010140, end: 0x01018f, name: 'Ancient Greek Numbers' },
-              { start: 0x010190, end: 0x0101cf, name: 'Ancient Symbols' },
-              { start: 0x0101d0, end: 0x0101ff, name: 'Phaistos Disc' },
-
-              { start: 0x010200, end: 0x01027f, name: UnicodeViewer.UndefinedName },
-              { start: 0x010280, end: 0x01029f, name: 'Lycian' },
-              { start: 0x0102a0, end: 0x0102df, name: 'Carian' },
-              { start: 0x0102e0, end: 0x0102ff, name: 'Coptic Epact Numbers' },
-
-              { start: 0x010300, end: 0x01032f, name: 'Old Italic' },
-              { start: 0x010330, end: 0x01034f, name: 'Gothic' },
-              { start: 0x010350, end: 0x01037f, name: 'Old Permic' },
-              { start: 0x010380, end: 0x01039f, name: 'Ugaritic' },
-              { start: 0x0103a0, end: 0x0103df, name: 'Old Persian' },
-              { start: 0x0103e0, end: 0x0103ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x010400, end: 0x01044f, name: 'Deseret' },
-              { start: 0x010450, end: 0x01047f, name: 'Shavian' },
-              { start: 0x010480, end: 0x0104af, name: 'Osmanya' },
-              { start: 0x0104b0, end: 0x0104ff, name: 'Osage' },
-
-              { start: 0x010500, end: 0x01052f, name: 'Elbasan' },
-              { start: 0x010530, end: 0x01056f, name: 'Caucasian Albanian' },
-              { start: 0x010570, end: 0x0105bf, name: 'Vithkuqi' },
-              { start: 0x0105c0, end: 0x0105ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x010600, end: 0x01077f, name: 'Linear A' },
-              { start: 0x010780, end: 0x0107bf, name: 'Latin Extended-F' },
-              { start: 0x0107c0, end: 0x0107ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x010800, end: 0x01083f, name: 'Cypriot Syllabary' },
-              { start: 0x010840, end: 0x01085f, name: 'Imperial Aramaic' },
-              { start: 0x010860, end: 0x01087f, name: 'Palmyrene' },
-              { start: 0x010880, end: 0x0108af, name: 'Nabataean' },
-              { start: 0x0108b0, end: 0x0108df, name: UnicodeViewer.UndefinedName },
-              { start: 0x0108e0, end: 0x0108ff, name: 'Hatran' },
-
-              { start: 0x010900, end: 0x01091f, name: 'Phoenician' },
-              { start: 0x010920, end: 0x01093f, name: 'Lydian' },
-              { start: 0x010940, end: 0x01097f, name: UnicodeViewer.UndefinedName },
-              { start: 0x010980, end: 0x01099f, name: 'Meroitic Hieroglyphs' },
-              { start: 0x0109a0, end: 0x0109ff, name: 'Meroitic Cursive' },
-
-              { start: 0x010a00, end: 0x010a5f, name: 'Kharoshthi' },
-              { start: 0x010a60, end: 0x010a7f, name: 'Old South Arabian' },
-              { start: 0x010a80, end: 0x010a9f, name: 'Old North Arabian' },
-              { start: 0x010aa0, end: 0x010abf, name: UnicodeViewer.UndefinedName },
-              { start: 0x010ac0, end: 0x010aff, name: 'Manichaean' },
-
-              { start: 0x010b00, end: 0x010b3f, name: 'Avestan' },
-              { start: 0x010b40, end: 0x010b5f, name: 'Inscriptional Parthian' },
-              { start: 0x010b60, end: 0x010b7f, name: 'Inscriptional Pahlavi' },
-              { start: 0x010b80, end: 0x010baf, name: 'Psalter Pahlavi' },
-              { start: 0x010bb0, end: 0x010bff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x010c00, end: 0x010c4f, name: 'Old Turkic' },
-              { start: 0x010c50, end: 0x010c7f, name: UnicodeViewer.UndefinedName },
-              { start: 0x010c80, end: 0x010cff, name: 'Old Hungarian' },
-
-              { start: 0x010d00, end: 0x010d3f, name: 'Hanifi Rohingya' },
-              { start: 0x010d40, end: 0x010dff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x010e00, end: 0x010e5f, name: UnicodeViewer.UndefinedName },
-              { start: 0x010e60, end: 0x010e7f, name: 'Rumi Numeral Symbols' },
-              { start: 0x010e80, end: 0x010ebf, name: 'Yezidi' },
-              { start: 0x010ec0, end: 0x010eff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x010f00, end: 0x010f2f, name: 'Old Sogdian' },
-              { start: 0x010f30, end: 0x010f6f, name: 'Sogdian' },
-              { start: 0x010f70, end: 0x010faf, name: 'Old Uyghur' },
-              { start: 0x010fb0, end: 0x010fdf, name: 'Chorasmian' },
-              { start: 0x010fe0, end: 0x010fff, name: 'Elymaic' },
-
-              { start: 0x011000, end: 0x01107f, name: 'Brahmi' },
-              { start: 0x011080, end: 0x0110cf, name: 'Kaithi' },
-              { start: 0x0110d0, end: 0x0110ff, name: 'Sora Sompeng' },
-
-              { start: 0x011100, end: 0x01114f, name: 'Chakma' },
-              { start: 0x011150, end: 0x01117f, name: 'Mahajani' },
-              { start: 0x011180, end: 0x0111df, name: 'Sharada' },
-              { start: 0x0111e0, end: 0x0111ff, name: 'Sinhala Archaic Numbers' },
-
-              { start: 0x011200, end: 0x01124f, name: 'Khojki' },
-              { start: 0x011250, end: 0x01127f, name: UnicodeViewer.UndefinedName },
-              { start: 0x011280, end: 0x0112af, name: 'Multani' },
-              { start: 0x0112b0, end: 0x0112ff, name: 'Khudawadi' },
-
-              { start: 0x011300, end: 0x01137f, name: 'Grantha' },
-              { start: 0x011380, end: 0x0113ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x011400, end: 0x01147f, name: 'Newa' },
-              { start: 0x011480, end: 0x0114df, name: 'Tirhuta' },
-              { start: 0x0114e0, end: 0x01157f, name: UnicodeViewer.UndefinedName },
-              { start: 0x011580, end: 0x0115ff, name: 'Siddham' },
-
-              { start: 0x011600, end: 0x01165f, name: 'Modi' },
-              { start: 0x011660, end: 0x01167f, name: 'Mongolian Supplement' },
-              { start: 0x011680, end: 0x0116cf, name: 'Takri' },
-              { start: 0x0116d0, end: 0x0116ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x011700, end: 0x01174f, name: 'Ahom' },
-              { start: 0x011750, end: 0x0117ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x011800, end: 0x01184f, name: 'Dogra' },
-              { start: 0x011850, end: 0x01189f, name: UnicodeViewer.UndefinedName },
-              { start: 0x0118a0, end: 0x0118ff, name: 'Warang Citi' },
-
-              { start: 0x011900, end: 0x01195f, name: 'Dives Akuru' },
-              { start: 0x011960, end: 0x01199f, name: UnicodeViewer.UndefinedName },
-              { start: 0x0119a0, end: 0x0119ff, name: 'Nandinagari' },
-
-              { start: 0x011a00, end: 0x011a4f, name: 'Zanabazar Square' },
-              { start: 0x011a50, end: 0x011aaf, name: 'Soyombo' },
-              { start: 0x011ab0, end: 0x011abf, name: 'Unified Canadian Aboriginal Syllabics Extended-A' },
-              { start: 0x011ac0, end: 0x011aff, name: 'Pau Cin Hau' },
-
-              { start: 0x011b00, end: 0x011bff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x011c00, end: 0x011c6f, name: 'Bhaiksuki' },
-              { start: 0x011c70, end: 0x011cbf, name: 'Marchen' },
-              { start: 0x011cc0, end: 0x011cff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x011d00, end: 0x011d5f, name: 'Masaram Gondi' },
-              { start: 0x011d60, end: 0x011daf, name: 'Gunjala Gondi' },
-              { start: 0x011db0, end: 0x011edf, name: UnicodeViewer.UndefinedName },
-              { start: 0x011ee0, end: 0x011eff, name: 'Makasar' },
-
-              { start: 0x011f00, end: 0x011faf, name: UnicodeViewer.UndefinedName },
-              { start: 0x011fb0, end: 0x011fbf, name: 'Lisu Supplement' },
-              { start: 0x011fc0, end: 0x011fff, name: 'Tamil Supplement' },
-
-              { start: 0x012000, end: 0x0123ff, name: 'Cuneiform' },
-              { start: 0x012400, end: 0x01247f, name: 'Cuneiform Numbers and Punctuation' },
-              { start: 0x012480, end: 0x01254f, name: 'Early Dynastic Cuneiform' },
-              { start: 0x012550, end: 0x012f8f, name: UnicodeViewer.UndefinedName },
-              { start: 0x012f90, end: 0x012fff, name: 'Cypro-Minoan' },
-
-              { start: 0x013000, end: 0x01342f, name: 'Egyptian Hieroglyphs' },
-              { start: 0x013430, end: 0x01343f, name: 'Egyptian Hieroglyph Format Controls' },
-              { start: 0x013440, end: 0x013fff, name: UnicodeViewer.UndefinedName },
-              { start: 0x014000, end: 0x0143ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x014400, end: 0x01467f, name: 'Anatolian Hieroglyphs' },
-              { start: 0x014680, end: 0x014fff, name: UnicodeViewer.UndefinedName },
-              { start: 0x015000, end: 0x015fff, name: UnicodeViewer.UndefinedName },
-              { start: 0x016000, end: 0x0167ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x016800, end: 0x016a3f, name: 'Bamum Supplement' },
-              { start: 0x016a40, end: 0x016a6f, name: 'Mro' },
-              { start: 0x016a70, end: 0x016acf, name: 'Tangsa' },
-              { start: 0x016ad0, end: 0x016aff, name: 'Bassa Vah' },
-
-              { start: 0x016b00, end: 0x016b8f, name: 'Pahawh Hmong' },
-              { start: 0x016b90, end: 0x016e3f, name: UnicodeViewer.UndefinedName },
-              { start: 0x016e40, end: 0x016e9f, name: 'Medefaidrin' },
-              { start: 0x016ea0, end: 0x016eff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x016f00, end: 0x016f9f, name: 'Miao' },
-              { start: 0x016fa0, end: 0x016fdf, name: UnicodeViewer.UndefinedName },
-              { start: 0x016fe0, end: 0x016fff, name: 'Ideographic Symbols and Punctuation' },
-
-              { start: 0x017000, end: 0x017fff, name: 'Tangut [1]' },
-              { start: 0x018000, end: 0x0187ff, name: 'Tangut [2]' },
-              { start: 0x017000, end: 0x0187ff, name: 'Tangut', large: true },
-              { start: 0x018800, end: 0x018aff, name: 'Tangut Components' },
-
-              { start: 0x018b00, end: 0x018cff, name: 'Khitan Small Script' },
-
-              { start: 0x018d00, end: 0x018d0f, name: 'Tangut Supplement' },
-              { start: 0x018d10, end: 0x018fff, name: UnicodeViewer.UndefinedName },
-              { start: 0x019000, end: 0x019fff, name: UnicodeViewer.UndefinedName },
-              { start: 0x01a000, end: 0x01afef, name: UnicodeViewer.UndefinedName },
-              { start: 0x01aff0, end: 0x01afff, name: 'Kana Extended-B' },
-
-              { start: 0x01b000, end: 0x01b0ff, name: 'Kana Supplement' },
-
-              { start: 0x01b100, end: 0x01b12f, name: 'Kana Extended-A' },
-              { start: 0x01b130, end: 0x01b16f, name: 'Small Kana Extension' },
-              { start: 0x01b170, end: 0x01b2ff, name: 'Nushu' },
-
-              { start: 0x01b300, end: 0x01bbff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x01bc00, end: 0x01bc9f, name: 'Duployan' },
-              { start: 0x01bca0, end: 0x01bcaf, name: 'Shorthand Format Controls' },
-              { start: 0x01bcb0, end: 0x01bfff, name: UnicodeViewer.UndefinedName },
-              { start: 0x01c000, end: 0x01ceff, name: UnicodeViewer.UndefinedName },
-              { start: 0x01cf00, end: 0x01cfcf, name: 'Znamenny Musical Notation' },
-              { start: 0x01cfd0, end: 0x01cfff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x01d000, end: 0x01d0ff, name: 'Byzantine Musical Symbols' },
-
-              { start: 0x01d100, end: 0x01d1ff, name: 'Musical Symbols' },
-
-              { start: 0x01d200, end: 0x01d24f, name: 'Ancient Greek Musical Notation' },
-              { start: 0x01d250, end: 0x01d2df, name: UnicodeViewer.UndefinedName },
-              { start: 0x01d2e0, end: 0x01d2ff, name: 'Mayan Numerals' },
-
-              { start: 0x01d300, end: 0x01d35f, name: 'Tai Xuan Jing Symbols' },
-              { start: 0x01d360, end: 0x01d37f, name: 'Counting Rod Numerals' },
-              { start: 0x01d380, end: 0x01d3ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x01d400, end: 0x01d7ff, name: 'Mathematical Alphanumeric Symbols' },
-
-              { start: 0x01d800, end: 0x01daaf, name: 'Sutton SignWriting' },
-              { start: 0x01dab0, end: 0x01deff, name: UnicodeViewer.UndefinedName },
-              { start: 0x01df00, end: 0x01dfff, name: 'Latin Extended-G' },
-
-              { start: 0x01e000, end: 0x01e02f, name: 'Glagolitic Supplement' },
-              { start: 0x01e030, end: 0x01e0ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x01e100, end: 0x01e14f, name: 'Nyiakeng Puachue Hmong' },
-              { start: 0x01e150, end: 0x01e28f, name: UnicodeViewer.UndefinedName },
-              { start: 0x01e290, end: 0x01e2bf, name: 'Toto' },
-              { start: 0x01e2c0, end: 0x01e2ff, name: 'Wancho' },
-
-              { start: 0x01e300, end: 0x01e7df, name: UnicodeViewer.UndefinedName },
-              { start: 0x01e7e0, end: 0x01e7ff, name: 'Ethiopic Extended-B' },
-
-              { start: 0x01e800, end: 0x01e8df, name: 'Mende Kikakui' },
-              { start: 0x01e8e0, end: 0x01e8ff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x01e900, end: 0x01e95f, name: 'Adlam' },
-              { start: 0x01e960, end: 0x01ec6f, name: UnicodeViewer.UndefinedName },
-              { start: 0x01ec70, end: 0x01ecbf, name: 'Indic Siyaq Numbers' },
-              { start: 0x01ecc0, end: 0x01ecff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x01ed00, end: 0x01ed4f, name: 'Ottoman Siyaq Numbers' },
-              { start: 0x01ed50, end: 0x01edff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x01ee00, end: 0x01eeff, name: 'Arabic Mathematical Alphabetic Symbols' },
-
-              { start: 0x01ef00, end: 0x01efff, name: UnicodeViewer.UndefinedName },
-
-              { start: 0x01f000, end: 0x01f02f, name: 'Mahjong Tiles' },
-              { start: 0x01f030, end: 0x01f09f, name: 'Domino Tiles' },
-              { start: 0x01f0a0, end: 0x01f0ff, name: 'Playing Cards' },
-
-              { start: 0x01f100, end: 0x01f1ff, name: 'Enclosed Alphanumeric Supplement' },
-
-              { start: 0x01f200, end: 0x01f2ff, name: 'Enclosed Ideographic Supplement' },
-
-              { start: 0x01f300, end: 0x01f5ff, name: 'Miscellaneous Symbols and Pictographs' },
-
-              { start: 0x01f600, end: 0x01f64f, name: 'Emoticons' },
-              { start: 0x01f650, end: 0x01f67f, name: 'Ornamental Dingbats' },
-              { start: 0x01f680, end: 0x01f6ff, name: 'Transport and Map Symbols' },
-
-              { start: 0x01f700, end: 0x01f77f, name: 'Alchemical Symbols' },
-              { start: 0x01f780, end: 0x01f7ff, name: 'Geometric Shapes Extended' },
-
-              { start: 0x01f800, end: 0x01f8ff, name: 'Supplemental Arrows-C' },
-
-              { start: 0x01f900, end: 0x01f9ff, name: 'Supplemental Symbols and Pictographs' },
-
-              { start: 0x01fa00, end: 0x01fa6f, name: 'Chess Symbols' },
-              { start: 0x01fa70, end: 0x01faff, name: 'Symbols and Pictographs Extended-A' },
-
-              { start: 0x01fb00, end: 0x01fbff, name: 'Symbols for Legacy Computing' },
-
-              { start: 0x01fc00, end: 0x01ff7f, name: UnicodeViewer.UndefinedName },
-              { start: 0x01ff80, end: 0x01ffff, name: 'Unassigned' },
-
-              //
-              // Supplementary Ideographic Plane
-              //
-
-              UnicodeViewer.makeAreaTable(2, 'CJK Unified Ideographs Extension B', 7),
-              UnicodeViewer.makeAreaTable(2, 'CJK Unified Ideographs Extension C', 4, 7),
-              { start: 0x02b000, end: 0x02b73f, name: 'CJK Unified Ideographs Extension C [B]' },
-              { start: 0x02b740, end: 0x02b81f, name: 'CJK Unified Ideographs Extension D [B]' },
-              { start: 0x02b820, end: 0x02ceaf, name: 'CJK Unified Ideographs Extension E [B,C]' },
-              { start: 0x02ceb0, end: 0x02dfff, name: 'CJK Unified Ideographs Extension F [C,D]' },
-              { start: 0x02e000, end: 0x02efff, name: 'CJK Unified Ideographs Extension F [E]' },
-              { start: 0x02f000, end: 0x02f7ff, name: 'CJK Unified Ideographs Extension F [F]' },
-              { start: 0x02f800, end: 0x02ff7f, name: 'CJK Compatibility Ideographs Supplement' },
-              { start: 0x02ff80, end: 0x02ffff, name: 'Unassigned' },
-
-              //
-              // Tertiary Ideographic Plane
-              //
-
-              { start: 0x030000, end: 0x03134f, name: 'CJK Unified Ideographs Extension G' },
-              { start: 0x031350, end: 0x031fff, name: UnicodeViewer.UndefinedName + ' [1]' },
-              UnicodeViewer.makeAreaTable(3, UnicodeViewer.UndefinedName, 13, 2),
-              { start: 0x03f000, end: 0x03ff7f, name: UnicodeViewer.UndefinedName + ' [F]' },
-              { start: 0x03ff80, end: 0x03ffff, name: 'Unassigned' },
-
-              //
-              // Plane 4 - 13
-              //
-
-              [...Array(10)].map((_, p) => ([
-                  UnicodeViewer.makeAreaTable(4+p, UnicodeViewer.UndefinedName, 15),
-                  { start: ((4+p)<<16)+0xf000, end: ((4+p)<<16)+0xff7f, name: UnicodeViewer.UndefinedName + ' [F]' },
-                  { start: ((4+p)<<16)+0xff80, end: (((5+p)<<16)-1), name: 'Unassigned' },
-              ]).flat()).flat(),
-
-              //
-              // Plane 14
-              //
-              { start: 0x0e0000, end: 0x0e007f, name: 'Tags' },
-              { start: 0x0e0080, end: 0x0e00ff, name: UnicodeViewer.UndefinedName },
-              { start: 0x0e0100, end: 0x0e01ef, name: 'Variation Selectors Supplement' },
-              { start: 0x0e01f0, end: 0x0e0fff, name: UnicodeViewer.UndefinedName + ' [0]' },
-              UnicodeViewer.makeAreaTable(14, UnicodeViewer.UndefinedName, 14, 1),
-              { start: 0x0ef000, end: 0x0ef7ff, name: UnicodeViewer.UndefinedName + ' [F]' },
-              { start: 0x0eff80, end: 0x0effff, name: 'Unassigned' },
-
-              //
-              // Supplementary Private Use Area
-              //
-              UnicodeViewer.makeAreaTable(15, 'Supplementary Private Use Area-A', 15),
-              { start: 0x0ff000, end: 0x0ff7ff, name: 'Supplementary Private Use Area-A [F]' },
-              { start: 0x0fff80, end: 0x0fffff, name: 'Unassigned' },
-
-              UnicodeViewer.makeAreaTable(16, 'Supplementary Private Use Area-B', 15),
-              { start: 0x10f000, end: 0x10f7ff, name: 'Supplementary Private Use Area-B [F]' },
-              { start: 0x10ff80, end: 0x10ffff, name: 'Unassigned' },
-          ].flat();
-
-          static ControlCharacterMap = UnicodeViewer.defineProperties(
-              {
-                  0x0000: 'NUL', 0x0001: 'SOH', 0x0002: 'STX', 0x0003: 'ETX',
-                  0x0004: 'EOT', 0x0005: 'ENQ', 0x0006: 'ACK', 0x0007: 'BEL',
-                  0x0008: 'BS',  0x0009: 'HT',  0x000a: 'LF',  0x000b: 'VT',
-                  0x000c: 'FF',  0x000d: 'CR',  0x000e: 'SO',  0x000f: 'SI',
-                  0x0010: 'DLE', 0x0011: 'DC1', 0x0012: 'DC2', 0x0013: 'DC3',
-                  0x0014: 'DC4', 0x0015: 'NAK', 0x0016: 'SYN', 0x0017: 'ETB',
-                  0x0018: 'CAN', 0x0019: 'EM',  0x001a: 'SUB', 0x001b: 'ESC',
-                  0x001c: 'FS',  0x001d: 'GS',  0x001e: 'RS',  0x001f: 'US',
-                  0x0020: 'SP',
-                  0x007f: 'DEL',
-                  0x0080: 'XXX', 0x0081: 'XXX', 0x0082: 'BPH', 0x0083: 'NBH',
-                  0x0084: 'IND', 0x0085: 'NEL', 0x0086: 'SSA', 0x0087: 'ESA',
-                  0x0088: 'HTS', 0x0089: 'HTJ', 0x008a: 'VTS', 0x008b: 'PLD',
-                  0x008c: 'PLU', 0x008d: 'RI',  0x008e: 'SS2', 0x008f: 'SS3',
-                  0x0090: 'DCS', 0x0091: 'PU1', 0x0092: 'PU2', 0x0093: 'STS',
-                  0x0094: 'CCH', 0x0095: 'MW',  0x0096: 'SPA', 0x0097: 'EPA',
-                  0x0098: 'SOS', 0x0099: 'XXX', 0x009a: 'SCI', 0x009b: 'CSI',
-                  0x009c: 'ST',  0x009d: 'OSC', 0x009e: 'PM',  0x009f: 'APC',
-                  0x00a0: 'NB\nSP',  0x00ad: 'SHY\n−',
-
-                  0x034f: 'CGJ',
-                  0x0600: '\u0600',  0x0601: '\u0601',  0x0602: '\u0602',  0x0603: '\u0603',
-                  0x0604: '\u0604',  0x0605: '\u0605',
-                  0x061c: 'ALM',
-                  0x06dd: '\u06dd',
-                  0x070f: '\u070f\nSAM',
-                  0x0890: '\u0890',  0x0891: '\u0891',
-                  0x08e2: '\u08e2',
-                  0x0cf1: '\u0cf1',  0x0cf2: '\u0cf2',
-                  0x0d4e: '\u0d4e',
-                  0x0f0c: '\u0f0c\nNB',
-                  0x1039: '\u1039',
-                  0x115F: 'HC\nF',
-                  0x1160: 'HJ\nF',
-                  0x1680: '\u1680',
-                  0x17b4: 'KIV\nAQ', 0x17b5: 'KIV\nAA',
-                  0x17d2: '\u17d2',
-                  0x180b: 'FV\nS1',
-                  0x180c: 'FV\nS2',  0x180d: 'FV\nS3',  0x180e: 'MV\nS',   0x180f: 'FV\nS4',
-                  0x1a60: '\u1a60',
-                  0x1bab: '\u1bab',
-                  0x1cf5: '\u1cf5', 0x1cf6: '\u1cf6',
-
-                  0x2000: 'NQ\nSP',  0x2001: 'MQ\nSP',  0x2002: 'EN\nSP',  0x2003: 'EM\nSP',
-                  0x2004: '3/M\nSP', 0x2005: '4/M\nSP', 0x2006: '6/M\nSP', 0x2007: 'F\nSP',
-                  0x2008: 'P\nSP',   0x2009: 'TH\nSP',  0x200a: 'H\nSP',   0x200b: 'ZW\nSP',
-                  0x200c: 'ZW\nNJ',  0x200d: 'ZW\nJ',   0x200e: 'LRM',     0x200f: 'RLM',
-                  0x2011: 'NB\n‑',
-                  0x2028: 'L\nSEP',  0x2029: 'P\nSEP',  0x202a: 'LRE',     0x202b: 'RLE',
-                  0x202c: 'PDF',     0x202d: 'LRO',     0x202e: 'RLO',     0x202f: 'NNB\nSP',
-                  0x205f: 'MM\nSP',
-                  0x2060: 'WJ',      0x2061: 'ƒ()',     0x2062: '×',       0x2063: ',',
-                  0x2064: '＋',                         0x2066: 'LRI',     0x2067: 'RLI',
-                  0x2068: 'FSI',     0x2069: 'PDI',     0x206a: 'I\nSS',   0x206b: 'A\nSS',
-                  0x206c: 'I\nAFS',  0x206d: 'A\nAFS',  0x206e: 'NA\nDS',  0x206f: 'NO\nDS',
-                  0x2d7f: '\u2d7f',  0x2e3a: '2M\n\u2e3a', 0x2e3b: '3M\n\u2e3b',
-                  0x3000: 'ID\nSP',  0x303e: '\u303e',
-                  0x3164: 'HF',
-
-                  0xaaf6: '\uaaf6',
-
-                  0xfeff: 'ZWN\nBSP',
-                  0xffa0: 'HW\nHF',
-                  0xfff9: 'IA\nA',   0xfffa: 'IA\nS',   0xfffb: 'IA\nT',
-                  0xfffc: 'OBJ',
-
-                  0x10a3f: '\ud802\ude3f',
-                  0x11003: '\ud804\udc03',
-                  0x11004: '\ud804\udc04',
-                  0x1107f: 'BNJ',
-                  0x110bd: '\ud804\udcbc',
-                  0x110cd: '\ud804\udcbc\n\xa0',
-                  0x11133: '\ud804\udd33',
-                  0x111c2: '\ud804\uddc2', 0x111c3: '\ud804\uddc3',
-                  0x11460: '\ud805\udc60', 0x11461: '\ud805\udc61',
-                  0x1193e: '\ud806\udd3e', 0x1193f: '\ud806\udd3f',
-                  0x11941: '\ud806\udd41',
-                  0x11a3a: '\ud806\ude3a',
-                  0x11a47: '\ud806\ude47',
-                  0x11a84: '\ud806\ude84', 0x11a85: '\ud806\ude85',
-                  0x11a86: '\ud806\ude86', 0x11a87: '\ud806\ude87',
-                  0x11a88: '\ud806\ude88', 0x11a89: '\ud806\ude89',
-                  0x11a99: '\ud806\ude99',
-                  0x11d45: '\ud807\udd45', 0x11d46: '\ud807\udd46',
-                  0x11d97: '\ud807\udd97',
-
-                  0x13430: '\ud80d\udc30', 0x13431: '\ud80d\udc31',
-                  0x13432: '\ud80d\udc32', 0x13433: '\ud80d\udc33',
-                  0x13434: '\ud80d\udc34', 0x13435: '\ud80d\udc35',
-                  0x13436: '\ud80d\udc36', 0x13437: '\ud80d\udc37',
-                  0x13438: '\ud80d\udc38',
-
-                  0x16f8f: '\ud81b\udf8f',
-                  0x16f90: '\ud81b\udf90', 0x16f91: '\ud81b\udf91',
-                  0x16f92: '\ud81b\udf92',
-                  0x16fe4: 'KSS\nF',
-
-                  0x1bc9d: 'DT\nLS',
-                  0x1bca0: '\ud82f\udca0', 0x1bca1: '\ud82f\udca1',
-                  0x1bca2: '\ud82f\udca2', 0x1bca3: '\ud82f\udca3',
-
-                  0x1d159: 'NULL\nNOTE\nHEAD',
-                  0x1d173: 'BEGIN\nBEAM', 0x1d174: 'END\nBEAM',
-                  0x1d175: 'BEGIN\nTIE',  0x1d176: 'END\nTIE',
-                  0x1d177: 'BEGIN\nSLUR', 0x1d178: 'END\nSLUR',
-                  0x1d179: 'BEGIN\nPHR.', 0x1d17a: 'END\nPHR.',
-
-                  0x1da9b: 'SW\nF2',
-                  0x1da9c: 'SW\nF3',  0x1da9d: 'SW\nF4',  0x1da9e: 'SW\nF5',  0x1da9f: 'SW\nF6',
-                  0x1daa1: 'SW\nR2',  0x1daa2: 'SW\nR3',  0x1daa3: 'SW\nR4',
-                  0x1daa4: 'SW\nR5',  0x1daa5: 'SW\nR6',  0x1daa6: 'SW\nR7',  0x1daa7: 'SW\nR8',
-                  0x1daa8: 'SW\nR9',  0x1daa9: 'SW\nR10', 0x1daaa: 'SW\nR11', 0x1daab: 'SW\nR12',
-                  0x1daac: 'SW\nR13', 0x1daad: 'SW\nR14', 0x1daae: 'SW\nR15', 0x1daaf: 'SW\nR16',
-
-                  0x1f1e6: '\ud83c\udde6', 0x1f1e7: '\ud83c\udde7',
-                  0x1f1e8: '\ud83c\udde8', 0x1f1e9: '\ud83c\udde9', 0x1f1ea: '\ud83c\uddea', 0x1f1eb: '\ud83c\uddeb',
-                  0x1f1ec: '\ud83c\uddec', 0x1f1ed: '\ud83c\udded', 0x1f1ee: '\ud83c\uddee', 0x1f1ef: '\ud83c\uddef',
-                  0x1f1f0: '\ud83c\uddf0', 0x1f1f1: '\ud83c\uddf1', 0x1f1f2: '\ud83c\uddf2', 0x1f1f3: '\ud83c\uddf3',
-                  0x1f1f4: '\ud83c\uddf4', 0x1f1f5: '\ud83c\uddf5', 0x1f1f6: '\ud83c\uddf6', 0x1f1f7: '\ud83c\uddf7',
-                  0x1f1f8: '\ud83c\uddf8', 0x1f1f9: '\ud83c\uddf9', 0x1f1fa: '\ud83c\uddfa', 0x1f1fb: '\ud83c\uddfb',
-                  0x1f1fc: '\ud83c\uddfc', 0x1f1fd: '\ud83c\uddfd', 0x1f1fe: '\ud83c\uddfe', 0x1f1ff: '\ud83c\uddff',
-
-                  0xe0001: 'BEGIN\n\ud83c\udff7', 0xe007f: 'END\n\ud83c\udff7',
-              },
-              [...Array(95)].map((_, i) => ([0xe0020 + i, `${String.fromCharCode(0x20+i)}\n\ud83c\udff7`])),
-              [...Array(240)].map((_, i) => ([0xe0100 + i, `VS\n${(i+17).toString()}`])),
-          );
-
-          static CodeMaskSet = UnicodeViewer.makeMaskSet([
-              '00370,8,9','+10,0-3,b,d','+20,2',
-              '00530','+20,7,8','+30,b,c',
-              '00590','+30,8-f','+20,b-e','+10,5-f',
-              '00700,e','+40,b,c',
-              '007b0,2-f',
-              '007f0,b,c',
-              '00820,e,f','+10,f',
-              '00850,c,d,f',
-              '00860,b-f',
-              '00880,f','+10,2-7',
-              '00980,4,d,e','+10,1,2','+10,9','+10,1,3-5,a,b',
-              /**/ '+10,5,6,9,a,f','+10,0-6,8-b,e','+10,4,5','+10,f',
-              '00a00,0,4,b-e','+10,1,2','+10,9','+10,1,4,7,a,b,d',
-              /**/ '+10,3-6,9,a,e,f','+10,0,2-8,d,f','+10,0-5','+10,7-f',
-              '00a80,0,4,e','+10,2','+10,9','+10,1,4,a,b',
-              /**/ '+10,6,a,e,f','+10,1-f','+10,4,5','+10,2-8',
-              '00b00,0,4,d,e','+10,1,2','+10,9','+10,1,4,a,b','+10,5,6,9,a,e,f',
-              /**/ '+10,0-4,8-b,e','+10,4,5','+10,8-f',
-              '00b80,0,1,4,b-d','+10,1,6-8,b,d','+10,0-2,5-7,b-d','+10,a-d',
-              /**/ '+10,3-5,9,e,f','+10,1-6,8-f','+10,0-5','+10,b-f',
-              '00c00,d','+10,1','+10,9','+10,a,b','+10,5,9,e,f',
-              /**/ '+10,0-5,7,b,c,e,f','+10,4,5','+10,0-6',
-              '00c80,d','+10,1','+10,9','+10,4,a,b','+10,5,9,e,f',
-              /**/ '+10,0-4,7-c,f','+10,4,5','+10,0,3-f',
-              '00d00,d','+10,1','+30,5,9','+10,0-3','+10,4,5',
-              '00d80,0,4','+10,7-9','+20,2,c,e,f','+10,7-9,b-e',
-              /**/ '+10,5,7','+10,0-5','+10,0,1,5-f',
-              '00e00,0','+30,b-e','+20,c-f','+10,0-1f',
-              '00e80,0,3,5,b','+20,4,6','+10,e,f','+10,5,7,e,f','+10,a,b','+10,0-1f',
-              '00f40,8','+20,d-f','+10,0','+20,8','+20,d','+10,d','+10,b-f','+10,0-1f',
-              '010c0,6,8-c,e,f',
-              '01240,9,e,f','+10,7,9,e,f','+30,9,e,f','+30,1,6,7,f',
-              /**/ '+10,1,6,7','+10,7','+40,1,6,7','+40,b,c','+20,d-f',
-              '01390,a-f',
-              '013f0,6,7,e,f',
-              '01690,d-f',
-              '016f0,9-f',
-              '01710,6-e',
-              '01730,7-f',
-              '01750,4-f',
-              '01760,d','+10,1,4-f',
-              '017d0,e,f','+10,a-f','+10,a-f',
-              '01810,a-f','+60,9-f','+30,b-f',
-              '018f0,6-f',
-              '01910,f','+10,c-f','+10,c-f','+10,1-3',
-              '01960,e,f','+10,5-f',
-              '019a0,c-f','+20,a-f','+10,b-d',
-              '01a10,c,d',
-              '01a50,f','+20,d,e','+10,a-f','+10,a-f','+10,e,f',
-              '01ac0,f','+10,0-2f',
-              '01b40,d-f','+30,f',
-              '01bf0,4-b',
-              '01c30,8-a','+10,a-c',
-              '01c80,9-f',
-              '01cb0,b,c',
-              '01cc0,8-f',
-              '01cf0,b-f',
-              '01f10,6,7,e,f','+30,6,7,e,f','+10,8,a,c,e','+20,e,f',
-              /**/ '+40,5','+10,5','+10,4,5,c','+20,0,1,5,f',
-              '02060,5',
-              '02070,2,3','+10,f','+10,d-f',
-              '020c0,1-f',
-              '020f0,1-f',
-              '02180,c-f',
-              '02420,7-1f',
-              '02440,b-1f',
-              '02b70,4,5','+20,6',
-              '02cf0,4-8',
-              '02d20,6,8-c,e,f',
-              '02d60,8-e','+10,1-e',
-              '02d90,7-f','+10,7,f','+10,7,f','+10,7,f','+10,7,f','+10,7,f',
-              '02e50,e-2f',
-              '02e90,a','+60,4-f',
-              '02fd0,6-f',
-              '02ff0,c-f',
-              '03040,0','+50,7,8',
-              '03100,0-4',
-              '03130,0','+50,f',
-              '031e0,4-f',
-              '03210,f',
-              '0a480,d-f',
-              '0a4c0,7-f',
-              '0a620,c-1f',
-              '0a6f0,8-f',
-              '0a7c0,b-f','+10,2,4,a-f','+10,0-f','+10,0,1',
-              '0a820,d-f',
-              '0a830,a-f',
-              '0a870,8-f',
-              '0a8c0,6-d','+10,a-f',
-              '0a950,4-e',
-              '0a970,d-f',
-              '0a9c0,e','+10,a-d',
-              '0a9f0,f',
-              '0aa30,7-f','+10,e,f','+10,a,b',
-              '0aac0,3-f','+10,0-a',
-              '0aaf0,7-f',
-              '0ab00,0,7,8,f','+10,0,7-f','+10,7,f',
-              '0ab60,c-f',
-              '0abe0,e,f','+10,a-f',
-              '0d7a0,4-f',
-              '0d7c0,7-a','+30,c-f',
-              '0fad0,a-2f',
-              '0fb00,7-f','+10,0-2,8-c','+20,7,d,f','+10,2,5',
-              '0fbc0,3-f','+10,0-2',
-              '0fd90,0,1','+30,8-e',
-              '0fe10,a-f',
-              '0fe50,3','+10,7,c-f',
-              '0fe70,5','+80,d,e',
-              '0ff00',
-              '0ffb0,f','+10,0,1,8,9','+10,0,1,8,9,d-f','+10,7,f',
-              '0fff0,0-8',
-              '10000,c','+20,7','+10,b,e','+10,e,f','+10,e,f','+10,0-1f',
-              '100f0,b-f',
-              '10100,3-6','+30,4-6',
-              '10180,f',
-              '10190,d-f','+10,1-2f',
-              '101f0,e,f',
-              '10290,d-f',
-              '102d0,1-f',
-              '102f0,c-f',
-              '10320,4-c',
-              '10340,b-f',
-              '10370,b-f',
-              '10390,e',
-              '103c0,4-7','+10,6-f',
-              '103e0,0-1f',
-              '10490,e,f','+10,a-f',
-              '104d0,4-7','+20,c-f',
-              '10520,8-f',
-              '10560,4-e',
-              '10570,b','+10,b','+10,3,6','+10,2','+10,2,a,d-f',
-              '105c0,0-3f',
-              '10730,7-f','+20,6-f','+10,7-1f',
-              '10780,6','+30,1,b-f',
-              '107c0,0-3f',
-              '10800,6,7,9','+30,6,9-b,d,e',
-              '10850,6',
-              '10890,f','+10,0-6',
-              '108b0,0-2f',
-              '108f0,3,6-a',
-              '10910,c-e',
-              '10930,a-e',
-              '10940,0-3f',
-              '109b0,8-b','+20,0,1',
-              '10a00,4,7-b','+10,4,8','+20,6,7,b-e','+10,9-f','+10,9-f',
-              '10ae0,7-a','+10,7-f',
-              '10b30,6-8',
-              '10b50,6,7',
-              '10b70,3-7',
-              '10b90,2-8,d-f','+10,0-8',
-              '10bb0,0-4f',
-              '10c40,9-f',
-              '10c50,0-2f',
-              '10cb0,3-f','+40,3-9',
-              '10d20,8-f','+10,a-f',
-              '10d40,0-bf',
-              '10e00,0-5f',
-              '10e70,f',
-              '10ea0,a,e,f','+10,2-f',
-              '10ec0,0-3f',
-              '10f20,8-f',
-              '10f50,a-1f',
-              '10f80,a-2f',
-              '10fc0,c-1f',
-              '10ff0,7-f',
-              '11040,e,f','+10,0,1','+20,6-e',
-              '110c0,3-c,e,f',
-              '110e0,9-f','+10,a-f',
-              '11130,5','+10,8-f',
-              '11170,7-f',
-              '111e0,0','+10,5-f',
-              '11210,2','+20,f','+10,0-f',
-              '11250,0-2f',
-              '11280,7,9,e','+10,e','+10,a-f',
-              '112e0,b-f','+10,a-f',
-              '11300,4,d,e','+10,1,2','+10,9','+10,1,4,a','+10,5,6,9,a,e,f',
-              /**/ '+10,1-6,8-c','+10,4,5,d-f','+10,5-f',
-              '11380,0-7f',
-              '11450,c','+10,2-1f',
-              '114c0,8-f','+10,a-f',
-              '114e0,0-1f',
-              '11500,0-7f',
-              '115b0,6,7','+20,e,f','+10,0-1f',
-              '11640,5-f','+10,a-f',
-              '11660,d-f','+10,0-f',
-              '116b0,a-f','+10,a-f',
-              '116d0,0-2f',
-              '11710,b,c','+10,c-f','+20,7-f',
-              '11750,0-af',
-              '11830,c-f','+10,0-f',
-              '11850,0-4f',
-              '118f0,3-e',
-              '11900,7,8,a,b','+10,4,7','+20,6,9,a','+10,7-f','+10,a-f',
-              '11960,0-3f',
-              '119a0,8,9','+30,8,9','+10,5-f','+10,0-f',
-              '11a40,8-f',
-              '11aa0,3-f',
-              '11af0,9-f',
-              '11b00,0-ff',
-              '11c00,9','+30,7','+10,6-f','+20,d-f',
-              '11c90,0,1','+10,8','+10,7-f',
-              '11cc0,0-3f',
-              '11d00,7,a','+30,7-9,b,e','+10,8-f','+10,a-f',
-              '11d60,6,9','+20,f','+10,2,9-f','+10,a-f',
-              '11db0,0-4f',
-              '11e00,0-df',
-              '11ef0,9-f',
-              '11f00,0-af',
-              '11fb0,1-f',
-              '11ff0,2-e',
-              '12390,a-f','+10,0-5f',
-              '12460,f','+10,5-f',
-              '12540,4-f',
-              '12550,0-af',
-              '12600,0-8ff',
-              '12f00,0-8f',
-              '12ff0,3-f',
-              '13430,9-f',
-              '13440,0-bf',
-              '13500,0-aff',
-              '14000,0-3ff',
-              '14640,7-f','+10,0-2f',
-              '14680,0-7f',
-              '14700,0-8ff',
-              '15000,0-fff',
-              '16000,0-7ff',
-              '16a30,9-f',
-              '16a50,f','+10,a-d',
-              '16ab0,f','+10,a-f',
-              '16ae0,e,f','+10,6-f',
-              '16b40,6-f','+10,a','+10,2','+10,8-c',
-              '16b90,0-6f',
-              '16c00,0-1ff',
-              '16e00,0-3f',
-              '16e90,b-f',
-              '16ea0,0-5f',
-              '16f40,b-e','+40,8-e',
-              '16fa0,0-3f',
-              '16fe0,5-f','+10,2-f',
-              '187f0,8-f',
-              '18cd0,6-f','+10,0-1f',
-              '18d00,9-f',
-              '18d10,0-2ef',
-              '19000,0-fff',
-              '1a000,0-fef',
-              '1aff0,4,c,f',
-              '1b120,3-f',
-              '1b130,0-1f','+20,3-f','+10,0-3,8-f',
-              '1b2f0,c-f',
-              '1b300,0-8ff',
-              '1bc60,b-f','+10,d-f','+10,9-f','+10,a,b',
-              '1bca0,4-f',
-              '1bcb0,0-4f',
-              '1bd00,0-2ff',
-              '1c000,0-eff',
-              '1cf20,e,f','+20,7-f','+80,4-f',
-              '1d0f0,6-f',
-              '1d130,7,8','+b0,b-f','+10,0-f',
-              '1d240,6-f',
-              '1d250,0-8f',
-              '1d2f0,4-f',
-              '1d350,7-f',
-              '1d370,9-f',
-              '1d380,0-7f',
-              '1d450,5','+40,d','+10,0,1,3,4,7,8,d','+10,a,c','+10,4','+40,6,b,c',
-              /**/ '+10,5,d','+20,a,f','+10,5,7-9','+10,1','+150,6,7','+120,c,d',
-              '1da80,c-f','+10,0-a','+10,0',
-              '1dab0,0-4f',
-              '1db00,0-3ff',
-              '1df10,f','+10,0-df',
-              '1e000,7','+10,9,a','+10,2,5,b-f',
-              '1e030,0-cf',
-              '1e120,d-f','+10,e,f','+10,a-d',
-              '1e150,0-af',
-              '1e200,0-8f',
-              '1e2a0,f','+10,0-f',
-              '1e2f0,a-e',
-              '1e300,0-4df',
-              '1e7e0,7,c,f','+10,f',
-              '1e8c0,5,6','+10,7-f',
-              '1e8e0,0-1f',
-              '1e940,c-f','+10,a-d',
-              '1e960,0-9f',
-              '1ea00,0-1ff',
-              '1ec00,0-6f',
-              '1ec70,0','+40,5-f',
-              '1ecc0,0-3f',
-              '1ed00,0','+30,e,f','+10,0-f',
-              '1ed50,0-af',
-              '1ee00,4','+20,0,3,5,6,8','+10,3,8,a,c-f','+10,0,1,3-6,8,a,c',
-              /**/ '+10,0,3,5,6,8,a,c,e','+10,0,3,5,6,b','+10,3,8,d,f',
-              /**/ '+10,a','+10,c-f','+10,0,4,a','+10,c-f','+10,0-2f','+30,2-f',
-              '1ef00,0-ff',
-              '1f020,c-f',
-              '1f090,4-f',
-              '1f0a0,f','+10,0','+10,0','+10,0','+20,6-f',
-              '1f1a0,e,f','+10,0-35',
-              '1f200,3-f','+30,c-f','+10,9-f','+10,2-f','+10,6-f','+10,0-8f',
-              '1f6d0,8-c','+10,d-f','+10,d-f',
-              '1f770,4-f',
-              '1f7d0,9-f','+10,c-f','+10,0-f',
-              '1f800,c-f','+40,8-f','+10,a-f','+30,8-f','+20,e,f','+10,2-f','+10,0-3f',
-              '1fa50,4-f','+10,e,f',
-              '1fa70,5-7,d-f','+10,7-f','+20,d-f','+10,b-f','+10,6-f','+10,a-f','+10,8-f','+10,7-f',
-              '1fbc0,b-f','+10,0-1f','+20,a-f',
-              '1fc00,0-2ff',
-              '1ff00,0-7f',
-          ]);
-
-          /* ** */
-
-          static getHexString = ((x, s=0, p='') => (p + x.toString(16).toUpperCase()).slice(s));
-          static getAddressString = ((x) => UnicodeViewer.getHexString(x, -6, '000000'));
-          static getAreaString = ((s, e) => UnicodeViewer.getAddressString(s) + '-' + UnicodeViewer.getAddressString(e));
-          static getAreaFromString = ((s) => s.split('-').map((v) => Number('0x' + v)));
-
-          /*
-           * DOM: Script
-           */
-
-          static getElementById = ((name) => document.getElementById(name));
-          static getInputChecked = ((name) => document.querySelector(`input[name='${name}']:checked`));
-
-          static clearChildren(parent) {
-              while (parent.firstChild)
-                  parent.removeChild(parent.firstChild);
-          };
-          static appendChildren(parent, children) {
-              for (const child of children.flat())
-                  parent.appendChild(child);
-          };
-          static newChildren(parent, children) {
-              const S = UnicodeViewer;
-              S.clearChildren(parent);
-              S.appendChildren(parent, children);
-          };
-
-          static mergeOption(a, b) {
-              if (a == undefined) return b;
-              if (b == undefined) return a;
-
-              const r = {};
-
-              if (a.idName != undefined)
-                  r.idName = a.idName;
-              else if (b.idName != undefined)
-                  r.idName = b.idName;
-
-              if (a.className != undefined)
-                  r.className = a.className;
-              else if (b.className != undefined)
-                  r.className = b.className;
-
-              if (a.innerText != undefined)
-                  r.innerText = a.innerText;
-              else if (b.innerText != undefined)
-                  r.innerText = b.innerText;
-
-              if (a.attribute != undefined && b.attribute != undefined)
-                  r.attribute = UnicodeViewer.mergeMap(a.attribute, b.attribute);
-              else if (a.attribute != undefined)
-                  r.attribute = a.attribute;
-              else if (b.attribute != undefined)
-                  r.attribute = b.attribute;
-
-              if (a.style != undefined && b.style != undefined)
-                  r.style = UnicodeViewer.mergeMap(a.style, b.style);
-              else if (a.style != undefined)
-                  r.style = a.style;
-              else if (b.style != undefined)
-                  r.style = b.style;
-
-              if (a.children != undefined && b.children != undefined)
-                  r.children = a.children.concat(b.style);
-              else if (a.children != undefined)
-                  r.children = a.children;
-              else if (b.children != undefined)
-                  r.children = b.children;
-
-              return r;
-          };
-          static mergeOptions() {
-              let r = undefined;
-              for (const a of arguments)
-                  r = UnicodeViewer.mergeOption(r, a);
-              return r;
-          };
-
-          static createElement(name, option, innerText) {
-              const S = UnicodeViewer;
-              const element = document.createElement(name);
-              if (innerText != undefined)
-                  element.innerText = innerText;
-              if (option == undefined)
-                  return element;
-              if (option.idName != undefined)
-                  element.setAttribute('id', option.idName);
-              if (option.className != undefined)
-                  element.setAttribute('class', option.className);
-              if (option.innerText != undefined)
-                  element.innerText = option.innerText;
-              if (option.attribute != undefined)
-                  option.attribute.forEach((v, k) => element.setAttribute(k, v));
-              if (option.style != undefined)
-                  option.style.forEach((v, k) => element.style.setProperty(k, v));
-              if (option.children != undefined)
-                  S.appendChildren(element, option.children);
-              return element;
-          };
-
-          static viewerId = 1;
-          static viewerMap = new Map();
-
-          constructor(parent, title, option) {
-              const S = UnicodeViewer;
-              const name = `_UnicodeVewer_Object_No_${S.viewerId++}`;
-              S.viewerMap.set(name, this);
-
-              this.S = S;
-              this.objectName = name;
-              this.namePrefix = this.objectName + '_';
-              this.parent = parent;
-              this.tagOption = S.defaultOption;
-              if (option != undefined)
-                  Object.assign(this.tagOption, option);
-
-              this.initViewer();
-          };
-
-          release() {
-              const S = this.S;
-              S.viewerMap.delete(this.objectName);
-          };
-          static releaseAll() {
-              S.viewerMap.clear();
-          };
-
-          appendChildren() {
-              for (const child of arguments)
-                  this.parent.appendChild(child);
-          };
-
-          createElement(name, option, innerText) {
-              const S = this.S;
-              const tagName = name.split('.')[0];
-              const tagOption = S.defaultOption[tagName];
-              const className = name.replace('.', '_');
-              const classOption = ((tagName != className) ? S.defaultOption[className] : undefined);
-              return S.createElement(tagName, S.mergeOptions(tagOption, classOption, option), innerText);
-          };
-
-          createHeader = ((option) => this.createElement('header', option));
-          createFooter = ((option) => this.createElement('footer', option));
-          createSection = ((option) => this.createElement('section', option));
-          createArticle = ((option) => this.createElement('article', option));
-
-          createH1 = ((s, option) => this.createElement('h1', option, s));
-          createH2 = ((s, option) => this.createElement('h2', option, s));
-          createH3 = ((s, option) => this.createElement('h3', option, s));
-          createH4 = ((s, option) => this.createElement('h4', option, s));
-
-          createTable = ((option) => this.createElement('table', option));
-          createTr = ((option) => this.createElement('tr', option));
-          createTh = ((option) => this.createElement('th', option));
-          createThS = ((s, option) => this.createElement('th', option, s));
-          createTd = ((option) => this.createElement('td', option));
-          createTdC = ((option) => this.createElement('td.center', option));
-          createTdS = ((s, option) => this.createElement('td', option, s));
-          createTdSC = ((s, option) => this.createElement('td.center', option, s));
-
-          createDiv = ((option) => this.createElement('div', option));
-          createDivS = ((s, option) => this.createElement('div', option, s));
-          createP = ((option) => this.createElement('p', option));
-          createPS = ((s, option) => this.createElement('p', option, s));
-
-          createButton = ((option) => this.createElement('button', option));
-          createInput = ((option) => this.createElement('input', option));
-          createLabel = ((option) => this.createElement('label', option));
-
-          createCode = ((s, option) => this.createElement('code', option, s));
-          createSpan = ((s, option) => this.createElement('span', option, s));
-          createBr = ((option) => this.createElement('br', option));
-
-          createThChar = ((option) => this.createElement('th.char', option));
-          createTdChar = ((option) => this.createElement('td.char', option));
-          createDivChar = ((option) => this.createElement('div.char', option));
-          createSpanChar = ((s, option) => this.createElement('span.char', option, s));
-
-          createLabeledInput(type, title, name, value, option) {
-              const S = this.S;
-              const lopt = (option ? option.label : undefined);
-              const iopt = (option ? option.input : undefined);
-              const sopt = (option ? option.span : undefined);
-              return this.createLabel(S.mergeOption(sopt, { children: [
-                  this.createInput({ attribute: S.attributeFrom([
-                      ['type', type], ['name', name],
-                      (value ? ['value', value] : undefined),
-                      ((iopt && iopt.checked) ? ['checked', undefined] : undefined),
-                      ((iopt && iopt.disabled) ? ['disabled', undefined] : undefined),
-                      ((iopt && iopt.onclick) ? ['onclick', iopt.onclick] : undefined),
-                      ((iopt && iopt.inputClass) ? ['className', iopt.className] : undefined),
-                  ])}),
-                  this.createSpan(title, sopt),
-              ]}));
-          };
-          createLabeledInputRadio = ((title, name, value, option) =>
-              this.createLabeledInput('radio', title, name, value, option));
-          createLabeledCheckBox = ((title, name, option) =>
-              this.createLabeledInput('checkbox', title, name, undefined, option));
-
-          createCodeTableSetting() {
-              const S = this.S;
-              const width_list = [16, 32, 64, 128, 256];
-              const attr_width_normal = { input: { onclick: this.codeOnClickWidth } };
-              const attr_width_checked = { input: { checked: true, onclick: this.codeOnClickWidth } };
-              return this.createTable({ children: [
-                  this.createTr({ children: [
-                      this.createThS(S.planeSelectorName),
-                      this.createTd({ children: [
-                          this.createLabeledCheckBox(
-                              S.planeDetailName, this.inputDetailName,
-                              { input: { onclick: this.codeOnClickDetail }}),
-                      ]}),
-                      this.createThS(S.widthSelectorName),
-                      this.createTd({ children: [
-                          this.createLabeledCheckBox(
-                              S.matrixTransposeName, this.inputTransposeName,
-                              { input: { onclick: this.codeOnClickWidth }}),
-                      ]}),
-                      this.createTd({ children: [
-                          this.createSpan(S.matrixWidthName),
-                          width_list.map((w, i) => this.createLabeledInputRadio(
-                              `${w}`, this.inputWidthName, `${w}`,
-                              ((i == 0) ? attr_width_checked : attr_width_normal))),
-                      ]}),
-                      this.createTd({ children: [
-                          this.createLabeledCheckBox(
-                              S.specialCodeName, this.inputSpecialCodeName,
-                              { input: { onclick: this.codeOnClickSpecial }}),
-                      ]}),
-                  ]}),
-              ]});
-          };
-
-          createCodeHexChildren(offs, size, step) {
-              const S = this.S;
-              const children = [];
-              const s = S.getAddressString(offs).slice(-size);
-              for (let p = 0; p < size; p += step) {
-                  if (children.length != 0)
-                      children.push(this.createBr());
-                  children.push(this.createCode(s.slice(p, p + step)));
-              };
-              return children;
-          };
-
-          createCodeCharForControl(name) {
-              const children = [];
-              for (const s of name.split('\n')) {
-                  if (children.length != 0)
-                      children.push(this.createBr());
-                  children.push(this.createSpanChar(s));
-              };
-              return this.createDivChar({ children: children });
-          };
-          createCodeCharForVSel(code) {
-              return this.createCodeCharForControl('VS' + ((code & 15) + 1));
-          };
-          createCodeCharDivForControl(code, size, style) {
-              return this.createDivChar({
-                  style: style,
-                  children: this.createCodeHexChildren(code, size, 2),
-              });
-          };
-          createCodeCharForSurrogate(code) {
-              return this.createCodeCharDivForControl(code, 4);
-          };
-          createCodeCharForNotChar(code) {
-              return this.createCodeCharDivForControl(code, 4, this.S.defaultDivNotCharStyle);
-          };
-          createCodeCharForUnassigned(code) {
-              return this.createCodeCharDivForControl(code, 4, this.S.defaultDivUnassignedCharStyle);
-          };
-          createCodeCharForReservedS(s) {
-              return this.createSpan(this.S.toNonBreak(s), { style: this.S.defaultSpanReservedStyle });
-          };
-          createCodeCharForReservedC(code) {
-              return this.createCodeCharForReservedS(UnicodeViewer.getCodeString(code));
-          };
-          createCodeChar(code) {
-              const S = this.S;
-              const name = S.ControlCharacterMap[code];
-              if (name != undefined) return this.createCodeCharForControl(name);
-              const plane = (code >> 16);
-              const pcode = (code & 0xffff);
-              if (pcode >= 0xfffe)
-                  return this.createCodeCharForNotChar(pcode);
-              if (plane == 0) {
-                  if (0xd800 <= code && code <= 0xdfff) return this.createCodeCharForSurrogate(code);
-                  if (0xfdd0 <= code && code <= 0xfdef) return this.createCodeCharForNotChar(pcode);
-                  if (0xfe00 <= code && code <= 0xfe0f) return this.createCodeCharForVSel(code);
-              } else if (pcode >= 0xff80)
-                  return this.createCodeCharForUnassigned(pcode);
-              else if (plane <= 3) {
-                  if (plane == 3 && pcode >= 0x134a)
-                      return this.createCodeCharForReservedC(code);
-              } else if (plane <= 13) {
-                  return this.createCodeCharForUnassigned(pcode);
-              } else if (plane == 14) {
-                  if ((0x0000 == pcode) ||
-                      (0x0002 <= pcode && pcode <= 0x001f) ||
-                      (0x0080 <= pcode && pcode <= 0x00ff) ||
-                      (0x01f0 <= pcode))
-                      return this.createCodeCharForUnassigned(pcode);
-              };
-              if (S.CodeMaskSet.has(code))
-                  return this.createCodeCharForUnassigned(pcode);
-              return this.createSpanChar(S.getCodeString(code));
-          };
-
-          createCodeTable(start, end, width, discover, disabled) {
-              const S = this.S;
-
-              const transpose = (width < 0);
-              const awidth = transpose ? -width : width;
-              const xstart = transpose ? start : 0;
-              const ystart = transpose ? 0 : start;
-              const xend = transpose ? end : awidth;
-              const yend = transpose ? awidth : end;
-              const xstep = transpose ? awidth : 1;
-              const ystep = transpose ? 1 : awidth;
-              const yalen = transpose ? ((awidth <= 16) ? 1 : 2) : 6;
-
-              const table = [];
-              {
-                  const children = [this.createThS(S.toNonBreak(' '))];
-                  const olen = (xend <= 16) ? 1 : ((S.getHexString(xend-1).length + 1) & ~1);
-                  const ostep = (xend <= 16) ? 1 : 2;
-                  for (let offs = xstart; offs < xend; offs += xstep)
-                      children.push(this.createThChar({ children: this.createCodeHexChildren(offs, olen, ostep) }));
-                  table.push(this.createTr({ children: children }));
-              };
-
-              if (disabled)
-                  return table;
-
-              for (let y = ystart; y < yend; y += ystep) {
-                  const tr = this.createTr({ children: [
-                      this.createThChar({ children: [
-                          this.createCode(S.getAddressString(y).slice(-yalen))
-                      ]}),
-                  ]});
-                  for (let x = xstart; x < xend; x += xstep)
-                      tr.appendChild(this.createTdChar({ children: [
-                          (discover ? this.createSpanChar(S.getCodeString(x + y)) : this.createCodeChar(x + y))
-                      ]}));
-                  table.push(tr);
-              };
-
-              return table;
-          };
-
-          initViewer() {
-              const S = this.S;
-
-              this.inputDetailName = this.namePrefix + 'detail';
-              this.inputTransposeName = this.namePrefix + 'transpose';
-              this.inputWidthName = this.namePrefix + 'width';
-              this.inputSpecialCodeName = this.namePrefix + 'special';
-              this.inputPlaneName = this.namePrefix + 'plane';
-              this.inputAreaName = this.namePrefix + 'area';
-
-              this.tagPlaneSelector = this.createTable();
-              this.tagAreaName = this.createH3('Plane');
-              this.tagAreaSelector = this.createTable();
-              this.tagCodeTableName = this.createH4('Character');
-              this.tagCodeTable = this.createDiv();
-
-              this.codeOnClickDetail = `UnicodeViewer.onClickDetail("${this.objectName}");`;
-              this.codeOnClickWidth = `UnicodeViewer.onClickWidth("${this.objectName}");`;
-              this.codeOnClickSpecial = `UnicodeViewer.onClickSpecial("${this.objectName}");`;
-              this.codeOnClickPlane = `UnicodeViewer.onClickPlane("${this.objectName}");`;
-              this.codeOnClickArea = `UnicodeViewer.onClickArea("${this.objectName}");`;
-
-              this.appendChildren(
-                  this.createSection({
-                      style: S.styleFrom([['display', 'list']]),
-                      children: [
-                          this.createCodeTableSetting(),
-                          this.createDivS(S.toNonBreak(' '), { style: S.styleFrom([['font-size', '10%']])}),
-                          this.tagPlaneSelector,
-                      ]}),
-                  this.createSection({ children: [
-                      this.createArticle({ children: [
-                          this.tagAreaName,
-                          this.tagAreaSelector,
-                      ]}),
-                      this.createArticle({ children: [
-                          this.createDiv({ innerText: S.toNonBreak('  ') }),
-                      ]}),
-                      this.createArticle({ children: [
-                          this.tagCodeTableName,
-                          this.tagCodeTable,
-                      ]}),
-                  ]}),
-              );
-
-              this.updateDetailSelector();
-          };
-
-          updateDetailSelector() {
-              const S = this.S;
-              this.detailMode = S.getInputChecked(this.inputDetailName);
-              this.planeList = this.detailMode ? S.DetailPlaneList : undefined;
-              this.planeTable = this.detailMode ? S.DetailPlaneTable : S.SimplePlaneTable;
-              this.areaTable = this.detailMode ? S.DetailAreaTable : S.SimpleAreaTable;
-              this.updatePlaneSelector();
-          };
-
-          updatePlaneSelector() {
-              const S = this.S;
-
-              const children = [];
-              if (!this.detailMode) {
-                  children.push(
-                      this.createTr({ children: [
-                          this.createThS(S.planeSelectorName, {
-                              attribute: S.attributeFrom([['rowspan', '2']]),
-                          }),
-                          this.planeTable.map((plane, i) => this.createTh({ children: [
-                              this.createLabeledInputRadio(
-                                  plane.header, this.inputPlaneName, S.getAreaString(plane.start, plane.end),
-                                  { input: { checked: (i == 0), onclick: this.codeOnClickPlane }})
-                          ]}))
-                      ]}),
-                      this.createTr({ children: [
-                          this.planeTable.map((plane, i) => this.createTdSC(plane.name))
-                      ]}),
-                  );
-              } else {
-                  children.push(this.createTr({ children: [
-                      this.createThS(S.planeSelectorName),
-                      this.createTh(),
-                  ]}));
-
-                  let checked = true;
-                  for (const plane of this.planeList) {
-                      const td = this.createTd();
-                      const tr = this.createTr({ children: [this.createThS(plane.name), td]});
-                      for (const area of this.planeTable.filter(area =>
-                          (plane.start <= area.start && area.end <= plane.end))) {
-                          td.appendChild(this.createLabeledInputRadio(
-                              area.name, this.inputPlaneName, S.getAreaString(area.start, area.end),
-                              { input: { checked: checked, onclick: this.codeOnClickPlane }}));
-                          if (area.separator)
-                              td.appendChild(this.createBr());
-                          checked = false;
-                      };
-                      children.push(tr);
-                  };
-              };
-              S.newChildren(this.tagPlaneSelector, children.flat());
-              this.updateAreaSelector();
-          };
-
-          updateAreaSelector() {
-              const S = this.S;
-              const plane = S.getInputChecked(this.inputPlaneName);
-              const [start, end] = S.getAreaFromString(plane.value);
-              this.tagAreaName.innerText = S.toNonBreak(S.PlaneName[start >> 16]);
-              const table = this.areaTable.filter(data => !(end < data.start || data.end < start));
-              S.newChildren(this.tagAreaSelector, table.map((d, i) => this.createTr({ children: [
-                  this.createTh({ children: [this.createCode(S.getAddressString(d.start))] }),
-                  this.createTh({ children: [this.createCode(S.getAddressString(d.end))] }),
-                  this.createTd({ children: [this.createLabeledInputRadio(
-                      S.toNonBreak(d.name), this.inputAreaName, S.getAreaString(d.start, d.end), {
-                          input: { checked: (i == 0), disabled: d.disabled, onclick: this.codeOnClickArea  },
-                          span: { style: (d.large ? S.defaultSpanLargeStyle : S.defaultSpanStyle) },
-                      })]}),
-              ]})));
-              this.updateCodeTable();
-          };
-
-          updateCodeTable() {
-              const S = this.S;
-
-              const area = S.getInputChecked(this.inputAreaName).value;
-              const [start, end] = S.getAreaFromString(area);
-
-              const transpose = S.getInputChecked(this.inputTransposeName);
-              const awidth = Number(S.getInputChecked(this.inputWidthName).value);
-              const width = transpose ? -awidth : awidth;
-
-              const special = S.getInputChecked(this.inputSpecialCodeName);
-              const discover = (special != null);
-
-              let disabled = false;
-              let large = false;
-              for (const r of this.areaTable)
-                  if (start == r.start && end == r.end) {
-                      this.tagCodeTableName.innerText = S.toNonBreak(r.name);
-                      disabled = r.disabled;
-                      large = r.large;
-                      break;
-                  };
-
-              const id = ('' +
-                          `${this.namePrefix}CodeTable` +
-                          `_${discover ? 'D' : 'C'}` +
-                          `_${transpose ? 'T' : 'N'}` +
-                          `_S${S.getAddressString(start)}_` +
-                          `_E${S.getAddressString(end)}` +
-                          `_W${awidth}` +
-                          '');
-
-              for (let i = 0; i < this.tagCodeTable.children.length; i++)
-                  this.tagCodeTable.children[i].setAttribute('hidden', 'true');
-
-              const cached = S.getElementById(id);
-              if (cached != null) {
-                  cached.removeAttribute('hidden');
-                  return;
-              };
-
-              this.tagCodeTable.appendChild(this.createTable(
-                  { idName: id, children: [this.createCodeTable(start, (end + 1), width, discover, disabled)] }
-              ));
-          };
-
-          static clickObject(name) { return UnicodeViewer.viewerMap.get(name); };
-          static onClickDetail(name) { UnicodeViewer.clickObject(name).updateDetailSelector(); };
-          static onClickWidth(name) { UnicodeViewer.clickObject(name).updateCodeTable(); };
-          static onClickSpecial(name) { UnicodeViewer.clickObject(name).updateCodeTable(); };
-          static onClickPlane(name) { UnicodeViewer.clickObject(name).updateAreaSelector(); };
-          static onClickArea(name) { UnicodeViewer.clickObject(name).updateCodeTable(); };
-      };
-
-      -->
-    </script>
-
-    <h1>Unicode 文字表 (1)</h1>
-    <div id="UnicodeViewer1"></div>
-    <p>&nbsp;</p>
-    <hr>
-    <h1>Unicode 文字表 (2)</h1>
-    <div id="UnicodeViewer2"></div>
-    <p>&nbsp;</p>
-
-    <script type="text/javascript">
-    <!--
-
-      const viewer1 = new UnicodeViewer(document.getElementById('UnicodeViewer1'));
-      const viewer2 = new UnicodeViewer(document.getElementById('UnicodeViewer2'));
-
-      -->
+    <script>
+
+     class UnicodeViewer {
+
+         /*
+          * DOM
+          */
+
+         static mergeMap(a, b) {
+             const r = new Map();
+             a.forEach((v, k) => r.set(k, v));
+             b.forEach((v, k) => r.set(k, v));
+             return r;
+         };
+
+         static mapFromList(data) {
+             const r = new Map();
+             for (const kv of data)
+                 if (kv != undefined)
+                     r.set(kv[0], kv[1]);
+             return r;
+         };
+         static attributeFrom = ((attributes) => UnicodeViewer.mapFromList(attributes));
+         static styleFrom = ((options) => UnicodeViewer.mapFromList(options));
+
+         static toNonBreak = ((s) => s.replaceAll(' ', '\xa0').replaceAll('-', '\u2011'));
+
+         static getCodeString(code) {
+             if (code < 0x10000)
+                 return String.fromCharCode(code);
+             const h = (code >> 16);
+             const l = (code & 0xffff);
+             const code1 = 0xd800 | ((h - 1) << 6) | (l >> 10);
+             const code2 = 0xdc00 | (l & 0x3ff);
+             return String.fromCharCode(code1, code2);
+         };
+
+         /* ** */
+
+         static widthSelectorName = '表';
+         static matrixTransposeName = '転置';
+         static matrixWidthName = '幅';
+         static specialCodeName = '直文字';
+         static planeSelectorName = '面';
+         static planeDetailName = '詳細';
+
+         static defaultStyle = new Map();
+         static defaultFlexStyle = UnicodeViewer.styleFrom([
+             ['display', 'flex'],
+         ]);
+         static defaultHeaderStyle = UnicodeViewer.defaultStyle;
+         static defaultFooterStyle = UnicodeViewer.defaultFlexStyle;
+         static defaultSectionStyle = UnicodeViewer.defaultFlexStyle;
+         static defaultArticleStyle = UnicodeViewer.defaultStyle;
+
+         static defaultTableBaseStyle = UnicodeViewer.styleFrom([
+             ['border-style', 'solid'],
+             ['border-width', '1px'],
+             ['border-color', '#d0d0d0'],
+         ]);
+         static defaultTableStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultTableBaseStyle,
+             UnicodeViewer.styleFrom([
+                 ['border-collapse', 'collapse'],
+                 ['border-spacing', '0'],
+         ]));
+
+         static defaultThTdStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultTableBaseStyle,
+             UnicodeViewer.styleFrom([
+                 ['margin', '0'],
+                 ['padding', '0 2px'],
+         ]));
+
+         static defaultThStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultThTdStyle,
+             UnicodeViewer.styleFrom([
+                 ['background', '#f0f0f0'],
+         ]));
+         static defaultThCharStyle = UnicodeViewer.defaultThStyle;
+
+         static defaultTdStyle = UnicodeViewer.defaultThTdStyle;
+         static defaultTdCenterStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultTdStyle,
+             UnicodeViewer.styleFrom([
+                 ['text-align', 'center'],
+         ]));
+         static defaultTdCharStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultTdCenterStyle,
+             UnicodeViewer.styleFrom([
+                 ['padding', '4px'],
+         ]));
+
+         static defaultDivStyle = UnicodeViewer.defaultStyle;
+         static defaultDivCharStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultTdStyle,
+             UnicodeViewer.styleFrom([
+                 ['border-style', 'dotted'],
+                 ['border-width', '1px'],
+                 ['border-color', '#fcc'],
+                 ['background', '#f7f7f7'],
+                 ['color', '#b77'],
+                 ['font-size', '10%'],
+                 ['line-height', '95%'],
+         ]));
+         static defaultDivNotCharStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultDivCharStyle,
+             UnicodeViewer.styleFrom([
+                 ['border-color', '#bbb'],
+                 ['background', '#000'],
+                 ['color', '#bbb'],
+         ]));
+         static defaultDivUnassignedCharStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultDivCharStyle,
+             UnicodeViewer.styleFrom([
+                 ['border-color', '#eee'],
+                 ['background', '#eee'],
+                 ['color', '#ccc'],
+         ]));
+
+         static defaultSpanStyle = UnicodeViewer.defaultStyle;
+         static defaultSpanLargeStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultSpanStyle,
+             UnicodeViewer.styleFrom([
+                 ['color', '#733'],
+         ]));
+         static defaultSpanCharStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultSpanStyle,
+             UnicodeViewer.styleFrom([
+                 ['margin', '0'],
+                 ['border', '0'],
+                 ['padding', '0'],
+                 ['background', '#f7f7f7'],
+                 ['cursor', 'pointer'],
+         ]));
+         static defaultSpanReservedStyle = UnicodeViewer.mergeMap(
+             UnicodeViewer.defaultSpanCharStyle,
+             UnicodeViewer.styleFrom([
+                 ['background', '#eee'],
+                 ['color', '#ccc'],
+         ]));
+
+         static defaultOption = {
+             header: { style: UnicodeViewer.defaultHeaderStyle },
+             footer: { style: UnicodeViewer.defaultFooterStyle },
+             section: { style: UnicodeViewer.defaultSectionStyle },
+             article: { style: UnicodeViewer.defaultArticleStyle },
+
+             table: { style: UnicodeViewer.defaultTableStyle },
+             th: { style: UnicodeViewer.defaultThStyle },
+             td: { style: UnicodeViewer.defaultTdStyle },
+             td_center: { style: UnicodeViewer.defaultTdCenterStyle },
+
+             th_char: { style: UnicodeViewer.defaultThCharStyle },
+             td_char: { style: UnicodeViewer.defaultTdCharStyle },
+             span_char: { style: UnicodeViewer.defaultSpanCharStyle },
+
+             div_char: { style: UnicodeViewer.defaultDivCharStyle },
+         };
+
+         /*
+          * Unicode
+          */
+
+         static defineProperties(target) {
+             for (let i = 1; i < arguments.length; i++)
+                 arguments[i].map((p) => Object.defineProperty(target, p[0], { value: p[1] }));
+             return target;
+         };
+
+         static makeAreaTable(plane, name, count=16, offset=0) {
+             return [...Array(count)].map((_, i) => ({
+                 start: ((plane * 16 + i + offset) << 12),
+                 end: (((plane * 16 + i + offset + 1) << 12) - 1),
+                 name: `${name} [${(i + offset).toString(16).toUpperCase()}]`
+             }));
+         };
+
+         static makeMaskSet() {
+             const r = new Set();
+             let base = 0;
+             for (let i = 0; i < arguments.length; i++) {
+                 const arg = arguments[i];
+                 if (typeof(arg) == 'string')
+                     base = UnicodeViewer.makeMaskSetSub(r, base, arg);
+                 else for (const s of arg)
+                     base = UnicodeViewer.makeMaskSetSub(r, base, s);
+             };
+             return r;
+         };
+         static makeMaskSetSub(r, base, src) {
+             const args = src.split(',');
+             const atop = args.shift();
+             if (atop[0] == '+')
+                 base += Number('0x' + atop.slice(1));
+             else
+                 base = Number('0x' + atop);
+             if (args.length == 0) {
+                 r.add(base);
+                 return base;
+             };
+             for (const arg of args) {
+                 const span = arg.split('-');
+                 const s = Number('0x' + span.shift());
+                 if (span.length == 0) {
+                     r.add(base + s)
+                     continue;
+                 };
+                 const e = Number('0x' + span.shift());
+                 for (let o = s; o <= e; o++)
+                     r.add(base + o);
+             };
+             return base;
+         };
+
+         static UndefinedName = '(Reserved)';
+
+         static PlaneName = [
+             /*  0 */ 'Basic Multilingual Plane',
+             /*  1 */ 'Supplementary Multilingual Plane',
+             /*  2 */ 'Supplementary Ideographic Plane',
+             /*  3 */ 'Tertiary Ideographic Plane',
+             /*  4 */ 'Plane 4',
+             /*  5 */ 'Plane 5',
+             /*  6 */ 'Plane 6',
+             /*  7 */ 'Plane 7',
+             /*  8 */ 'Plane 8',
+             /*  9 */ 'Plane 9',
+             /* 10 */ 'Plane 10',
+             /* 11 */ 'Plane 11',
+             /* 12 */ 'Plane 12',
+             /* 13 */ 'Plane 13',
+             /* 14 */ 'Plane 14',
+             /* 15 */ 'Supplementary Private Use Area-A',
+             /* 16 */ 'Supplementary Private Use Area-B',
+         ];
+
+         static SimplePlaneTable = [
+             { start: 0x000000, end: 0x00ffff, name: 'BMP', header: '0' },
+             { start: 0x010000, end: 0x01ffff, name: 'SMP', header: '1' },
+             { start: 0x020000, end: 0x02ffff, name: 'SIP', header: '2' },
+             { start: 0x030000, end: 0x03ffff, name: 'TIP', header: '3' },
+
+             [...Array(10)].map((_, p) => ({
+                 start: ((4 + p) << 16),
+                 end: (((5 + p) << 16) - 1),
+                 name: '予約',
+                 header: `${4 + p}`
+             })),
+
+             { start: 0x0e0000, end: 0x0effff, name: '制御', header: '14' },
+             { start: 0x0f0000, end: 0x0fffff, name: '外字A', header: '15' },
+             { start: 0x100000, end: 0x10ffff, name: '外字B', header: '16' },
+         ].flat();
+
+         static SimpleAreaTable = [
+             { start: 0x000000, end: 0x0000ff, name: 'ASCII, Latin-1 Compatibility' },
+             { start: 0x000100, end: 0x00058f, name: 'General Script' },
+             { start: 0x000590, end: 0x0008ff, name: 'General Script (RTL)' },
+             { start: 0x000900, end: 0x001fff, name: 'General Script' },
+             { start: 0x002000, end: 0x002bff, name: 'Punctuation & Symbols' },
+             { start: 0x002c00, end: 0x002dff, name: 'General Script' },
+             { start: 0x002e00, end: 0x002e7f, name: 'Supplemental Punctuation' },
+             { start: 0x002e80, end: 0x0033ff, name: 'CJK Miscellaneous' },
+             { start: 0x003400, end: 0x009fff, name: 'CJKV Unified Ideographs', large: true },
+             { start: 0x00a000, end: 0x00abff, name: 'General Script (Asia & Africa)' },
+             { start: 0x00ac00, end: 0x00d7ff, name: 'Hangul Syllables', large: true },
+             { start: 0x00d800, end: 0x00dfff, name: 'Surrogate Codes', disabled: true },
+             { start: 0x00e000, end: 0x00f8ff, name: 'Private Use' },
+             { start: 0x00f900, end: 0x00ffff, name: 'Compatibility & Specials' },
+
+             { start: 0x010000, end: 0x0107ff, name: 'General Script' },
+             { start: 0x010800, end: 0x010fff, name: 'General Script (RTL)' },
+             { start: 0x011000, end: 0x011fff, name: 'General Script' },
+             { start: 0x012000, end: 0x015fff, name: 'Cuneiform & Hieroglyphic' },
+             { start: 0x016000, end: 0x016fff, name: 'General Script' },
+             { start: 0x017000, end: 0x01bbff, name: 'Ideographic Script' },
+             { start: 0x01bc00, end: 0x01cfff, name: 'General Script' },
+             { start: 0x01d000, end: 0x01e7ff, name: 'Symbols' },
+             { start: 0x01e800, end: 0x01efff, name: 'General Script (RTL)' },
+             { start: 0x01f000, end: 0x01ffff, name: 'General Script' },
+
+             UnicodeViewer.makeAreaTable(2, 'Supplementary Ideographic'),
+             UnicodeViewer.makeAreaTable(3, 'Tertiary Ideographic'),
+
+             [...Array(10)].map((_, p) =>
+                 UnicodeViewer.makeAreaTable(4 + p, `Plane ${4+p} (Reserved)`)
+             ).flat(),
+
+             { start: 0x0e0000, end: 0x0e0fff, name: 'Default_Ignorable_Code_Point' },
+             UnicodeViewer.makeAreaTable(14, 'Plane 14', 15, 1),
+
+             UnicodeViewer.makeAreaTable(15, 'Supplementary Private Use Area-A'),
+             UnicodeViewer.makeAreaTable(16, 'Supplementary Private Use Area-B'),
+
+             // Plane
+             { start: 0x000000, end: 0x00ffff, large: true, name: 'Basic Multilingual Plane' },
+             { start: 0x010000, end: 0x01ffff, large: true, name: 'Supplementary Multilingual Plane' },
+             { start: 0x020000, end: 0x02ffff, large: true, name: 'Supplementary Ideographic Plane' },
+             { start: 0x030000, end: 0x03ffff, large: true, name: 'Tertiary Ideographic Plane' },
+             [...Array(10)].map((_, p) => ({
+                 large: true, start: ((4 + p) << 16), end: (((5 + p) << 16) - 1), name: `Plane ${4+p} (Reserved)`
+             })),
+             { start: 0x0e0000, end: 0x0effff, large: true, name: 'Plane 14' },
+             { start: 0x0f0000, end: 0x0fffff, large: true, name: 'Supplementary Private Use Area-A' },
+             { start: 0x100000, end: 0x10ffff, large: true, name: 'Supplementary Private Use Area-B' },
+         ].flat();
+
+         static DetailPlaneList = [
+             { start: 0x000000, end: 0x00ffff, name: '0\xa0BMP' },
+             { start: 0x010000, end: 0x01ffff, name: '1\xa0SMP' },
+             { start: 0x020000, end: 0x03ffff, name: '2\xa0〜\xa03' },
+             { start: 0x040000, end: 0x0dffff, name: '予約' },
+             { start: 0x0e0000, end: 0x10ffff, name: '14\xa0〜\xa016' },
+         ];
+
+         static DetailPlaneTable = [
+             { start: 0x000000, end: 0x0007ff, name: '0000〜' },
+             { start: 0x000800, end: 0x000fff, name: '0800〜' },
+             { start: 0x001000, end: 0x0017ff, name: '1000〜' },
+             { start: 0x001800, end: 0x001fff, name: '1800〜' },
+             { start: 0x002000, end: 0x0027ff, name: '2000〜' },
+             { start: 0x002800, end: 0x002fff, name: '2800〜', separator: true },
+             { start: 0x003000, end: 0x004dff, name: '3000〜' },
+             { start: 0x004e00, end: 0x009fff, name: '4E00〜' },
+             { start: 0x00a000, end: 0x00a7ff, name: 'A000〜' },
+             { start: 0x00a800, end: 0x00abff, name: 'A800〜' },
+             { start: 0x00ac00, end: 0x00d7af, name: 'AC00〜' },
+             { start: 0x00d7b0, end: 0x00ffff, name: 'D700〜' },
+
+             { start: 0x010000, end: 0x0103ff, name: '0000〜' },
+             { start: 0x010400, end: 0x0107ff, name: '0400〜' },
+             { start: 0x010800, end: 0x0109ff, name: '0800〜' },
+             { start: 0x010a00, end: 0x010bff, name: '0A00〜' },
+             { start: 0x010c00, end: 0x010fff, name: '0C00〜' },
+             { start: 0x011000, end: 0x0113ff, name: '1000〜', separator: true },
+             { start: 0x011400, end: 0x0117ff, name: '1400〜' },
+             { start: 0x011800, end: 0x011bff, name: '1800〜' },
+             { start: 0x011c00, end: 0x011fff, name: '1C00〜' },
+             { start: 0x012000, end: 0x0167ff, name: '2000〜' },
+             { start: 0x016800, end: 0x016fff, name: '6800〜' },
+             { start: 0x017000, end: 0x01afff, name: '7000〜', separator: true },
+             { start: 0x01b000, end: 0x01cfff, name: 'B000〜' },
+             { start: 0x01d000, end: 0x01dfff, name: 'D000〜' },
+             { start: 0x01e000, end: 0x01efff, name: 'E000〜' },
+             { start: 0x01f000, end: 0x01f7ff, name: 'F000〜' },
+             { start: 0x01f800, end: 0x01ffff, name: 'F800〜' },
+
+             { start: 0x020000, end: 0x02ffff, name: '面2（SIP）' },
+             { start: 0x030000, end: 0x03ffff, name: '面3（TIP）' },
+
+             [...Array(10)].map((_, p) => ({
+                 start: ((4 + p) << 16),
+                 end: (((5 + p) << 16) - 1),
+                 name: `面${4 + p} `
+             })),
+
+             { start: 0x0e0000, end: 0x0effff, name: '面14（制御）' },
+             { start: 0x0f0000, end: 0x0fffff, name: '面15（外字A）' },
+             { start: 0x100000, end: 0x10ffff, name: '面16（外字B）' },
+         ].flat();
+
+         static DetailAreaTable = [
+             //
+             // Basic Multilingual Plane
+             //
+
+             { start: 0x000000, end: 0x00007f, name: 'C0 Controls and Basic Latin' },
+             { start: 0x000080, end: 0x0000ff, name: 'C1 Controls and Latin-1 Supplement' },
+
+             { start: 0x000100, end: 0x00017f, name: 'Latin Extended-A' },
+             { start: 0x000180, end: 0x00024f, name: 'Latin Extended-B' },
+             { start: 0x000250, end: 0x0002af, name: 'IPA Extensions' },
+             { start: 0x0002b0, end: 0x0002ff, name: 'Spacing Modifier Letters' },
+
+             { start: 0x000300, end: 0x00036f, name: 'Combining Diacritical Marks' },
+             { start: 0x000370, end: 0x0003ff, name: 'Greek and Coptic' },
+
+             { start: 0x000400, end: 0x0004ff, name: 'Cyrillic' },
+
+             { start: 0x000500, end: 0x00052f, name: 'Cyrillic Supplement' },
+             { start: 0x000530, end: 0x00058f, name: 'Armenian' },
+             { start: 0x000590, end: 0x0005ff, name: 'Hebrew' },
+
+             { start: 0x000600, end: 0x0006ff, name: 'Arabic' },
+
+             { start: 0x000700, end: 0x00074f, name: 'Syriac' },
+             { start: 0x000750, end: 0x00077f, name: 'Arabic Supplement' },
+             { start: 0x000780, end: 0x0007bf, name: 'Thaana' },
+             { start: 0x0007c0, end: 0x0007ff, name: 'NKo' },
+
+             { start: 0x000800, end: 0x00083f, name: 'Samaritan' },
+             { start: 0x000840, end: 0x00085f, name: 'Mandaic' },
+             { start: 0x000860, end: 0x00086f, name: 'Syriac Supplement' },
+             { start: 0x000870, end: 0x00089f, name: 'Arabic Extended-B' },
+             { start: 0x0008a0, end: 0x0008ff, name: 'Arabic Extended-A' },
+
+             { start: 0x000900, end: 0x00097f, name: 'Devanagari' },
+             { start: 0x000980, end: 0x0009ff, name: 'Bengali' },
+
+             { start: 0x000a00, end: 0x000a7f, name: 'Gurmukhi' },
+             { start: 0x000a80, end: 0x000aff, name: 'Gujarati' },
+
+             { start: 0x000b00, end: 0x000b7f, name: 'Oriya' },
+             { start: 0x000b80, end: 0x000bff, name: 'Tamil' },
+
+             { start: 0x000c00, end: 0x000c7f, name: 'Telugu' },
+             { start: 0x000c80, end: 0x000cff, name: 'Kannada' },
+
+             { start: 0x000d00, end: 0x000d7f, name: 'Malayalam' },
+             { start: 0x000d80, end: 0x000dff, name: 'Sinhala' },
+
+             { start: 0x000e00, end: 0x000e7f, name: 'Thai' },
+             { start: 0x000e80, end: 0x000eff, name: 'Lao' },
+
+             { start: 0x000f00, end: 0x000fff, name: 'Tibetan' },
+
+             { start: 0x001000, end: 0x00109f, name: 'Myanmar' },
+             { start: 0x0010a0, end: 0x0010ff, name: 'Georgian' },
+
+             { start: 0x001100, end: 0x0011ff, name: 'Hangul Jamo' },
+
+             { start: 0x001200, end: 0x00137f, name: 'Ethiopic' },
+             { start: 0x001380, end: 0x00139f, name: 'Ethiopic Supplement' },
+             { start: 0x0013a0, end: 0x0013ff, name: 'Cherokee' },
+
+             { start: 0x001400, end: 0x00167f, name: 'Unified Canadian Aboriginal Syllabics' },
+             { start: 0x001680, end: 0x00169f, name: 'Ogham' },
+             { start: 0x0016a0, end: 0x0016ff, name: 'Runic' },
+
+             { start: 0x001700, end: 0x00171f, name: 'Tagalog' },
+             { start: 0x001720, end: 0x00173f, name: 'Hanunoo' },
+             { start: 0x001740, end: 0x00175f, name: 'Buhid' },
+             { start: 0x001760, end: 0x00177f, name: 'Tagbanwa' },
+             { start: 0x001780, end: 0x0017ff, name: 'Khmer' },
+
+             { start: 0x001800, end: 0x0018af, name: 'Mongolian' },
+             { start: 0x0018b0, end: 0x0018ff, name: 'Unified Canadian Aboriginal Syllabics Extended' },
+
+             { start: 0x001900, end: 0x00194f, name: 'Limbu' },
+             { start: 0x001950, end: 0x00197f, name: 'Tai Le' },
+             { start: 0x001980, end: 0x0019df, name: 'New Tai Lue' },
+             { start: 0x0019e0, end: 0x0019ff, name: 'Khmer Symbols' },
+
+             { start: 0x001a00, end: 0x001a1f, name: 'Buginese' },
+             { start: 0x001a20, end: 0x001aaf, name: 'Tai Tham' },
+             { start: 0x001ab0, end: 0x001aff, name: 'Combining Diacritical Marks Extended' },
+
+             { start: 0x001b00, end: 0x001b7f, name: 'Balinese' },
+             { start: 0x001b80, end: 0x001bbf, name: 'Sundanese' },
+             { start: 0x001bc0, end: 0x001bff, name: 'Batak' },
+
+             { start: 0x001c00, end: 0x001c4f, name: 'Lepcha' },
+             { start: 0x001c50, end: 0x001c7f, name: 'Ol Chiki' },
+             { start: 0x001c80, end: 0x001c8f, name: 'Cyrillic Extended-C' },
+             { start: 0x001c90, end: 0x001cbf, name: 'Georgian Extended' },
+             { start: 0x001cc0, end: 0x001ccf, name: 'Sundanese Supplement' },
+             { start: 0x001cd0, end: 0x001cff, name: 'Vedic Extensions' },
+
+             { start: 0x001d00, end: 0x001d7f, name: 'Phonetic Extensions' },
+             { start: 0x001d80, end: 0x001dbf, name: 'Phonetic Extensions Supplement' },
+             { start: 0x001dc0, end: 0x001dff, name: 'Combining Diacritical Marks Supplement' },
+
+             { start: 0x001e00, end: 0x001eff, name: 'Latin Extended Additional' },
+
+             { start: 0x001f00, end: 0x001fff, name: 'Greek Extended' },
+
+             { start: 0x002000, end: 0x00206f, name: 'General Punctuation' },
+             { start: 0x002070, end: 0x00209f, name: 'Superscripts and Subscripts' },
+             { start: 0x0020a0, end: 0x0020cf, name: 'Currency Symbols' },
+             { start: 0x0020d0, end: 0x0020ff, name: 'Combining Diacritical Marks for Symbols' },
+
+             { start: 0x002100, end: 0x00214f, name: 'Letterlike Symbols' },
+             { start: 0x002150, end: 0x00218f, name: 'Number Forms' },
+             { start: 0x002190, end: 0x0021ff, name: 'Arrows' },
+
+             { start: 0x002200, end: 0x0022ff, name: 'Mathematical Operators' },
+
+             { start: 0x002300, end: 0x0023ff, name: 'Miscellaneous Technical' },
+
+             { start: 0x002400, end: 0x00243f, name: 'Control Pictures' },
+             { start: 0x002440, end: 0x00245f, name: 'Optical Character Recognition' },
+             { start: 0x002460, end: 0x0024ff, name: 'Enclosed Alphanumerics' },
+
+             { start: 0x002500, end: 0x00257f, name: 'Box Drawing' },
+             { start: 0x002580, end: 0x00259f, name: 'Block Elements' },
+             { start: 0x0025a0, end: 0x0025ff, name: 'Geometric Shapes' },
+
+             { start: 0x002600, end: 0x0026ff, name: 'Miscellaneous Symbols' },
+
+             { start: 0x002700, end: 0x0027bf, name: 'Dingbats' },
+             { start: 0x0027c0, end: 0x0027ef, name: 'Miscellaneous Mathematical Symbols-A' },
+             { start: 0x0027f0, end: 0x0027ff, name: 'Supplemental Arrows-A' },
+
+             { start: 0x002800, end: 0x0028ff, name: 'Braille Patterns' },
+
+             { start: 0x002900, end: 0x00297f, name: 'Supplemental Arrows-B' },
+             { start: 0x002980, end: 0x0029ff, name: 'Miscellaneous Mathematical Symbols-B' },
+
+             { start: 0x002a00, end: 0x002aff, name: 'Supplemental Mathematical Operators' },
+
+             { start: 0x002b00, end: 0x002bff, name: 'Miscellaneous Symbols and Arrows' },
+
+             { start: 0x002c00, end: 0x002c5f, name: 'Glagolitic' },
+             { start: 0x002c60, end: 0x002c7f, name: 'Latin Extended-C' },
+             { start: 0x002c80, end: 0x002cff, name: 'Coptic' },
+
+             { start: 0x002d00, end: 0x002d2f, name: 'Georgian Supplement' },
+             { start: 0x002d30, end: 0x002d7f, name: 'Tifinagh' },
+             { start: 0x002d80, end: 0x002ddf, name: 'Ethiopic Extended' },
+             { start: 0x002de0, end: 0x002dff, name: 'Cyrillic Extended-A' },
+
+             { start: 0x002e00, end: 0x002e7f, name: 'Supplemental Punctuation' },
+             { start: 0x002e80, end: 0x002eff, name: 'CJK Radicals Supplement' },
+
+             { start: 0x002f00, end: 0x002fdf, name: 'Kangxi Radicals' },
+             { start: 0x002fe0, end: 0x002fef, name: UnicodeViewer.UndefinedName },
+             { start: 0x002ff0, end: 0x002fff, name: 'Ideographic Description Characters' },
+
+             { start: 0x003000, end: 0x00303f, name: 'CJK Symbols and Punctuation' },
+             { start: 0x003040, end: 0x00309f, name: 'Hiragana' },
+             { start: 0x0030a0, end: 0x0030ff, name: 'Katakana' },
+             { start: 0x003100, end: 0x00312f, name: 'Bopomofo' },
+             { start: 0x003130, end: 0x00318f, name: 'Hangul Compatibility Jamo' },
+             { start: 0x003190, end: 0x00319f, name: 'Kanbun' },
+             { start: 0x0031a0, end: 0x0031bf, name: 'Bopomofo Extended' },
+             { start: 0x0031c0, end: 0x0031ef, name: 'CJK Strokes' },
+             { start: 0x0031f0, end: 0x0031ff, name: 'Katakana Phonetic Extensions' },
+             { start: 0x003200, end: 0x0032ff, name: 'Enclosed CJK Letters and Months' },
+             { start: 0x003300, end: 0x0033ff, name: 'CJK Compatibility' },
+             { start: 0x003400, end: 0x003fff, name: 'CJK Unified Ideographs Extension A [1]' },
+             { start: 0x004000, end: 0x004dbf, name: 'CJK Unified Ideographs Extension A [2]' },
+             { start: 0x003400, end: 0x004dbf, name: 'CJK Unified Ideographs Extension A', large: true },
+             { start: 0x004dc0, end: 0x004dff, name: 'Yijing Hexagram Symbols' },
+
+             { start: 0x004e00, end: 0x004fff, name: 'CJK Unified Ideographs [1]' },
+             { start: 0x005000, end: 0x005fff, name: 'CJK Unified Ideographs [2]' },
+             { start: 0x006000, end: 0x006fff, name: 'CJK Unified Ideographs [3]' },
+             { start: 0x007000, end: 0x007fff, name: 'CJK Unified Ideographs [4]' },
+             { start: 0x008000, end: 0x008fff, name: 'CJK Unified Ideographs [5]' },
+             { start: 0x009000, end: 0x009fff, name: 'CJK Unified Ideographs [6]' },
+             { start: 0x004e00, end: 0x009fff, name: 'CJK Unified Ideographs', large: true },
+
+             { start: 0x00a000, end: 0x00a48f, name: 'Yi Syllables' },
+             { start: 0x00a490, end: 0x00a4cf, name: 'Yi Radicals' },
+             { start: 0x00a4d0, end: 0x00a4ff, name: 'Lisu' },
+
+             { start: 0x00a500, end: 0x00a63f, name: 'Vai' },
+             { start: 0x00a640, end: 0x00a69f, name: 'Cyrillic Extended-B' },
+             { start: 0x00a6a0, end: 0x00a6ff, name: 'Bamum' },
+
+             { start: 0x00a700, end: 0x00a71f, name: 'Modifier Tone Letters' },
+             { start: 0x00a720, end: 0x00a7ff, name: 'Latin Extended-D' },
+
+             { start: 0x00a800, end: 0x00a82f, name: 'Syloti Nagri' },
+             { start: 0x00a830, end: 0x00a83f, name: 'Common Indic Number Forms' },
+             { start: 0x00a840, end: 0x00a87f, name: 'Phags-pa' },
+             { start: 0x00a880, end: 0x00a8df, name: 'Saurashtra' },
+             { start: 0x00a8e0, end: 0x00a8ff, name: 'Devanagari Extended' },
+
+             { start: 0x00a900, end: 0x00a92f, name: 'Kayah Li' },
+             { start: 0x00a930, end: 0x00a95f, name: 'Rejang' },
+             { start: 0x00a960, end: 0x00a97f, name: 'Hangul Jamo Extended-A' },
+             { start: 0x00a980, end: 0x00a9df, name: 'Javanese' },
+             { start: 0x00a9e0, end: 0x00a9ff, name: 'Myanmar Extended-B' },
+
+             { start: 0x00aa00, end: 0x00aa5f, name: 'Cham' },
+             { start: 0x00aa60, end: 0x00aa7f, name: 'Myanmar Extended-A' },
+             { start: 0x00aa80, end: 0x00aadf, name: 'Tai Viet' },
+             { start: 0x00aae0, end: 0x00aaff, name: 'Meetei Mayek Extensions' },
+
+             { start: 0x00ab00, end: 0x00ab2f, name: 'Ethiopic Extended-A' },
+             { start: 0x00ab30, end: 0x00ab6f, name: 'Latin Extended-E' },
+             { start: 0x00ab70, end: 0x00abbf, name: 'Cherokee Supplement' },
+             { start: 0x00abc0, end: 0x00abff, name: 'Meetei Mayek' },
+
+             { start: 0x00ac00, end: 0x00afff, name: 'Hangul Syllables [1]' },
+             { start: 0x00b000, end: 0x00bfff, name: 'Hangul Syllables [2]' },
+             { start: 0x00c000, end: 0x00cfff, name: 'Hangul Syllables [3]' },
+             { start: 0x00d000, end: 0x00d7af, name: 'Hangul Syllables [4]' },
+             { start: 0x00ac00, end: 0x00d7af, name: 'Hangul Syllables', large: true },
+
+             { start: 0x00d7b0, end: 0x00d7ff, name: 'Hangul Jamo Extended-B' },
+
+             { start: 0x00d800, end: 0x00dfff, name: 'Surrogate Codes' },
+
+             { start: 0x00e000, end: 0x00efff, name: 'Private Use [1]' },
+             { start: 0x00f000, end: 0x00f8ff, name: 'Private Use [2]' },
+             { start: 0x00e000, end: 0x00f8ff, name: 'Private Use', large: true },
+
+             { start: 0x00f900, end: 0x00faff, name: 'CJK Compatibility Ideographs' },
+             { start: 0x00fb00, end: 0x00fb4f, name: 'Alphabetic Presentation Forms' },
+             { start: 0x00fb50, end: 0x00fdff, name: 'Arabic Presentation Forms-A' },
+
+             { start: 0x00fe00, end: 0x00fe0f, name: 'Variation Selectors' },
+             { start: 0x00fe10, end: 0x00fe1f, name: 'Vertical Forms' },
+             { start: 0x00fe20, end: 0x00fe2f, name: 'Combining Half Marks' },
+             { start: 0x00fe30, end: 0x00fe4f, name: 'CJK Compatibility Forms' },
+             { start: 0x00fe50, end: 0x00fe6f, name: 'Small Form Variants' },
+             { start: 0x00fe70, end: 0x00feff, name: 'Arabic Presentation Forms-B' },
+
+             { start: 0x00ff00, end: 0x00ffef, name: 'Halfwidth and Fullwidth Forms' },
+             { start: 0x00fff0, end: 0x00ffff, name: 'Specials' },
+
+             //
+             // Supplementary Multilingual Plane
+             //
+
+             { start: 0x010000, end: 0x01007f, name: 'Linear B Syllabary' },
+             { start: 0x010080, end: 0x0100ff, name: 'Linear B Ideograms' },
+
+             { start: 0x010100, end: 0x01013f, name: 'Aegean Numbers' },
+             { start: 0x010140, end: 0x01018f, name: 'Ancient Greek Numbers' },
+             { start: 0x010190, end: 0x0101cf, name: 'Ancient Symbols' },
+             { start: 0x0101d0, end: 0x0101ff, name: 'Phaistos Disc' },
+
+             { start: 0x010200, end: 0x01027f, name: UnicodeViewer.UndefinedName },
+             { start: 0x010280, end: 0x01029f, name: 'Lycian' },
+             { start: 0x0102a0, end: 0x0102df, name: 'Carian' },
+             { start: 0x0102e0, end: 0x0102ff, name: 'Coptic Epact Numbers' },
+
+             { start: 0x010300, end: 0x01032f, name: 'Old Italic' },
+             { start: 0x010330, end: 0x01034f, name: 'Gothic' },
+             { start: 0x010350, end: 0x01037f, name: 'Old Permic' },
+             { start: 0x010380, end: 0x01039f, name: 'Ugaritic' },
+             { start: 0x0103a0, end: 0x0103df, name: 'Old Persian' },
+             { start: 0x0103e0, end: 0x0103ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x010400, end: 0x01044f, name: 'Deseret' },
+             { start: 0x010450, end: 0x01047f, name: 'Shavian' },
+             { start: 0x010480, end: 0x0104af, name: 'Osmanya' },
+             { start: 0x0104b0, end: 0x0104ff, name: 'Osage' },
+
+             { start: 0x010500, end: 0x01052f, name: 'Elbasan' },
+             { start: 0x010530, end: 0x01056f, name: 'Caucasian Albanian' },
+             { start: 0x010570, end: 0x0105bf, name: 'Vithkuqi' },
+             { start: 0x0105c0, end: 0x0105ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x010600, end: 0x01077f, name: 'Linear A' },
+             { start: 0x010780, end: 0x0107bf, name: 'Latin Extended-F' },
+             { start: 0x0107c0, end: 0x0107ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x010800, end: 0x01083f, name: 'Cypriot Syllabary' },
+             { start: 0x010840, end: 0x01085f, name: 'Imperial Aramaic' },
+             { start: 0x010860, end: 0x01087f, name: 'Palmyrene' },
+             { start: 0x010880, end: 0x0108af, name: 'Nabataean' },
+             { start: 0x0108b0, end: 0x0108df, name: UnicodeViewer.UndefinedName },
+             { start: 0x0108e0, end: 0x0108ff, name: 'Hatran' },
+
+             { start: 0x010900, end: 0x01091f, name: 'Phoenician' },
+             { start: 0x010920, end: 0x01093f, name: 'Lydian' },
+             { start: 0x010940, end: 0x01097f, name: UnicodeViewer.UndefinedName },
+             { start: 0x010980, end: 0x01099f, name: 'Meroitic Hieroglyphs' },
+             { start: 0x0109a0, end: 0x0109ff, name: 'Meroitic Cursive' },
+
+             { start: 0x010a00, end: 0x010a5f, name: 'Kharoshthi' },
+             { start: 0x010a60, end: 0x010a7f, name: 'Old South Arabian' },
+             { start: 0x010a80, end: 0x010a9f, name: 'Old North Arabian' },
+             { start: 0x010aa0, end: 0x010abf, name: UnicodeViewer.UndefinedName },
+             { start: 0x010ac0, end: 0x010aff, name: 'Manichaean' },
+
+             { start: 0x010b00, end: 0x010b3f, name: 'Avestan' },
+             { start: 0x010b40, end: 0x010b5f, name: 'Inscriptional Parthian' },
+             { start: 0x010b60, end: 0x010b7f, name: 'Inscriptional Pahlavi' },
+             { start: 0x010b80, end: 0x010baf, name: 'Psalter Pahlavi' },
+             { start: 0x010bb0, end: 0x010bff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x010c00, end: 0x010c4f, name: 'Old Turkic' },
+             { start: 0x010c50, end: 0x010c7f, name: UnicodeViewer.UndefinedName },
+             { start: 0x010c80, end: 0x010cff, name: 'Old Hungarian' },
+
+             { start: 0x010d00, end: 0x010d3f, name: 'Hanifi Rohingya' },
+             { start: 0x010d40, end: 0x010dff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x010e00, end: 0x010e5f, name: UnicodeViewer.UndefinedName },
+             { start: 0x010e60, end: 0x010e7f, name: 'Rumi Numeral Symbols' },
+             { start: 0x010e80, end: 0x010ebf, name: 'Yezidi' },
+             { start: 0x010ec0, end: 0x010eff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x010f00, end: 0x010f2f, name: 'Old Sogdian' },
+             { start: 0x010f30, end: 0x010f6f, name: 'Sogdian' },
+             { start: 0x010f70, end: 0x010faf, name: 'Old Uyghur' },
+             { start: 0x010fb0, end: 0x010fdf, name: 'Chorasmian' },
+             { start: 0x010fe0, end: 0x010fff, name: 'Elymaic' },
+
+             { start: 0x011000, end: 0x01107f, name: 'Brahmi' },
+             { start: 0x011080, end: 0x0110cf, name: 'Kaithi' },
+             { start: 0x0110d0, end: 0x0110ff, name: 'Sora Sompeng' },
+
+             { start: 0x011100, end: 0x01114f, name: 'Chakma' },
+             { start: 0x011150, end: 0x01117f, name: 'Mahajani' },
+             { start: 0x011180, end: 0x0111df, name: 'Sharada' },
+             { start: 0x0111e0, end: 0x0111ff, name: 'Sinhala Archaic Numbers' },
+
+             { start: 0x011200, end: 0x01124f, name: 'Khojki' },
+             { start: 0x011250, end: 0x01127f, name: UnicodeViewer.UndefinedName },
+             { start: 0x011280, end: 0x0112af, name: 'Multani' },
+             { start: 0x0112b0, end: 0x0112ff, name: 'Khudawadi' },
+
+             { start: 0x011300, end: 0x01137f, name: 'Grantha' },
+             { start: 0x011380, end: 0x0113ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x011400, end: 0x01147f, name: 'Newa' },
+             { start: 0x011480, end: 0x0114df, name: 'Tirhuta' },
+             { start: 0x0114e0, end: 0x01157f, name: UnicodeViewer.UndefinedName },
+             { start: 0x011580, end: 0x0115ff, name: 'Siddham' },
+
+             { start: 0x011600, end: 0x01165f, name: 'Modi' },
+             { start: 0x011660, end: 0x01167f, name: 'Mongolian Supplement' },
+             { start: 0x011680, end: 0x0116cf, name: 'Takri' },
+             { start: 0x0116d0, end: 0x0116ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x011700, end: 0x01174f, name: 'Ahom' },
+             { start: 0x011750, end: 0x0117ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x011800, end: 0x01184f, name: 'Dogra' },
+             { start: 0x011850, end: 0x01189f, name: UnicodeViewer.UndefinedName },
+             { start: 0x0118a0, end: 0x0118ff, name: 'Warang Citi' },
+
+             { start: 0x011900, end: 0x01195f, name: 'Dives Akuru' },
+             { start: 0x011960, end: 0x01199f, name: UnicodeViewer.UndefinedName },
+             { start: 0x0119a0, end: 0x0119ff, name: 'Nandinagari' },
+
+             { start: 0x011a00, end: 0x011a4f, name: 'Zanabazar Square' },
+             { start: 0x011a50, end: 0x011aaf, name: 'Soyombo' },
+             { start: 0x011ab0, end: 0x011abf, name: 'Unified Canadian Aboriginal Syllabics Extended-A' },
+             { start: 0x011ac0, end: 0x011aff, name: 'Pau Cin Hau' },
+
+             { start: 0x011b00, end: 0x011bff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x011c00, end: 0x011c6f, name: 'Bhaiksuki' },
+             { start: 0x011c70, end: 0x011cbf, name: 'Marchen' },
+             { start: 0x011cc0, end: 0x011cff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x011d00, end: 0x011d5f, name: 'Masaram Gondi' },
+             { start: 0x011d60, end: 0x011daf, name: 'Gunjala Gondi' },
+             { start: 0x011db0, end: 0x011edf, name: UnicodeViewer.UndefinedName },
+             { start: 0x011ee0, end: 0x011eff, name: 'Makasar' },
+
+             { start: 0x011f00, end: 0x011faf, name: UnicodeViewer.UndefinedName },
+             { start: 0x011fb0, end: 0x011fbf, name: 'Lisu Supplement' },
+             { start: 0x011fc0, end: 0x011fff, name: 'Tamil Supplement' },
+
+             { start: 0x012000, end: 0x0123ff, name: 'Cuneiform' },
+             { start: 0x012400, end: 0x01247f, name: 'Cuneiform Numbers and Punctuation' },
+             { start: 0x012480, end: 0x01254f, name: 'Early Dynastic Cuneiform' },
+             { start: 0x012550, end: 0x012f8f, name: UnicodeViewer.UndefinedName },
+             { start: 0x012f90, end: 0x012fff, name: 'Cypro-Minoan' },
+
+             { start: 0x013000, end: 0x01342f, name: 'Egyptian Hieroglyphs' },
+             { start: 0x013430, end: 0x01343f, name: 'Egyptian Hieroglyph Format Controls' },
+             { start: 0x013440, end: 0x013fff, name: UnicodeViewer.UndefinedName },
+             { start: 0x014000, end: 0x0143ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x014400, end: 0x01467f, name: 'Anatolian Hieroglyphs' },
+             { start: 0x014680, end: 0x014fff, name: UnicodeViewer.UndefinedName },
+             { start: 0x015000, end: 0x015fff, name: UnicodeViewer.UndefinedName },
+             { start: 0x016000, end: 0x0167ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x016800, end: 0x016a3f, name: 'Bamum Supplement' },
+             { start: 0x016a40, end: 0x016a6f, name: 'Mro' },
+             { start: 0x016a70, end: 0x016acf, name: 'Tangsa' },
+             { start: 0x016ad0, end: 0x016aff, name: 'Bassa Vah' },
+
+             { start: 0x016b00, end: 0x016b8f, name: 'Pahawh Hmong' },
+             { start: 0x016b90, end: 0x016e3f, name: UnicodeViewer.UndefinedName },
+             { start: 0x016e40, end: 0x016e9f, name: 'Medefaidrin' },
+             { start: 0x016ea0, end: 0x016eff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x016f00, end: 0x016f9f, name: 'Miao' },
+             { start: 0x016fa0, end: 0x016fdf, name: UnicodeViewer.UndefinedName },
+             { start: 0x016fe0, end: 0x016fff, name: 'Ideographic Symbols and Punctuation' },
+
+             { start: 0x017000, end: 0x017fff, name: 'Tangut [1]' },
+             { start: 0x018000, end: 0x0187ff, name: 'Tangut [2]' },
+             { start: 0x017000, end: 0x0187ff, name: 'Tangut', large: true },
+             { start: 0x018800, end: 0x018aff, name: 'Tangut Components' },
+
+             { start: 0x018b00, end: 0x018cff, name: 'Khitan Small Script' },
+
+             { start: 0x018d00, end: 0x018d0f, name: 'Tangut Supplement' },
+             { start: 0x018d10, end: 0x018fff, name: UnicodeViewer.UndefinedName },
+             { start: 0x019000, end: 0x019fff, name: UnicodeViewer.UndefinedName },
+             { start: 0x01a000, end: 0x01afef, name: UnicodeViewer.UndefinedName },
+             { start: 0x01aff0, end: 0x01afff, name: 'Kana Extended-B' },
+
+             { start: 0x01b000, end: 0x01b0ff, name: 'Kana Supplement' },
+
+             { start: 0x01b100, end: 0x01b12f, name: 'Kana Extended-A' },
+             { start: 0x01b130, end: 0x01b16f, name: 'Small Kana Extension' },
+             { start: 0x01b170, end: 0x01b2ff, name: 'Nushu' },
+
+             { start: 0x01b300, end: 0x01bbff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x01bc00, end: 0x01bc9f, name: 'Duployan' },
+             { start: 0x01bca0, end: 0x01bcaf, name: 'Shorthand Format Controls' },
+             { start: 0x01bcb0, end: 0x01bfff, name: UnicodeViewer.UndefinedName },
+             { start: 0x01c000, end: 0x01ceff, name: UnicodeViewer.UndefinedName },
+             { start: 0x01cf00, end: 0x01cfcf, name: 'Znamenny Musical Notation' },
+             { start: 0x01cfd0, end: 0x01cfff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x01d000, end: 0x01d0ff, name: 'Byzantine Musical Symbols' },
+
+             { start: 0x01d100, end: 0x01d1ff, name: 'Musical Symbols' },
+
+             { start: 0x01d200, end: 0x01d24f, name: 'Ancient Greek Musical Notation' },
+             { start: 0x01d250, end: 0x01d2df, name: UnicodeViewer.UndefinedName },
+             { start: 0x01d2e0, end: 0x01d2ff, name: 'Mayan Numerals' },
+
+             { start: 0x01d300, end: 0x01d35f, name: 'Tai Xuan Jing Symbols' },
+             { start: 0x01d360, end: 0x01d37f, name: 'Counting Rod Numerals' },
+             { start: 0x01d380, end: 0x01d3ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x01d400, end: 0x01d7ff, name: 'Mathematical Alphanumeric Symbols' },
+
+             { start: 0x01d800, end: 0x01daaf, name: 'Sutton SignWriting' },
+             { start: 0x01dab0, end: 0x01deff, name: UnicodeViewer.UndefinedName },
+             { start: 0x01df00, end: 0x01dfff, name: 'Latin Extended-G' },
+
+             { start: 0x01e000, end: 0x01e02f, name: 'Glagolitic Supplement' },
+             { start: 0x01e030, end: 0x01e0ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x01e100, end: 0x01e14f, name: 'Nyiakeng Puachue Hmong' },
+             { start: 0x01e150, end: 0x01e28f, name: UnicodeViewer.UndefinedName },
+             { start: 0x01e290, end: 0x01e2bf, name: 'Toto' },
+             { start: 0x01e2c0, end: 0x01e2ff, name: 'Wancho' },
+
+             { start: 0x01e300, end: 0x01e7df, name: UnicodeViewer.UndefinedName },
+             { start: 0x01e7e0, end: 0x01e7ff, name: 'Ethiopic Extended-B' },
+
+             { start: 0x01e800, end: 0x01e8df, name: 'Mende Kikakui' },
+             { start: 0x01e8e0, end: 0x01e8ff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x01e900, end: 0x01e95f, name: 'Adlam' },
+             { start: 0x01e960, end: 0x01ec6f, name: UnicodeViewer.UndefinedName },
+             { start: 0x01ec70, end: 0x01ecbf, name: 'Indic Siyaq Numbers' },
+             { start: 0x01ecc0, end: 0x01ecff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x01ed00, end: 0x01ed4f, name: 'Ottoman Siyaq Numbers' },
+             { start: 0x01ed50, end: 0x01edff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x01ee00, end: 0x01eeff, name: 'Arabic Mathematical Alphabetic Symbols' },
+
+             { start: 0x01ef00, end: 0x01efff, name: UnicodeViewer.UndefinedName },
+
+             { start: 0x01f000, end: 0x01f02f, name: 'Mahjong Tiles' },
+             { start: 0x01f030, end: 0x01f09f, name: 'Domino Tiles' },
+             { start: 0x01f0a0, end: 0x01f0ff, name: 'Playing Cards' },
+
+             { start: 0x01f100, end: 0x01f1ff, name: 'Enclosed Alphanumeric Supplement' },
+
+             { start: 0x01f200, end: 0x01f2ff, name: 'Enclosed Ideographic Supplement' },
+
+             { start: 0x01f300, end: 0x01f5ff, name: 'Miscellaneous Symbols and Pictographs' },
+
+             { start: 0x01f600, end: 0x01f64f, name: 'Emoticons' },
+             { start: 0x01f650, end: 0x01f67f, name: 'Ornamental Dingbats' },
+             { start: 0x01f680, end: 0x01f6ff, name: 'Transport and Map Symbols' },
+
+             { start: 0x01f700, end: 0x01f77f, name: 'Alchemical Symbols' },
+             { start: 0x01f780, end: 0x01f7ff, name: 'Geometric Shapes Extended' },
+
+             { start: 0x01f800, end: 0x01f8ff, name: 'Supplemental Arrows-C' },
+
+             { start: 0x01f900, end: 0x01f9ff, name: 'Supplemental Symbols and Pictographs' },
+
+             { start: 0x01fa00, end: 0x01fa6f, name: 'Chess Symbols' },
+             { start: 0x01fa70, end: 0x01faff, name: 'Symbols and Pictographs Extended-A' },
+
+             { start: 0x01fb00, end: 0x01fbff, name: 'Symbols for Legacy Computing' },
+
+             { start: 0x01fc00, end: 0x01ff7f, name: UnicodeViewer.UndefinedName },
+             { start: 0x01ff80, end: 0x01ffff, name: 'Unassigned' },
+
+             //
+             // Supplementary Ideographic Plane
+             //
+
+             UnicodeViewer.makeAreaTable(2, 'CJK Unified Ideographs Extension B', 7),
+             UnicodeViewer.makeAreaTable(2, 'CJK Unified Ideographs Extension C', 4, 7),
+             { start: 0x02b000, end: 0x02b73f, name: 'CJK Unified Ideographs Extension C [B]' },
+             { start: 0x02b740, end: 0x02b81f, name: 'CJK Unified Ideographs Extension D [B]' },
+             { start: 0x02b820, end: 0x02ceaf, name: 'CJK Unified Ideographs Extension E [B,C]' },
+             { start: 0x02ceb0, end: 0x02dfff, name: 'CJK Unified Ideographs Extension F [C,D]' },
+             { start: 0x02e000, end: 0x02efff, name: 'CJK Unified Ideographs Extension F [E]' },
+             { start: 0x02f000, end: 0x02f7ff, name: 'CJK Unified Ideographs Extension F [F]' },
+             { start: 0x02f800, end: 0x02ff7f, name: 'CJK Compatibility Ideographs Supplement' },
+             { start: 0x02ff80, end: 0x02ffff, name: 'Unassigned' },
+
+             //
+             // Tertiary Ideographic Plane
+             //
+
+             { start: 0x030000, end: 0x03134f, name: 'CJK Unified Ideographs Extension G' },
+             { start: 0x031350, end: 0x031fff, name: UnicodeViewer.UndefinedName + ' [1]' },
+             UnicodeViewer.makeAreaTable(3, UnicodeViewer.UndefinedName, 13, 2),
+             { start: 0x03f000, end: 0x03ff7f, name: UnicodeViewer.UndefinedName + ' [F]' },
+             { start: 0x03ff80, end: 0x03ffff, name: 'Unassigned' },
+
+             //
+             // Plane 4 - 13
+             //
+
+             [...Array(10)].map((_, p) => ([
+                 UnicodeViewer.makeAreaTable(4+p, UnicodeViewer.UndefinedName, 15),
+                 { start: ((4+p)<<16)+0xf000, end: ((4+p)<<16)+0xff7f, name: UnicodeViewer.UndefinedName + ' [F]' },
+                 { start: ((4+p)<<16)+0xff80, end: (((5+p)<<16)-1), name: 'Unassigned' },
+             ]).flat()).flat(),
+
+             //
+             // Plane 14
+             //
+             { start: 0x0e0000, end: 0x0e007f, name: 'Tags' },
+             { start: 0x0e0080, end: 0x0e00ff, name: UnicodeViewer.UndefinedName },
+             { start: 0x0e0100, end: 0x0e01ef, name: 'Variation Selectors Supplement' },
+             { start: 0x0e01f0, end: 0x0e0fff, name: UnicodeViewer.UndefinedName + ' [0]' },
+             UnicodeViewer.makeAreaTable(14, UnicodeViewer.UndefinedName, 14, 1),
+             { start: 0x0ef000, end: 0x0ef7ff, name: UnicodeViewer.UndefinedName + ' [F]' },
+             { start: 0x0eff80, end: 0x0effff, name: 'Unassigned' },
+
+             //
+             // Supplementary Private Use Area
+             //
+             UnicodeViewer.makeAreaTable(15, 'Supplementary Private Use Area-A', 15),
+             { start: 0x0ff000, end: 0x0ff7ff, name: 'Supplementary Private Use Area-A [F]' },
+             { start: 0x0fff80, end: 0x0fffff, name: 'Unassigned' },
+
+             UnicodeViewer.makeAreaTable(16, 'Supplementary Private Use Area-B', 15),
+             { start: 0x10f000, end: 0x10f7ff, name: 'Supplementary Private Use Area-B [F]' },
+             { start: 0x10ff80, end: 0x10ffff, name: 'Unassigned' },
+         ].flat();
+
+         static ControlCharacterMap = UnicodeViewer.defineProperties(
+             {
+                 0x0000: 'NUL', 0x0001: 'SOH', 0x0002: 'STX', 0x0003: 'ETX',
+                 0x0004: 'EOT', 0x0005: 'ENQ', 0x0006: 'ACK', 0x0007: 'BEL',
+                 0x0008: 'BS',  0x0009: 'HT',  0x000a: 'LF',  0x000b: 'VT',
+                 0x000c: 'FF',  0x000d: 'CR',  0x000e: 'SO',  0x000f: 'SI',
+                 0x0010: 'DLE', 0x0011: 'DC1', 0x0012: 'DC2', 0x0013: 'DC3',
+                 0x0014: 'DC4', 0x0015: 'NAK', 0x0016: 'SYN', 0x0017: 'ETB',
+                 0x0018: 'CAN', 0x0019: 'EM',  0x001a: 'SUB', 0x001b: 'ESC',
+                 0x001c: 'FS',  0x001d: 'GS',  0x001e: 'RS',  0x001f: 'US',
+                 0x0020: 'SP',
+                 0x007f: 'DEL',
+                 0x0080: 'XXX', 0x0081: 'XXX', 0x0082: 'BPH', 0x0083: 'NBH',
+                 0x0084: 'IND', 0x0085: 'NEL', 0x0086: 'SSA', 0x0087: 'ESA',
+                 0x0088: 'HTS', 0x0089: 'HTJ', 0x008a: 'VTS', 0x008b: 'PLD',
+                 0x008c: 'PLU', 0x008d: 'RI',  0x008e: 'SS2', 0x008f: 'SS3',
+                 0x0090: 'DCS', 0x0091: 'PU1', 0x0092: 'PU2', 0x0093: 'STS',
+                 0x0094: 'CCH', 0x0095: 'MW',  0x0096: 'SPA', 0x0097: 'EPA',
+                 0x0098: 'SOS', 0x0099: 'XXX', 0x009a: 'SCI', 0x009b: 'CSI',
+                 0x009c: 'ST',  0x009d: 'OSC', 0x009e: 'PM',  0x009f: 'APC',
+                 0x00a0: 'NB\nSP',  0x00ad: 'SHY\n−',
+
+                 0x034f: 'CGJ',
+                 0x0600: '\u0600',  0x0601: '\u0601',  0x0602: '\u0602',  0x0603: '\u0603',
+                 0x0604: '\u0604',  0x0605: '\u0605',
+                 0x061c: 'ALM',
+                 0x06dd: '\u06dd',
+                 0x070f: '\u070f\nSAM',
+                 0x0890: '\u0890',  0x0891: '\u0891',
+                 0x08e2: '\u08e2',
+                 0x0cf1: '\u0cf1',  0x0cf2: '\u0cf2',
+                 0x0d4e: '\u0d4e',
+                 0x0f0c: '\u0f0c\nNB',
+                 0x1039: '\u1039',
+                 0x115F: 'HC\nF',
+                 0x1160: 'HJ\nF',
+                 0x1680: '\u1680',
+                 0x17b4: 'KIV\nAQ', 0x17b5: 'KIV\nAA',
+                 0x17d2: '\u17d2',
+                 0x180b: 'FV\nS1',
+                 0x180c: 'FV\nS2',  0x180d: 'FV\nS3',  0x180e: 'MV\nS',   0x180f: 'FV\nS4',
+                 0x1a60: '\u1a60',
+                 0x1bab: '\u1bab',
+                 0x1cf5: '\u1cf5', 0x1cf6: '\u1cf6',
+
+                 0x2000: 'NQ\nSP',  0x2001: 'MQ\nSP',  0x2002: 'EN\nSP',  0x2003: 'EM\nSP',
+                 0x2004: '3/M\nSP', 0x2005: '4/M\nSP', 0x2006: '6/M\nSP', 0x2007: 'F\nSP',
+                 0x2008: 'P\nSP',   0x2009: 'TH\nSP',  0x200a: 'H\nSP',   0x200b: 'ZW\nSP',
+                 0x200c: 'ZW\nNJ',  0x200d: 'ZW\nJ',   0x200e: 'LRM',     0x200f: 'RLM',
+                 0x2011: 'NB\n‑',
+                 0x2028: 'L\nSEP',  0x2029: 'P\nSEP',  0x202a: 'LRE',     0x202b: 'RLE',
+                 0x202c: 'PDF',     0x202d: 'LRO',     0x202e: 'RLO',     0x202f: 'NNB\nSP',
+                 0x205f: 'MM\nSP',
+                 0x2060: 'WJ',      0x2061: 'ƒ()',     0x2062: '×',       0x2063: ',',
+                 0x2064: '＋',                         0x2066: 'LRI',     0x2067: 'RLI',
+                 0x2068: 'FSI',     0x2069: 'PDI',     0x206a: 'I\nSS',   0x206b: 'A\nSS',
+                 0x206c: 'I\nAFS',  0x206d: 'A\nAFS',  0x206e: 'NA\nDS',  0x206f: 'NO\nDS',
+                 0x2d7f: '\u2d7f',  0x2e3a: '2M\n\u2e3a', 0x2e3b: '3M\n\u2e3b',
+                 0x3000: 'ID\nSP',  0x303e: '\u303e',
+                 0x3164: 'HF',
+
+                 0xaaf6: '\uaaf6',
+
+                 0xfeff: 'ZWN\nBSP',
+                 0xffa0: 'HW\nHF',
+                 0xfff9: 'IA\nA',   0xfffa: 'IA\nS',   0xfffb: 'IA\nT',
+                 0xfffc: 'OBJ',
+
+                 0x10a3f: '\ud802\ude3f',
+                 0x11003: '\ud804\udc03',
+                 0x11004: '\ud804\udc04',
+                 0x1107f: 'BNJ',
+                 0x110bd: '\ud804\udcbc',
+                 0x110cd: '\ud804\udcbc\n\xa0',
+                 0x11133: '\ud804\udd33',
+                 0x111c2: '\ud804\uddc2', 0x111c3: '\ud804\uddc3',
+                 0x11460: '\ud805\udc60', 0x11461: '\ud805\udc61',
+                 0x1193e: '\ud806\udd3e', 0x1193f: '\ud806\udd3f',
+                 0x11941: '\ud806\udd41',
+                 0x11a3a: '\ud806\ude3a',
+                 0x11a47: '\ud806\ude47',
+                 0x11a84: '\ud806\ude84', 0x11a85: '\ud806\ude85',
+                 0x11a86: '\ud806\ude86', 0x11a87: '\ud806\ude87',
+                 0x11a88: '\ud806\ude88', 0x11a89: '\ud806\ude89',
+                 0x11a99: '\ud806\ude99',
+                 0x11d45: '\ud807\udd45', 0x11d46: '\ud807\udd46',
+                 0x11d97: '\ud807\udd97',
+
+                 0x13430: '\ud80d\udc30', 0x13431: '\ud80d\udc31',
+                 0x13432: '\ud80d\udc32', 0x13433: '\ud80d\udc33',
+                 0x13434: '\ud80d\udc34', 0x13435: '\ud80d\udc35',
+                 0x13436: '\ud80d\udc36', 0x13437: '\ud80d\udc37',
+                 0x13438: '\ud80d\udc38',
+
+                 0x16f8f: '\ud81b\udf8f',
+                 0x16f90: '\ud81b\udf90', 0x16f91: '\ud81b\udf91',
+                 0x16f92: '\ud81b\udf92',
+                 0x16fe4: 'KSS\nF',
+
+                 0x1bc9d: 'DT\nLS',
+                 0x1bca0: '\ud82f\udca0', 0x1bca1: '\ud82f\udca1',
+                 0x1bca2: '\ud82f\udca2', 0x1bca3: '\ud82f\udca3',
+
+                 0x1d159: 'NULL\nNOTE\nHEAD',
+                 0x1d173: 'BEGIN\nBEAM', 0x1d174: 'END\nBEAM',
+                 0x1d175: 'BEGIN\nTIE',  0x1d176: 'END\nTIE',
+                 0x1d177: 'BEGIN\nSLUR', 0x1d178: 'END\nSLUR',
+                 0x1d179: 'BEGIN\nPHR.', 0x1d17a: 'END\nPHR.',
+
+                 0x1da9b: 'SW\nF2',
+                 0x1da9c: 'SW\nF3',  0x1da9d: 'SW\nF4',  0x1da9e: 'SW\nF5',  0x1da9f: 'SW\nF6',
+                 0x1daa1: 'SW\nR2',  0x1daa2: 'SW\nR3',  0x1daa3: 'SW\nR4',
+                 0x1daa4: 'SW\nR5',  0x1daa5: 'SW\nR6',  0x1daa6: 'SW\nR7',  0x1daa7: 'SW\nR8',
+                 0x1daa8: 'SW\nR9',  0x1daa9: 'SW\nR10', 0x1daaa: 'SW\nR11', 0x1daab: 'SW\nR12',
+                 0x1daac: 'SW\nR13', 0x1daad: 'SW\nR14', 0x1daae: 'SW\nR15', 0x1daaf: 'SW\nR16',
+
+                 0x1f1e6: '\ud83c\udde6', 0x1f1e7: '\ud83c\udde7',
+                 0x1f1e8: '\ud83c\udde8', 0x1f1e9: '\ud83c\udde9', 0x1f1ea: '\ud83c\uddea', 0x1f1eb: '\ud83c\uddeb',
+                 0x1f1ec: '\ud83c\uddec', 0x1f1ed: '\ud83c\udded', 0x1f1ee: '\ud83c\uddee', 0x1f1ef: '\ud83c\uddef',
+                 0x1f1f0: '\ud83c\uddf0', 0x1f1f1: '\ud83c\uddf1', 0x1f1f2: '\ud83c\uddf2', 0x1f1f3: '\ud83c\uddf3',
+                 0x1f1f4: '\ud83c\uddf4', 0x1f1f5: '\ud83c\uddf5', 0x1f1f6: '\ud83c\uddf6', 0x1f1f7: '\ud83c\uddf7',
+                 0x1f1f8: '\ud83c\uddf8', 0x1f1f9: '\ud83c\uddf9', 0x1f1fa: '\ud83c\uddfa', 0x1f1fb: '\ud83c\uddfb',
+                 0x1f1fc: '\ud83c\uddfc', 0x1f1fd: '\ud83c\uddfd', 0x1f1fe: '\ud83c\uddfe', 0x1f1ff: '\ud83c\uddff',
+
+                 0xe0001: 'BEGIN\n\ud83c\udff7', 0xe007f: 'END\n\ud83c\udff7',
+             },
+             [...Array(95)].map((_, i) => ([0xe0020 + i, `${String.fromCharCode(0x20+i)}\n\ud83c\udff7`])),
+             [...Array(240)].map((_, i) => ([0xe0100 + i, `VS\n${(i+17).toString()}`])),
+         );
+
+         static CodeMaskSet = UnicodeViewer.makeMaskSet([
+             '00370,8,9','+10,0-3,b,d','+20,2',
+             '00530','+20,7,8','+30,b,c',
+             '00590','+30,8-f','+20,b-e','+10,5-f',
+             '00700,e','+40,b,c',
+             '007b0,2-f',
+             '007f0,b,c',
+             '00820,e,f','+10,f',
+             '00850,c,d,f',
+             '00860,b-f',
+             '00880,f','+10,2-7',
+             '00980,4,d,e','+10,1,2','+10,9','+10,1,3-5,a,b',
+             /**/ '+10,5,6,9,a,f','+10,0-6,8-b,e','+10,4,5','+10,f',
+             '00a00,0,4,b-e','+10,1,2','+10,9','+10,1,4,7,a,b,d',
+             /**/ '+10,3-6,9,a,e,f','+10,0,2-8,d,f','+10,0-5','+10,7-f',
+             '00a80,0,4,e','+10,2','+10,9','+10,1,4,a,b',
+             /**/ '+10,6,a,e,f','+10,1-f','+10,4,5','+10,2-8',
+             '00b00,0,4,d,e','+10,1,2','+10,9','+10,1,4,a,b','+10,5,6,9,a,e,f',
+             /**/ '+10,0-4,8-b,e','+10,4,5','+10,8-f',
+             '00b80,0,1,4,b-d','+10,1,6-8,b,d','+10,0-2,5-7,b-d','+10,a-d',
+             /**/ '+10,3-5,9,e,f','+10,1-6,8-f','+10,0-5','+10,b-f',
+             '00c00,d','+10,1','+10,9','+10,a,b','+10,5,9,e,f',
+             /**/ '+10,0-5,7,b,c,e,f','+10,4,5','+10,0-6',
+             '00c80,d','+10,1','+10,9','+10,4,a,b','+10,5,9,e,f',
+             /**/ '+10,0-4,7-c,f','+10,4,5','+10,0,3-f',
+             '00d00,d','+10,1','+30,5,9','+10,0-3','+10,4,5',
+             '00d80,0,4','+10,7-9','+20,2,c,e,f','+10,7-9,b-e',
+             /**/ '+10,5,7','+10,0-5','+10,0,1,5-f',
+             '00e00,0','+30,b-e','+20,c-f','+10,0-1f',
+             '00e80,0,3,5,b','+20,4,6','+10,e,f','+10,5,7,e,f','+10,a,b','+10,0-1f',
+             '00f40,8','+20,d-f','+10,0','+20,8','+20,d','+10,d','+10,b-f','+10,0-1f',
+             '010c0,6,8-c,e,f',
+             '01240,9,e,f','+10,7,9,e,f','+30,9,e,f','+30,1,6,7,f',
+             /**/ '+10,1,6,7','+10,7','+40,1,6,7','+40,b,c','+20,d-f',
+             '01390,a-f',
+             '013f0,6,7,e,f',
+             '01690,d-f',
+             '016f0,9-f',
+             '01710,6-e',
+             '01730,7-f',
+             '01750,4-f',
+             '01760,d','+10,1,4-f',
+             '017d0,e,f','+10,a-f','+10,a-f',
+             '01810,a-f','+60,9-f','+30,b-f',
+             '018f0,6-f',
+             '01910,f','+10,c-f','+10,c-f','+10,1-3',
+             '01960,e,f','+10,5-f',
+             '019a0,c-f','+20,a-f','+10,b-d',
+             '01a10,c,d',
+             '01a50,f','+20,d,e','+10,a-f','+10,a-f','+10,e,f',
+             '01ac0,f','+10,0-2f',
+             '01b40,d-f','+30,f',
+             '01bf0,4-b',
+             '01c30,8-a','+10,a-c',
+             '01c80,9-f',
+             '01cb0,b,c',
+             '01cc0,8-f',
+             '01cf0,b-f',
+             '01f10,6,7,e,f','+30,6,7,e,f','+10,8,a,c,e','+20,e,f',
+             /**/ '+40,5','+10,5','+10,4,5,c','+20,0,1,5,f',
+             '02060,5',
+             '02070,2,3','+10,f','+10,d-f',
+             '020c0,1-f',
+             '020f0,1-f',
+             '02180,c-f',
+             '02420,7-1f',
+             '02440,b-1f',
+             '02b70,4,5','+20,6',
+             '02cf0,4-8',
+             '02d20,6,8-c,e,f',
+             '02d60,8-e','+10,1-e',
+             '02d90,7-f','+10,7,f','+10,7,f','+10,7,f','+10,7,f','+10,7,f',
+             '02e50,e-2f',
+             '02e90,a','+60,4-f',
+             '02fd0,6-f',
+             '02ff0,c-f',
+             '03040,0','+50,7,8',
+             '03100,0-4',
+             '03130,0','+50,f',
+             '031e0,4-f',
+             '03210,f',
+             '0a480,d-f',
+             '0a4c0,7-f',
+             '0a620,c-1f',
+             '0a6f0,8-f',
+             '0a7c0,b-f','+10,2,4,a-f','+10,0-f','+10,0,1',
+             '0a820,d-f',
+             '0a830,a-f',
+             '0a870,8-f',
+             '0a8c0,6-d','+10,a-f',
+             '0a950,4-e',
+             '0a970,d-f',
+             '0a9c0,e','+10,a-d',
+             '0a9f0,f',
+             '0aa30,7-f','+10,e,f','+10,a,b',
+             '0aac0,3-f','+10,0-a',
+             '0aaf0,7-f',
+             '0ab00,0,7,8,f','+10,0,7-f','+10,7,f',
+             '0ab60,c-f',
+             '0abe0,e,f','+10,a-f',
+             '0d7a0,4-f',
+             '0d7c0,7-a','+30,c-f',
+             '0fad0,a-2f',
+             '0fb00,7-f','+10,0-2,8-c','+20,7,d,f','+10,2,5',
+             '0fbc0,3-f','+10,0-2',
+             '0fd90,0,1','+30,8-e',
+             '0fe10,a-f',
+             '0fe50,3','+10,7,c-f',
+             '0fe70,5','+80,d,e',
+             '0ff00',
+             '0ffb0,f','+10,0,1,8,9','+10,0,1,8,9,d-f','+10,7,f',
+             '0fff0,0-8',
+             '10000,c','+20,7','+10,b,e','+10,e,f','+10,e,f','+10,0-1f',
+             '100f0,b-f',
+             '10100,3-6','+30,4-6',
+             '10180,f',
+             '10190,d-f','+10,1-2f',
+             '101f0,e,f',
+             '10290,d-f',
+             '102d0,1-f',
+             '102f0,c-f',
+             '10320,4-c',
+             '10340,b-f',
+             '10370,b-f',
+             '10390,e',
+             '103c0,4-7','+10,6-f',
+             '103e0,0-1f',
+             '10490,e,f','+10,a-f',
+             '104d0,4-7','+20,c-f',
+             '10520,8-f',
+             '10560,4-e',
+             '10570,b','+10,b','+10,3,6','+10,2','+10,2,a,d-f',
+             '105c0,0-3f',
+             '10730,7-f','+20,6-f','+10,7-1f',
+             '10780,6','+30,1,b-f',
+             '107c0,0-3f',
+             '10800,6,7,9','+30,6,9-b,d,e',
+             '10850,6',
+             '10890,f','+10,0-6',
+             '108b0,0-2f',
+             '108f0,3,6-a',
+             '10910,c-e',
+             '10930,a-e',
+             '10940,0-3f',
+             '109b0,8-b','+20,0,1',
+             '10a00,4,7-b','+10,4,8','+20,6,7,b-e','+10,9-f','+10,9-f',
+             '10ae0,7-a','+10,7-f',
+             '10b30,6-8',
+             '10b50,6,7',
+             '10b70,3-7',
+             '10b90,2-8,d-f','+10,0-8',
+             '10bb0,0-4f',
+             '10c40,9-f',
+             '10c50,0-2f',
+             '10cb0,3-f','+40,3-9',
+             '10d20,8-f','+10,a-f',
+             '10d40,0-bf',
+             '10e00,0-5f',
+             '10e70,f',
+             '10ea0,a,e,f','+10,2-f',
+             '10ec0,0-3f',
+             '10f20,8-f',
+             '10f50,a-1f',
+             '10f80,a-2f',
+             '10fc0,c-1f',
+             '10ff0,7-f',
+             '11040,e,f','+10,0,1','+20,6-e',
+             '110c0,3-c,e,f',
+             '110e0,9-f','+10,a-f',
+             '11130,5','+10,8-f',
+             '11170,7-f',
+             '111e0,0','+10,5-f',
+             '11210,2','+20,f','+10,0-f',
+             '11250,0-2f',
+             '11280,7,9,e','+10,e','+10,a-f',
+             '112e0,b-f','+10,a-f',
+             '11300,4,d,e','+10,1,2','+10,9','+10,1,4,a','+10,5,6,9,a,e,f',
+             /**/ '+10,1-6,8-c','+10,4,5,d-f','+10,5-f',
+             '11380,0-7f',
+             '11450,c','+10,2-1f',
+             '114c0,8-f','+10,a-f',
+             '114e0,0-1f',
+             '11500,0-7f',
+             '115b0,6,7','+20,e,f','+10,0-1f',
+             '11640,5-f','+10,a-f',
+             '11660,d-f','+10,0-f',
+             '116b0,a-f','+10,a-f',
+             '116d0,0-2f',
+             '11710,b,c','+10,c-f','+20,7-f',
+             '11750,0-af',
+             '11830,c-f','+10,0-f',
+             '11850,0-4f',
+             '118f0,3-e',
+             '11900,7,8,a,b','+10,4,7','+20,6,9,a','+10,7-f','+10,a-f',
+             '11960,0-3f',
+             '119a0,8,9','+30,8,9','+10,5-f','+10,0-f',
+             '11a40,8-f',
+             '11aa0,3-f',
+             '11af0,9-f',
+             '11b00,0-ff',
+             '11c00,9','+30,7','+10,6-f','+20,d-f',
+             '11c90,0,1','+10,8','+10,7-f',
+             '11cc0,0-3f',
+             '11d00,7,a','+30,7-9,b,e','+10,8-f','+10,a-f',
+             '11d60,6,9','+20,f','+10,2,9-f','+10,a-f',
+             '11db0,0-4f',
+             '11e00,0-df',
+             '11ef0,9-f',
+             '11f00,0-af',
+             '11fb0,1-f',
+             '11ff0,2-e',
+             '12390,a-f','+10,0-5f',
+             '12460,f','+10,5-f',
+             '12540,4-f',
+             '12550,0-af',
+             '12600,0-8ff',
+             '12f00,0-8f',
+             '12ff0,3-f',
+             '13430,9-f',
+             '13440,0-bf',
+             '13500,0-aff',
+             '14000,0-3ff',
+             '14640,7-f','+10,0-2f',
+             '14680,0-7f',
+             '14700,0-8ff',
+             '15000,0-fff',
+             '16000,0-7ff',
+             '16a30,9-f',
+             '16a50,f','+10,a-d',
+             '16ab0,f','+10,a-f',
+             '16ae0,e,f','+10,6-f',
+             '16b40,6-f','+10,a','+10,2','+10,8-c',
+             '16b90,0-6f',
+             '16c00,0-1ff',
+             '16e00,0-3f',
+             '16e90,b-f',
+             '16ea0,0-5f',
+             '16f40,b-e','+40,8-e',
+             '16fa0,0-3f',
+             '16fe0,5-f','+10,2-f',
+             '187f0,8-f',
+             '18cd0,6-f','+10,0-1f',
+             '18d00,9-f',
+             '18d10,0-2ef',
+             '19000,0-fff',
+             '1a000,0-fef',
+             '1aff0,4,c,f',
+             '1b120,3-f',
+             '1b130,0-1f','+20,3-f','+10,0-3,8-f',
+             '1b2f0,c-f',
+             '1b300,0-8ff',
+             '1bc60,b-f','+10,d-f','+10,9-f','+10,a,b',
+             '1bca0,4-f',
+             '1bcb0,0-4f',
+             '1bd00,0-2ff',
+             '1c000,0-eff',
+             '1cf20,e,f','+20,7-f','+80,4-f',
+             '1d0f0,6-f',
+             '1d130,7,8','+b0,b-f','+10,0-f',
+             '1d240,6-f',
+             '1d250,0-8f',
+             '1d2f0,4-f',
+             '1d350,7-f',
+             '1d370,9-f',
+             '1d380,0-7f',
+             '1d450,5','+40,d','+10,0,1,3,4,7,8,d','+10,a,c','+10,4','+40,6,b,c',
+             /**/ '+10,5,d','+20,a,f','+10,5,7-9','+10,1','+150,6,7','+120,c,d',
+             '1da80,c-f','+10,0-a','+10,0',
+             '1dab0,0-4f',
+             '1db00,0-3ff',
+             '1df10,f','+10,0-df',
+             '1e000,7','+10,9,a','+10,2,5,b-f',
+             '1e030,0-cf',
+             '1e120,d-f','+10,e,f','+10,a-d',
+             '1e150,0-af',
+             '1e200,0-8f',
+             '1e2a0,f','+10,0-f',
+             '1e2f0,a-e',
+             '1e300,0-4df',
+             '1e7e0,7,c,f','+10,f',
+             '1e8c0,5,6','+10,7-f',
+             '1e8e0,0-1f',
+             '1e940,c-f','+10,a-d',
+             '1e960,0-9f',
+             '1ea00,0-1ff',
+             '1ec00,0-6f',
+             '1ec70,0','+40,5-f',
+             '1ecc0,0-3f',
+             '1ed00,0','+30,e,f','+10,0-f',
+             '1ed50,0-af',
+             '1ee00,4','+20,0,3,5,6,8','+10,3,8,a,c-f','+10,0,1,3-6,8,a,c',
+             /**/ '+10,0,3,5,6,8,a,c,e','+10,0,3,5,6,b','+10,3,8,d,f',
+             /**/ '+10,a','+10,c-f','+10,0,4,a','+10,c-f','+10,0-2f','+30,2-f',
+             '1ef00,0-ff',
+             '1f020,c-f',
+             '1f090,4-f',
+             '1f0a0,f','+10,0','+10,0','+10,0','+20,6-f',
+             '1f1a0,e,f','+10,0-35',
+             '1f200,3-f','+30,c-f','+10,9-f','+10,2-f','+10,6-f','+10,0-8f',
+             '1f6d0,8-c','+10,d-f','+10,d-f',
+             '1f770,4-f',
+             '1f7d0,9-f','+10,c-f','+10,0-f',
+             '1f800,c-f','+40,8-f','+10,a-f','+30,8-f','+20,e,f','+10,2-f','+10,0-3f',
+             '1fa50,4-f','+10,e,f',
+             '1fa70,5-7,d-f','+10,7-f','+20,d-f','+10,b-f','+10,6-f','+10,a-f','+10,8-f','+10,7-f',
+             '1fbc0,b-f','+10,0-1f','+20,a-f',
+             '1fc00,0-2ff',
+             '1ff00,0-7f',
+         ]);
+
+         /* ** */
+
+         static getHexString = ((x, s=0, p='') => (p + x.toString(16).toUpperCase()).slice(s));
+         static getAddressString = ((x) => UnicodeViewer.getHexString(x, -6, '000000'));
+         static getAreaString = ((s, e) => UnicodeViewer.getAddressString(s) + '-' + UnicodeViewer.getAddressString(e));
+         static getAreaFromString = ((s) => s.split('-').map((v) => Number('0x' + v)));
+
+         /*
+          * DOM: Script
+          */
+
+         static getElementById = ((name) => document.getElementById(name));
+         static getInputChecked = ((name) => document.querySelector(`input[name='${name}']:checked`));
+
+         static clearChildren(parent) {
+             while (parent.firstChild)
+                 parent.removeChild(parent.firstChild);
+         };
+         static appendChildren(parent, children) {
+             for (const child of children.flat())
+                 parent.appendChild(child);
+         };
+         static newChildren(parent, children) {
+             const S = UnicodeViewer;
+             S.clearChildren(parent);
+             S.appendChildren(parent, children);
+         };
+
+         static mergeOption(a, b) {
+             if (a == undefined) return b;
+             if (b == undefined) return a;
+
+             const r = {};
+
+             if (a.idName != undefined)
+                 r.idName = a.idName;
+             else if (b.idName != undefined)
+                 r.idName = b.idName;
+
+             if (a.className != undefined)
+                 r.className = a.className;
+             else if (b.className != undefined)
+                 r.className = b.className;
+
+             if (a.innerText != undefined)
+                 r.innerText = a.innerText;
+             else if (b.innerText != undefined)
+                 r.innerText = b.innerText;
+
+             if (a.attribute != undefined && b.attribute != undefined)
+                 r.attribute = UnicodeViewer.mergeMap(a.attribute, b.attribute);
+             else if (a.attribute != undefined)
+                 r.attribute = a.attribute;
+             else if (b.attribute != undefined)
+                 r.attribute = b.attribute;
+
+             if (a.style != undefined && b.style != undefined)
+                 r.style = UnicodeViewer.mergeMap(a.style, b.style);
+             else if (a.style != undefined)
+                 r.style = a.style;
+             else if (b.style != undefined)
+                 r.style = b.style;
+
+             if (a.children != undefined && b.children != undefined)
+                 r.children = a.children.concat(b.style);
+             else if (a.children != undefined)
+                 r.children = a.children;
+             else if (b.children != undefined)
+                 r.children = b.children;
+
+             return r;
+         };
+         static mergeOptions() {
+             let r = undefined;
+             for (const a of arguments)
+                 r = UnicodeViewer.mergeOption(r, a);
+             return r;
+         };
+
+         static createElement(name, option, innerText) {
+             const S = UnicodeViewer;
+             const element = document.createElement(name);
+             if (innerText != undefined)
+                 element.innerText = innerText;
+             if (option == undefined)
+                 return element;
+             if (option.idName != undefined)
+                 element.setAttribute('id', option.idName);
+             if (option.className != undefined)
+                 element.setAttribute('class', option.className);
+             if (option.innerText != undefined)
+                 element.innerText = option.innerText;
+             if (option.attribute != undefined)
+                 option.attribute.forEach((v, k) => element.setAttribute(k, v));
+             if (option.style != undefined)
+                 option.style.forEach((v, k) => element.style.setProperty(k, v));
+             if (option.children != undefined)
+                 S.appendChildren(element, option.children);
+             return element;
+         };
+
+         static viewerId = 1;
+         static viewerMap = new Map();
+
+         constructor(parent, title, option) {
+             const S = UnicodeViewer;
+             const name = `_UnicodeVewer_Object_No_${S.viewerId++}`;
+             S.viewerMap.set(name, this);
+
+             this.S = S;
+             this.objectName = name;
+             this.namePrefix = this.objectName + '_';
+             this.parent = parent;
+             this.tagOption = S.defaultOption;
+             if (option != undefined)
+                 Object.assign(this.tagOption, option);
+
+             this.initViewer();
+         };
+
+         release() {
+             const S = this.S;
+             S.viewerMap.delete(this.objectName);
+         };
+         static releaseAll() {
+             S.viewerMap.clear();
+         };
+
+         appendChildren() {
+             for (const child of arguments)
+                 this.parent.appendChild(child);
+         };
+
+         createElement(name, option, innerText) {
+             const S = this.S;
+             const tagId = name.split('.');
+             const tagName = tagId[0];
+             const tagOption = S.defaultOption[tagName];
+             const className = name.replace('.', '_');
+             const classOption = ((tagName != className) ? S.defaultOption[className] : undefined);
+             const element = S.createElement(tagName, S.mergeOptions(tagOption, classOption, option), innerText);
+             if (tagId.length >= 2) element.setAttribute("class", tagId[1]);
+             return element;
+         };
+
+         createHeader = ((option) => this.createElement('header', option));
+         createFooter = ((option) => this.createElement('footer', option));
+         createSection = ((option) => this.createElement('section', option));
+         createArticle = ((option) => this.createElement('article', option));
+
+         createH1 = ((s, option) => this.createElement('h1', option, s));
+         createH2 = ((s, option) => this.createElement('h2', option, s));
+         createH3 = ((s, option) => this.createElement('h3', option, s));
+         createH4 = ((s, option) => this.createElement('h4', option, s));
+
+         createTable = ((option) => this.createElement('table', option));
+         createTr = ((option) => this.createElement('tr', option));
+         createTh = ((option) => this.createElement('th', option));
+         createThS = ((s, option) => this.createElement('th', option, s));
+         createTd = ((option) => this.createElement('td', option));
+         createTdC = ((option) => this.createElement('td.center', option));
+         createTdS = ((s, option) => this.createElement('td', option, s));
+         createTdSC = ((s, option) => this.createElement('td.center', option, s));
+
+         createDiv = ((option) => this.createElement('div', option));
+         createDivS = ((s, option) => this.createElement('div', option, s));
+         createP = ((option) => this.createElement('p', option));
+         createPS = ((s, option) => this.createElement('p', option, s));
+
+         createButton = ((option) => this.createElement('button', option));
+         createInput = ((option) => this.createElement('input', option));
+         createLabel = ((option) => this.createElement('label', option));
+
+         createCode = ((s, option) => this.createElement('code', option, s));
+         createSpan = ((s, option) => this.createElement('span', option, s));
+         createBr = ((option) => this.createElement('br', option));
+
+         createThChar = ((option) => this.createElement('th.char', option));
+         createTdChar = ((option) => this.createElement('td.char', option));
+         createDivChar = ((option) => this.createElement('div.char', option));
+         createSpanChar = ((s, option) => this.createElement('span.char', option, s));
+
+         createLabeledInput(type, title, name, value, option) {
+             const S = this.S;
+             const lopt = (option ? option.label : undefined);
+             const iopt = (option ? option.input : undefined);
+             const sopt = (option ? option.span : undefined);
+             return this.createLabel(S.mergeOption(sopt, { children: [
+                 this.createInput({ attribute: S.attributeFrom([
+                     ['type', type], ['name', name],
+                     (value ? ['value', value] : undefined),
+                     ((iopt && iopt.checked) ? ['checked', undefined] : undefined),
+                     ((iopt && iopt.disabled) ? ['disabled', undefined] : undefined),
+                     ((iopt && iopt.onclick) ? ['onclick', iopt.onclick] : undefined),
+                     ((iopt && iopt.inputClass) ? ['className', iopt.className] : undefined),
+                 ])}),
+                 this.createSpan(title, sopt),
+             ]}));
+         };
+         createLabeledInputRadio = ((title, name, value, option) =>
+             this.createLabeledInput('radio', title, name, value, option));
+         createLabeledCheckBox = ((title, name, option) =>
+             this.createLabeledInput('checkbox', title, name, undefined, option));
+
+         createCodeTableSetting() {
+             const S = this.S;
+             const width_list = [16, 32, 64, 128, 256];
+             const attr_width_normal = { input: { onclick: this.codeOnClickWidth } };
+             const attr_width_checked = { input: { checked: true, onclick: this.codeOnClickWidth } };
+             return this.createTable({ children: [
+                 this.createTr({ children: [
+                     this.createThS(S.planeSelectorName),
+                     this.createTd({ children: [
+                         this.createLabeledCheckBox(
+                             S.planeDetailName, this.inputDetailName,
+                             { input: { onclick: this.codeOnClickDetail }}),
+                     ]}),
+                     this.createThS(S.widthSelectorName),
+                     this.createTd({ children: [
+                         this.createLabeledCheckBox(
+                             S.matrixTransposeName, this.inputTransposeName,
+                             { input: { onclick: this.codeOnClickWidth }}),
+                     ]}),
+                     this.createTd({ children: [
+                         this.createSpan(S.matrixWidthName),
+                         width_list.map((w, i) => this.createLabeledInputRadio(
+                             `${w}`, this.inputWidthName, `${w}`,
+                             ((i == 0) ? attr_width_checked : attr_width_normal))),
+                     ]}),
+                     this.createTd({ children: [
+                         this.createLabeledCheckBox(
+                             S.specialCodeName, this.inputSpecialCodeName,
+                             { input: { onclick: this.codeOnClickSpecial }}),
+                     ]}),
+                 ]}),
+             ]});
+         };
+
+         createCodeHexChildren(offs, size, step) {
+             const S = this.S;
+             const children = [];
+             const s = S.getAddressString(offs).slice(-size);
+             for (let p = 0; p < size; p += step) {
+                 if (children.length != 0)
+                     children.push(this.createBr());
+                 children.push(this.createCode(s.slice(p, p + step)));
+             };
+             return children;
+         };
+
+         createCodeCharForControl(name) {
+             const children = [];
+             for (const s of name.split('\n')) {
+                 if (children.length != 0)
+                     children.push(this.createBr());
+                 children.push(this.createSpanChar(s));
+             };
+             return this.createDivChar({ children: children });
+         };
+         createCodeCharForVSel(code) {
+             return this.createCodeCharForControl('VS' + ((code & 15) + 1));
+         };
+         createCodeCharDivForControl(code, size, style) {
+             return this.createDivChar({
+                 style: style,
+                 children: this.createCodeHexChildren(code, size, 2),
+             });
+         };
+         createCodeCharForSurrogate(code) {
+             return this.createCodeCharDivForControl(code, 4);
+         };
+         createCodeCharForNotChar(code) {
+             return this.createCodeCharDivForControl(code, 4, this.S.defaultDivNotCharStyle);
+         };
+         createCodeCharForUnassigned(code) {
+             return this.createCodeCharDivForControl(code, 4, this.S.defaultDivUnassignedCharStyle);
+         };
+         createCodeCharForReservedS(s) {
+             return this.createSpan(this.S.toNonBreak(s), { style: this.S.defaultSpanReservedStyle });
+         };
+         createCodeCharForReservedC(code) {
+             return this.createCodeCharForReservedS(UnicodeViewer.getCodeString(code));
+         };
+         createCodeChar(code) {
+             const S = this.S;
+             const name = S.ControlCharacterMap[code];
+             if (name != undefined) return this.createCodeCharForControl(name);
+             const plane = (code >> 16);
+             const pcode = (code & 0xffff);
+             if (pcode >= 0xfffe)
+                 return this.createCodeCharForNotChar(pcode);
+             if (plane == 0) {
+                 if (0xd800 <= code && code <= 0xdfff) return this.createCodeCharForSurrogate(code);
+                 if (0xfdd0 <= code && code <= 0xfdef) return this.createCodeCharForNotChar(pcode);
+                 if (0xfe00 <= code && code <= 0xfe0f) return this.createCodeCharForVSel(code);
+             } else if (pcode >= 0xff80)
+                 return this.createCodeCharForUnassigned(pcode);
+             else if (plane <= 3) {
+                 if (plane == 3 && pcode >= 0x134a)
+                     return this.createCodeCharForReservedC(code);
+             } else if (plane <= 13) {
+                 return this.createCodeCharForUnassigned(pcode);
+             } else if (plane == 14) {
+                 if ((0x0000 == pcode) ||
+                     (0x0002 <= pcode && pcode <= 0x001f) ||
+                     (0x0080 <= pcode && pcode <= 0x00ff) ||
+                     (0x01f0 <= pcode))
+                     return this.createCodeCharForUnassigned(pcode);
+             };
+             if (S.CodeMaskSet.has(code))
+                 return this.createCodeCharForUnassigned(pcode);
+             return this.createSpanChar(S.getCodeString(code), {
+                 attribute: S.attributeFrom([
+                     ["onclick", `UnicodeViewer.toClipboard('${String.fromCharCode(code)}')`]
+             ])});
+         };
+
+         createCodeTable(start, end, width, discover, disabled) {
+             const S = this.S;
+
+             const transpose = (width < 0);
+             const awidth = transpose ? -width : width;
+             const xstart = transpose ? start : 0;
+             const ystart = transpose ? 0 : start;
+             const xend = transpose ? end : awidth;
+             const yend = transpose ? awidth : end;
+             const xstep = transpose ? awidth : 1;
+             const ystep = transpose ? 1 : awidth;
+             const yalen = transpose ? ((awidth <= 16) ? 1 : 2) : 6;
+
+             const table = [];
+             {
+                 const children = [this.createThS(S.toNonBreak(' '))];
+                 const olen = (xend <= 16) ? 1 : ((S.getHexString(xend-1).length + 1) & ~1);
+                 const ostep = (xend <= 16) ? 1 : 2;
+                 for (let offs = xstart; offs < xend; offs += xstep)
+                     children.push(this.createThChar({ children: this.createCodeHexChildren(offs, olen, ostep) }));
+                 table.push(this.createTr({ children: children }));
+             };
+
+             if (disabled)
+                 return table;
+
+             for (let y = ystart; y < yend; y += ystep) {
+                 const tr = this.createTr({ children: [
+                     this.createThChar({ children: [
+                         this.createCode(S.getAddressString(y).slice(-yalen))
+                     ]}),
+                 ]});
+                 for (let x = xstart; x < xend; x += xstep)
+                     tr.appendChild(this.createTdChar({ children: [
+                         (discover ? this.createSpanChar(S.getCodeString(x + y)) : this.createCodeChar(x + y))
+                     ]}));
+                 table.push(tr);
+             };
+
+             return table;
+         };
+
+         initViewer() {
+             const S = this.S;
+
+             this.inputDetailName = this.namePrefix + 'detail';
+             this.inputTransposeName = this.namePrefix + 'transpose';
+             this.inputWidthName = this.namePrefix + 'width';
+             this.inputSpecialCodeName = this.namePrefix + 'special';
+             this.inputPlaneName = this.namePrefix + 'plane';
+             this.inputAreaName = this.namePrefix + 'area';
+
+             this.tagPlaneSelector = this.createTable();
+             this.tagAreaName = this.createH3('Plane');
+             this.tagAreaSelector = this.createTable();
+             this.tagCodeTableName = this.createH4('Character');
+             this.tagCodeTable = this.createDiv();
+
+             this.codeOnClickDetail = `UnicodeViewer.onClickDetail("${this.objectName}");`;
+             this.codeOnClickWidth = `UnicodeViewer.onClickWidth("${this.objectName}");`;
+             this.codeOnClickSpecial = `UnicodeViewer.onClickSpecial("${this.objectName}");`;
+             this.codeOnClickPlane = `UnicodeViewer.onClickPlane("${this.objectName}");`;
+             this.codeOnClickArea = `UnicodeViewer.onClickArea("${this.objectName}");`;
+
+             this.appendChildren(
+                 this.createSection({
+                     style: S.styleFrom([['display', 'list']]),
+                     children: [
+                         this.createCodeTableSetting(),
+                         this.createDivS(S.toNonBreak(' '), { style: S.styleFrom([['font-size', '10%']])}),
+                         this.tagPlaneSelector,
+                 ]}),
+                 this.createSection({ children: [
+                     this.createArticle({ children: [
+                         this.tagAreaName,
+                         this.tagAreaSelector,
+                     ]}),
+                     this.createArticle({ children: [
+                         this.createDiv({ innerText: S.toNonBreak('  ') }),
+                     ]}),
+                     this.createArticle({ children: [
+                         this.tagCodeTableName,
+                         this.tagCodeTable,
+                     ]}),
+                 ]}),
+             );
+
+             this.updateDetailSelector();
+         };
+
+         updateDetailSelector() {
+             const S = this.S;
+             this.detailMode = S.getInputChecked(this.inputDetailName);
+             this.planeList = this.detailMode ? S.DetailPlaneList : undefined;
+             this.planeTable = this.detailMode ? S.DetailPlaneTable : S.SimplePlaneTable;
+             this.areaTable = this.detailMode ? S.DetailAreaTable : S.SimpleAreaTable;
+             this.updatePlaneSelector();
+         };
+
+         updatePlaneSelector() {
+             const S = this.S;
+
+             const children = [];
+             if (!this.detailMode) {
+                 children.push(
+                     this.createTr({ children: [
+                         this.createThS(S.planeSelectorName, {
+                             attribute: S.attributeFrom([['rowspan', '2']]),
+                         }),
+                         this.planeTable.map((plane, i) => this.createTh({ children: [
+                             this.createLabeledInputRadio(
+                                 plane.header, this.inputPlaneName, S.getAreaString(plane.start, plane.end),
+                                 { input: { checked: (i == 0), onclick: this.codeOnClickPlane }})
+                         ]}))
+                     ]}),
+                     this.createTr({ children: [
+                         this.planeTable.map((plane, i) => this.createTdSC(plane.name))
+                     ]}),
+                 );
+             } else {
+                 children.push(this.createTr({ children: [
+                     this.createThS(S.planeSelectorName),
+                     this.createTh(),
+                 ]}));
+
+                 let checked = true;
+                 for (const plane of this.planeList) {
+                     const td = this.createTd();
+                     const tr = this.createTr({ children: [this.createThS(plane.name), td]});
+                     for (const area of this.planeTable.filter(area =>
+                         (plane.start <= area.start && area.end <= plane.end))) {
+                         td.appendChild(this.createLabeledInputRadio(
+                             area.name, this.inputPlaneName, S.getAreaString(area.start, area.end),
+                             { input: { checked: checked, onclick: this.codeOnClickPlane }}));
+                         if (area.separator)
+                             td.appendChild(this.createBr());
+                         checked = false;
+                     };
+                     children.push(tr);
+                 };
+             };
+             S.newChildren(this.tagPlaneSelector, children.flat());
+             this.updateAreaSelector();
+         };
+
+         updateAreaSelector() {
+             const S = this.S;
+             const plane = S.getInputChecked(this.inputPlaneName);
+             const [start, end] = S.getAreaFromString(plane.value);
+             this.tagAreaName.innerText = S.toNonBreak(S.PlaneName[start >> 16]);
+             const table = this.areaTable.filter(data => !(end < data.start || data.end < start));
+             S.newChildren(this.tagAreaSelector, table.map((d, i) => this.createTr({ children: [
+                 this.createTh({ children: [this.createCode(S.getAddressString(d.start))] }),
+                 this.createTh({ children: [this.createCode(S.getAddressString(d.end))] }),
+                 this.createTd({ children: [this.createLabeledInputRadio(
+                     S.toNonBreak(d.name), this.inputAreaName, S.getAreaString(d.start, d.end), {
+                         input: { checked: (i == 0), disabled: d.disabled, onclick: this.codeOnClickArea  },
+                         span: { style: (d.large ? S.defaultSpanLargeStyle : S.defaultSpanStyle) },
+                 })]}),
+             ]})));
+             this.updateCodeTable();
+         };
+
+         updateCodeTable() {
+             const S = this.S;
+
+             const area = S.getInputChecked(this.inputAreaName).value;
+             const [start, end] = S.getAreaFromString(area);
+
+             const transpose = S.getInputChecked(this.inputTransposeName);
+             const awidth = Number(S.getInputChecked(this.inputWidthName).value);
+             const width = transpose ? -awidth : awidth;
+
+             const special = S.getInputChecked(this.inputSpecialCodeName);
+             const discover = (special != null);
+
+             let disabled = false;
+             let large = false;
+             for (const r of this.areaTable)
+                 if (start == r.start && end == r.end) {
+                     this.tagCodeTableName.innerText = S.toNonBreak(r.name);
+                     disabled = r.disabled;
+                     large = r.large;
+                     break;
+                 };
+
+             const id = ('' +
+                         `${this.namePrefix}CodeTable` +
+                         `_${discover ? 'D' : 'C'}` +
+                         `_${transpose ? 'T' : 'N'}` +
+                         `_S${S.getAddressString(start)}_` +
+                         `_E${S.getAddressString(end)}` +
+                         `_W${awidth}` +
+                         '');
+
+             for (let i = 0; i < this.tagCodeTable.children.length; i++)
+                 this.tagCodeTable.children[i].setAttribute('hidden', 'true');
+
+             const cached = S.getElementById(id);
+             if (cached != null) {
+                 cached.removeAttribute('hidden');
+                 return;
+             };
+
+             this.tagCodeTable.appendChild(this.createTable(
+                 { idName: id, children: [this.createCodeTable(start, (end + 1), width, discover, disabled)] }
+             ));
+         };
+
+         static clickObject(name) { return UnicodeViewer.viewerMap.get(name); };
+         static onClickDetail(name) { UnicodeViewer.clickObject(name).updateDetailSelector(); };
+         static onClickWidth(name) { UnicodeViewer.clickObject(name).updateCodeTable(); };
+         static onClickSpecial(name) { UnicodeViewer.clickObject(name).updateCodeTable(); };
+         static onClickPlane(name) { UnicodeViewer.clickObject(name).updateAreaSelector(); };
+         static onClickArea(name) { UnicodeViewer.clickObject(name).updateCodeTable(); };
+         static toClipboard(text) { navigator.clipboard.writeText(text); };
+     };
+
+     window.onload = function() {
+         sep = '';
+         for (let n = 1; n <= 4; n++) {
+             if (sep)
+                 document.body.insertAdjacentHTML('beforeend', sep);
+             document.body.insertAdjacentHTML(
+                 'beforeend', [
+                     `<h1>Unicode 文字表 (${n})</h1>`,
+                     `<div id="UnicodeViewer${n}"></div>`,
+                     '<p>&nbsp;</p>',
+                 ].join(''));
+             sep = '<hr>';
+
+             const viewer = new UnicodeViewer(
+                 document.getElementById(`UnicodeViewer${n}`));
+         };
+     };
+
     </script>
   </body>
 </html>
