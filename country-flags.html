@@ -1,67 +1,54 @@
 <!DOCTYPE html>
-<html>
+<html lang="ja">
   <head>
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta charset="utf-8">
     <title>国旗表</title>
     <style>
-      table {
-          border: solid 1px #ccc;
-          border-collaspe: collaspe;
-          border-spacing: 0;
-      }
-      th, td {
-          border: solid 1px #ccc;
-          padding: 6px;
-          text-align: center;
-      }
-      th {
-          background: #eee;
-      }
-      small {
-          font-size: 10%;
-      }
+     table {
+         border: solid 1px #ccc;
+         border-collaspe: collaspe;
+         border-spacing: 0;
+     }
+     th, td {
+         border: solid 1px #ccc;
+         padding: 6px;
+         text-align: center;
+     }
+     th {
+         background: #eee;
+     }
+     small {
+         font-size: 10%;
+     }
     </style>
   </head>
   <body>
-    <h1>国旗表</h1>
-    <table id="tab">
-    <script type="text/javascript">
-    <!--
-      function setTable() {
-          const tab = document.getElementById('tab');
-          {
-              const tr = document.createElement('tr');
-              tr.appendChild(document.createElement('th'));
-              for (let d2 = 0; d2 < 26; d2++) {
-                  const th = document.createElement('th');
-                  th.innerText = String.fromCodePoint(d2 + 0x41);
-                  tr.appendChild(th);
-              }
-              tab.appendChild(tr);
-          }
-          for (let d1 = 0; d1 < 26; d1++) {
-              const tr = document.createElement('tr');
-              const th = document.createElement('th');
-              th.innerText = String.fromCodePoint(d1 + 0x41);
-              tr.appendChild(th);
-              for (let d2 = 0; d2 < 26; d2++) {
-                  const td = document.createElement('td');
-                  const span = document.createElement('span');
-                  span.innerText = String.fromCodePoint(d1 + 0x1f1e6, d2 + 0x1f1e6);
-                  td.appendChild(span);
-                  if (true) {
-                      td.appendChild(document.createElement('br'));
-                      const small = document.createElement('small');
-                      small.innerText = String.fromCodePoint(d1 + 0x41, d2 + 0x41);
-                      td.appendChild(small);
-                  }
-                  tr.appendChild(td);
-              }
-              tab.appendChild(tr);
-          }
-      }
-      setTable();
-      -->
+    <script>
+
+     function toClipboard(text) {
+         navigator.clipboard.writeText(text);
+     };
+
+     window.onload = function() {
+         const flagChar = ((a, b) => String.fromCodePoint(a+0x1f1e6, b+0x1f1e6));
+         document.body.innerHTML = [
+             '<table>',
+             '<tr><th colspan="27">国旗表</th></tr>',
+             '<tr>',
+             [...Array(27)].map((_, i) =>
+                 `<th>${!i ? '' : String.fromCodePoint(i+0x40)}</th>`),
+             '</tr>',
+             [...Array(26)].map((_, i) => [
+                 '<tr>',
+                 `<th>${String.fromCodePoint(i+0x40)}</th>`,
+                 [...Array(26)].map((_, j) =>
+                     `<td><span onclick="toClipboard('${flagChar(i, j)}')">${flagChar(i, j)}</span></td>`),
+                 '</tr>',
+             ].flat().join('')),
+             '</table>',
+         ].flat().join('');
+     }
+
     </script>
   </body>
 </html>
