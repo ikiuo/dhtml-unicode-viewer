@@ -1690,7 +1690,7 @@
                  return this.createCodeCharForUnassigned(pcode);
              return this.createSpanChar(S.getCodeString(code), {
                  attribute: S.attributeFrom([
-                     ["onclick", `UnicodeViewer.toClipboard('${String.fromCharCode(code)}')`]
+                     ["onclick", `UnicodeViewer.toClipboard('${String.fromCodePoint(code)}')`]
              ])});
          };
 
