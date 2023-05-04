@@ -1660,6 +1660,13 @@
          createCodeCharForReservedC(code) {
              return this.createCodeCharForReservedS(UnicodeViewer.getCodeString(code));
          };
+         createCodeCharForAssigned(code) {
+             const S = this.S;
+             return this.createSpanChar(S.getCodeString(code), {
+                 attribute: S.attributeFrom([
+                     ["onclick", `UnicodeViewer.toClipboard('${String.fromCodePoint(code)}')`]
+             ])});
+         }
          createCodeChar(code) {
              const S = this.S;
              const name = S.ControlCharacterMap[code];
@@ -1688,10 +1695,7 @@
              };
              if (S.CodeMaskSet.has(code))
                  return this.createCodeCharForUnassigned(pcode);
-             return this.createSpanChar(S.getCodeString(code), {
-                 attribute: S.attributeFrom([
-                     ["onclick", `UnicodeViewer.toClipboard('${String.fromCodePoint(code)}')`]
-             ])});
+             return this.createCodeCharForAssigned(code);
          };
 
          createCodeTable(start, end, width, discover, disabled) {
@@ -1728,7 +1732,7 @@
                  ]});
                  for (let x = xstart; x < xend; x += xstep)
                      tr.appendChild(this.createTdChar({ children: [
-                         (discover ? this.createSpanChar(S.getCodeString(x + y)) : this.createCodeChar(x + y))
+                         (discover ? this.createCodeCharForAssigned(x + y) : this.createCodeChar(x + y))
                      ]}));
                  table.push(tr);
              };
