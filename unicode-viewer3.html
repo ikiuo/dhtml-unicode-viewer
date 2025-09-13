@@ -1,0 +1,1985 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="utf-8">
+    <title>Unicode文字表</title>
+    <style>
+     :root {
+         color-scheme: light dark;
+
+         --html-background-color: light-dark(white, black);
+         --html-color: light-dark(black, white);
+
+         --table-border-color: light-dark(darkgray, lightgray);
+         --th-background-color: light-dark(whitesmoke, darkslategray);
+
+         --code-background-color: var(--th-background-color);
+
+         --text-background-color: var(--html-background-color);
+         --text-color: var(--html-color);
+
+         --text-hover-background-color: SelectedItem;
+         --text-hover-color: SelectedItemText;
+
+         --nosup-background-color: light-dark(ghostwhite, navy);
+         --undef-background-color: light-dark(lavender, midnightblue);
+         --invalid-background-color: var(--undef-background-color);
+         --nochar-background-color: light-dark(salmon, maroon);
+         --active-background-color: light-dark(cyan, darkcyan);
+
+         --active-color: var(--text-color);
+     }
+
+     html {
+         background-color: var(--html-background-color);
+         color: var(--html-color);
+     }
+     html, body {
+         margin: 0px;
+         border: 0px;
+         padding: 0px;
+     }
+
+     table.thin {
+         border-collapse: collapse;
+         border: none;
+     }
+     table.thin th, table.thin td {
+         border: solid 1px var(--table-border-color);
+         padding: 4px;
+     }
+     table.thin th {
+         background-color: var(--th-background-color);
+     }
+
+     table.codemap, table.codemap td {
+         margin: 0px;
+         border: 0px;
+         padding: 0px;
+
+         width: 28em;
+     }
+     table.charset td {
+         text-align: center;
+     }
+
+     tr.separator {
+         height: 0.75em;
+     }
+     th.hexaddr, th.hexoffs {
+         font-size: smaller;
+     }
+     td.avail {
+         cursor: pointer;
+     }
+     td.nosup {
+         background-color: var(--nosup-background-color);
+         color: GrayText;
+         cursor: pointer;
+     }
+     td.undef {
+         background-color: var(--undef-background-color);
+         color: GrayText;
+         cursor: pointer;
+     }
+     td.invalid {
+         background-color: var(--invalid-background-color);
+         color: GrayText;
+         cursor: not-allowed;
+     }
+     td.nochar {
+         background-color: var(--nochar-background-color);
+         color: GrayText;
+         cursor: not-allowed;
+     }
+     td.avail:hover, td.nosup:hover, td.undef:hover {
+         background-color: var(--text-hover-background-color);
+         color: var(--text-hover-color);
+     }
+
+     div.active code {
+         background-color: var(--active-background-color);
+         color: var(--active-color);
+     }
+     div.spechar {
+         marign: 2px;
+         border: 1px dashed GrayText;
+         padding: 2px;
+         color: GrayText;
+         font-size: xx-small;
+     }
+
+     input[type=checkbox], input[type=radio] {
+         width: 0.8em;
+         height: 0.85em;
+     }
+
+     .ml-1em { margin-left: 1em; }
+     .fs-small { font-size: small; }
+     .cursor-pointer { cursor: pointer; }
+
+     #tagViewer {
+         display: flex;
+         flex-direction: row;
+         flex-grow: 1;
+     }
+     #tagCodeArea {
+         margin: 0px;
+         border-right: 1px solid gray;
+         padding: 0px;
+         height: 100vh;
+         width: 20%;
+         min-width: 20em;
+         max-width: 20em;
+         overflow-y: scroll;
+     }
+     #tagCodeChar {
+         flex-grow: 1;
+         margin: 0px;
+         padding: 0px;
+         height: 100vh;
+         overflow-y: scroll;
+     }
+    </style>
+  </head>
+  <body>
+    <main id="tagViewer">
+      <div id="tagCodeArea">
+        <div id="tagCode"></div>
+        <div>&nbsp;<a class="fs-small" href="index.html">戻る</a></div>
+      </div>
+      <div id="tagCodeChar">
+        <div style="margin: 0.5em;">
+          <table id="tagSettings" class="thin fs-small">
+            <tr>
+              <th rowspan="3">表</th>
+              <td>
+                <input type="checkbox" id="tagTranspose" oninput="setCodeChar()"><span>転置(T)</span>
+              </td>
+              <td>
+                <span id="tagWidthName">幅</span>(W)
+                <input type="radio" id="tagWidth16" name="tagWidth" value="16" oninput="setWidth(this)"><span>16</span>
+                <input type="radio" id="tagWidth32" name="tagWidth" value="32" oninput="setWidth(this)"><span>32</span>
+                <input type="radio" id="tagWidth48" name="tagWidth" value="48" oninput="setWidth(this)"><span>48</span>
+                <input type="radio" id="tagWidth64" name="tagWidth" value="64" oninput="setWidth(this)"><span>64</span>
+              </td>
+              <td>
+                <input type="checkbox" id="tagLiteral" oninput="setCodeChar()"><span>直文字(L)</span>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <span>文字(S)</span>
+                <input type="radio" id="tagFSxxsmall" name="tagFontSize" value="xx-small" oninput="setFontSize(this)"><span>極小</span>
+                <input type="radio" id="tagFSxsmall" name="tagFontSize" value="x-small" oninput="setFontSize(this)"><span>特小</span>
+                <input type="radio" id="tagFSsmall" name="tagFontSize" value="small" oninput="setFontSize(this)"><span>小</span>
+                <input type="radio" id="tagFSmedium" name="tagFontSize" value="medium" oninput="setFontSize(this)" checked><span>中</span>
+                <input type="radio" id="tagFSlarge" name="tagFontSize" value="large" oninput="setFontSize(this)"><span>大</span>
+                <input type="radio" id="tagFSxlarge" name="tagFontSize" value="x-large" oninput="setFontSize(this)"><span>特大</span>
+                <input type="radio" id="tagFSxxlarge" name="tagFontSize" value="xx-large" oninput="setFontSize(this)"><span>超大</span>
+                <input type="radio" id="tagFSxxxlarge" name="tagFontSize" value="xxx-large" oninput="setFontSize(this)"><span>極大</span>
+              </td>
+            </tr>
+            <tr>
+              <td colspan="3">
+                <span>領域(Z):</span>
+                <input type="text" id="tagCodeStart"
+                       minlength="1" maxlength="6" size="8"
+                       oninput="setCodePoint();">
+                〜 <code id="tagCodeEnd"></code>
+              </td>
+            </tr>
+          </table>
+          <div id="tagChar"></div>
+          <div>&nbsp;</div>
+        </div>
+      </div>
+    </main>
+
+    <!-- JavaScript -->
+
+    <script>
+
+     class UnicodeTable {
+         static undefinedName = '(Reserved)';
+
+         /*
+          *
+          */
+
+         static defineProperties(target) {
+             for (let i = 1; i < arguments.length; i++)
+                 arguments[i].map((p) => Object.defineProperty(target, p[0], { value: p[1] }));
+             return target;
+         };
+
+         static makeReservedAreaTable(plane) {
+             const start = plane << 16;
+             const end = start + 0xffff;
+             const name = `Plane ${plane} (Reserved)`;
+             return {
+                 start: start, end: end, aname: '予約', name: name,
+                 simple: UnicodeTable.makeSimpleAreaTable(plane, name, true),
+             }
+         }
+         static makeSimpleAreaTable(plane, name, reserved=false) {
+             const start = plane << 16;
+             const end = start + 0xffff;
+             const dname = reserved ? UnicodeTable.undefinedName : name;
+             return [{
+                 start: start, end: end, name: name,
+                 detail: [
+                     UnicodeTable.makeAreaTable(plane, dname, 15),
+                     { start: start + 0xf000, end: start + 0xff7f, name: dname + ' [F]' },
+                     { start: start + 0xff80, end: start + 0xffff, name: 'Unassigned' },
+                 ].flat(),
+             }]
+         }
+         static makeAreaTable(plane, name, count=16, offset=0) {
+             return [...Array(count)].map((_, i) => ({
+                 start: ((plane * 16 + i + offset) << 12),
+                 end: (((plane * 16 + i + offset + 1) << 12) - 1),
+                 name: `${name} [${(i + offset).toString(16).toUpperCase()}]`
+             }));
+         };
+
+         static makeMaskSet() {
+             const r = new Set();
+             let base = 0;
+             for (let i = 0; i < arguments.length; i++) {
+                 const arg = arguments[i];
+                 if (typeof(arg) == 'string')
+                     base = UnicodeTable.makeMaskSetSub(r, base, arg);
+                 else for (const s of arg)
+                     base = UnicodeTable.makeMaskSetSub(r, base, s);
+             };
+             return r;
+         };
+         static makeMaskSetSub(r, base, src) {
+             const args = src.split(',');
+             const atop = args.shift();
+             if (atop[0] == '+')
+                 base += Number('0x' + atop.slice(1));
+             else
+                 base = Number('0x' + atop);
+             if (args.length == 0) {
+                 r.add(base);
+                 return base;
+             };
+             for (const arg of args) {
+                 const span = arg.split('-');
+                 const s = Number('0x' + span.shift());
+                 if (span.length == 0) {
+                     r.add(base + s)
+                     continue;
+                 };
+                 const e = Number('0x' + span.shift());
+                 for (let o = s; o <= e; o++)
+                     r.add(base + o);
+             };
+             return base;
+         };
+
+         /*
+          *
+          */
+
+         static planeTable = [
+             { /* 0 */
+                 start: 0x000000, end: 0x00ffff, aname: 'BMP', name: 'Basic Multilingual Plane',
+               simple: [
+                   {
+                       start: 0x000000, end: 0x0000ff, name: 'ASCII, Latin-1 Compatibility',
+                       detail: [
+                           { start: 0x000000, end: 0x00007f, name: 'C0 Controls and Basic Latin' },
+                           { start: 0x000080, end: 0x0000ff, name: 'C1 Controls and Latin-1 Supplement' },
+                       ],
+                   },
+                   {
+                       start: 0x000100, end: 0x00058f, name: 'General Script',
+                       detail: [
+                           { start: 0x000100, end: 0x00017f, name: 'Latin Extended-A' },
+                           { start: 0x000180, end: 0x00024f, name: 'Latin Extended-B' },
+                           { start: 0x000250, end: 0x0002af, name: 'IPA Extensions' },
+                           { start: 0x0002b0, end: 0x0002ff, name: 'Spacing Modifier Letters' },
+                           { start: 0x000300, end: 0x00036f, name: 'Combining Diacritical Marks' },
+                           { start: 0x000370, end: 0x0003ff, name: 'Greek and Coptic' },
+                           { start: 0x000400, end: 0x0004ff, name: 'Cyrillic' },
+                           { start: 0x000500, end: 0x00052f, name: 'Cyrillic Supplement' },
+                           { start: 0x000530, end: 0x00058f, name: 'Armenian' },
+                       ],
+                   },
+                   {
+                       start: 0x000590, end: 0x0008ff, name: 'General Script (RTL)',
+                       detail: [
+                           { start: 0x000590, end: 0x0005ff, name: 'Hebrew' },
+                           { start: 0x000600, end: 0x0006ff, name: 'Arabic' },
+                           { start: 0x000700, end: 0x00074f, name: 'Syriac' },
+                           { start: 0x000750, end: 0x00077f, name: 'Arabic Supplement' },
+                           { start: 0x000780, end: 0x0007bf, name: 'Thaana' },
+                           { start: 0x0007c0, end: 0x0007ff, name: 'NKo' },
+                           { start: 0x000800, end: 0x00083f, name: 'Samaritan' },
+                           { start: 0x000840, end: 0x00085f, name: 'Mandaic' },
+                           { start: 0x000860, end: 0x00086f, name: 'Syriac Supplement' },
+                           { start: 0x000870, end: 0x00089f, name: 'Arabic Extended-B' },
+                           { start: 0x0008a0, end: 0x0008ff, name: 'Arabic Extended-A' },
+                       ],
+                   },
+                   {
+                       start: 0x000900, end: 0x001fff, name: 'General Script',
+                       detail: [
+                           { start: 0x000900, end: 0x00097f, name: 'Devanagari' },
+                           { start: 0x000980, end: 0x0009ff, name: 'Bengali' },
+                           { start: 0x000a00, end: 0x000a7f, name: 'Gurmukhi' },
+                           { start: 0x000a80, end: 0x000aff, name: 'Gujarati' },
+                           { start: 0x000b00, end: 0x000b7f, name: 'Oriya' },
+                           { start: 0x000b80, end: 0x000bff, name: 'Tamil' },
+                           { start: 0x000c00, end: 0x000c7f, name: 'Telugu' },
+                           { start: 0x000c80, end: 0x000cff, name: 'Kannada' },
+                           { start: 0x000d00, end: 0x000d7f, name: 'Malayalam' },
+                           { start: 0x000d80, end: 0x000dff, name: 'Sinhala' },
+                           { start: 0x000e00, end: 0x000e7f, name: 'Thai' },
+                           { start: 0x000e80, end: 0x000eff, name: 'Lao' },
+                           { start: 0x000f00, end: 0x000fff, name: 'Tibetan' },
+                           { start: 0x001000, end: 0x00109f, name: 'Myanmar' },
+                           { start: 0x0010a0, end: 0x0010ff, name: 'Georgian' },
+                           { start: 0x001100, end: 0x0011ff, name: 'Hangul Jamo' },
+                           { start: 0x001200, end: 0x00137f, name: 'Ethiopic' },
+                           { start: 0x001380, end: 0x00139f, name: 'Ethiopic Supplement' },
+                           { start: 0x0013a0, end: 0x0013ff, name: 'Cherokee' },
+                           { start: 0x001400, end: 0x00167f, name: 'Unified Canadian Aboriginal Syllabics' },
+                           { start: 0x001680, end: 0x00169f, name: 'Ogham' },
+                           { start: 0x0016a0, end: 0x0016ff, name: 'Runic' },
+                           { start: 0x001700, end: 0x00171f, name: 'Tagalog' },
+                           { start: 0x001720, end: 0x00173f, name: 'Hanunoo' },
+                           { start: 0x001740, end: 0x00175f, name: 'Buhid' },
+                           { start: 0x001760, end: 0x00177f, name: 'Tagbanwa' },
+                           { start: 0x001780, end: 0x0017ff, name: 'Khmer' },
+                           { start: 0x001800, end: 0x0018af, name: 'Mongolian' },
+                           { start: 0x0018b0, end: 0x0018ff, name: 'Unified Canadian Aboriginal Syllabics Extended' },
+                           { start: 0x001900, end: 0x00194f, name: 'Limbu' },
+                           { start: 0x001950, end: 0x00197f, name: 'Tai Le' },
+                           { start: 0x001980, end: 0x0019df, name: 'New Tai Lue' },
+                           { start: 0x0019e0, end: 0x0019ff, name: 'Khmer Symbols' },
+                           { start: 0x001a00, end: 0x001a1f, name: 'Buginese' },
+                           { start: 0x001a20, end: 0x001aaf, name: 'Tai Tham' },
+                           { start: 0x001ab0, end: 0x001aff, name: 'Combining Diacritical Marks Extended' },
+                           { start: 0x001b00, end: 0x001b7f, name: 'Balinese' },
+                           { start: 0x001b80, end: 0x001bbf, name: 'Sundanese' },
+                           { start: 0x001bc0, end: 0x001bff, name: 'Batak' },
+                           { start: 0x001c00, end: 0x001c4f, name: 'Lepcha' },
+                           { start: 0x001c50, end: 0x001c7f, name: 'Ol Chiki' },
+                           { start: 0x001c80, end: 0x001c8f, name: 'Cyrillic Extended-C' },
+                           { start: 0x001c90, end: 0x001cbf, name: 'Georgian Extended' },
+                           { start: 0x001cc0, end: 0x001ccf, name: 'Sundanese Supplement' },
+                           { start: 0x001cd0, end: 0x001cff, name: 'Vedic Extensions' },
+                           { start: 0x001d00, end: 0x001d7f, name: 'Phonetic Extensions' },
+                           { start: 0x001d80, end: 0x001dbf, name: 'Phonetic Extensions Supplement' },
+                           { start: 0x001dc0, end: 0x001dff, name: 'Combining Diacritical Marks Supplement' },
+                           { start: 0x001e00, end: 0x001eff, name: 'Latin Extended Additional' },
+                           { start: 0x001f00, end: 0x001fff, name: 'Greek Extended' },
+                       ],
+                   },
+                   {
+                       start: 0x002000, end: 0x002bff, name: 'Punctuation & Symbols',
+                       detail: [
+                           { start: 0x002000, end: 0x00206f, name: 'General Punctuation' },
+                           { start: 0x002070, end: 0x00209f, name: 'Superscripts and Subscripts' },
+                           { start: 0x0020a0, end: 0x0020cf, name: 'Currency Symbols' },
+                           { start: 0x0020d0, end: 0x0020ff, name: 'Combining Diacritical Marks for Symbols' },
+                           { start: 0x002100, end: 0x00214f, name: 'Letterlike Symbols' },
+                           { start: 0x002150, end: 0x00218f, name: 'Number Forms' },
+                           { start: 0x002190, end: 0x0021ff, name: 'Arrows' },
+                           { start: 0x002200, end: 0x0022ff, name: 'Mathematical Operators' },
+                           { start: 0x002300, end: 0x0023ff, name: 'Miscellaneous Technical' },
+                           { start: 0x002400, end: 0x00243f, name: 'Control Pictures' },
+                           { start: 0x002440, end: 0x00245f, name: 'Optical Character Recognition' },
+                           { start: 0x002460, end: 0x0024ff, name: 'Enclosed Alphanumerics' },
+                           { start: 0x002500, end: 0x00257f, name: 'Box Drawing' },
+                           { start: 0x002580, end: 0x00259f, name: 'Block Elements' },
+                           { start: 0x0025a0, end: 0x0025ff, name: 'Geometric Shapes' },
+                           { start: 0x002600, end: 0x0026ff, name: 'Miscellaneous Symbols' },
+                           { start: 0x002700, end: 0x0027bf, name: 'Dingbats' },
+                           { start: 0x0027c0, end: 0x0027ef, name: 'Miscellaneous Mathematical Symbols-A' },
+                           { start: 0x0027f0, end: 0x0027ff, name: 'Supplemental Arrows-A' },
+                           { start: 0x002800, end: 0x0028ff, name: 'Braille Patterns' },
+                           { start: 0x002900, end: 0x00297f, name: 'Supplemental Arrows-B' },
+                           { start: 0x002980, end: 0x0029ff, name: 'Miscellaneous Mathematical Symbols-B' },
+                           { start: 0x002a00, end: 0x002aff, name: 'Supplemental Mathematical Operators' },
+                           { start: 0x002b00, end: 0x002bff, name: 'Miscellaneous Symbols and Arrows' },
+                       ],
+                   },
+                   {
+                       start: 0x002c00, end: 0x002dff, name: 'General Script',
+                       detail: [
+                           { start: 0x002c00, end: 0x002c5f, name: 'Glagolitic' },
+                           { start: 0x002c60, end: 0x002c7f, name: 'Latin Extended-C' },
+                           { start: 0x002c80, end: 0x002cff, name: 'Coptic' },
+                           { start: 0x002d00, end: 0x002d2f, name: 'Georgian Supplement' },
+                           { start: 0x002d30, end: 0x002d7f, name: 'Tifinagh' },
+                           { start: 0x002d80, end: 0x002ddf, name: 'Ethiopic Extended' },
+                           { start: 0x002de0, end: 0x002dff, name: 'Cyrillic Extended-A' },
+                       ],
+                   },
+                   {
+                       start: 0x002e00, end: 0x002e7f, name: 'Supplemental Punctuation',
+                       detail: [
+                           { start: 0x002e00, end: 0x002e7f, name: 'Supplemental Punctuation' },
+                       ],
+                   },
+                   {
+                       start: 0x002e80, end: 0x0033ff, name: 'CJK Miscellaneous',
+                       detail: [
+                           { start: 0x002e80, end: 0x002eff, name: 'CJK Radicals Supplement' },
+                           { start: 0x002f00, end: 0x002fdf, name: 'Kangxi Radicals' },
+                           { start: 0x002fe0, end: 0x002fef, name: UnicodeTable.undefinedName },
+                           { start: 0x002ff0, end: 0x002fff, name: 'Ideographic Description Characters' },
+                           { start: 0x003000, end: 0x00303f, name: 'CJK Symbols and Punctuation' },
+                           { start: 0x003040, end: 0x00309f, name: 'Hiragana' },
+                           { start: 0x0030a0, end: 0x0030ff, name: 'Katakana' },
+                           { start: 0x003100, end: 0x00312f, name: 'Bopomofo' },
+                           { start: 0x003130, end: 0x00318f, name: 'Hangul Compatibility Jamo' },
+                           { start: 0x003190, end: 0x00319f, name: 'Kanbun' },
+                           { start: 0x0031a0, end: 0x0031bf, name: 'Bopomofo Extended' },
+                           { start: 0x0031c0, end: 0x0031ef, name: 'CJK Strokes' },
+                           { start: 0x0031f0, end: 0x0031ff, name: 'Katakana Phonetic Extensions' },
+                           { start: 0x003200, end: 0x0032ff, name: 'Enclosed CJK Letters and Months' },
+                           { start: 0x003300, end: 0x0033ff, name: 'CJK Compatibility' },
+                       ],
+                   },
+                   {
+                       start: 0x003400, end: 0x009fff, name: 'CJKV Unified Ideographs',
+                       detail: [
+                           { start: 0x003400, end: 0x003fff, name: 'CJK Unified Ideographs Extension A [3]' },
+                           { start: 0x004000, end: 0x004dbf, name: 'CJK Unified Ideographs Extension A [4]' },
+                           { start: 0x004dc0, end: 0x004dff, name: 'Yijing Hexagram Symbols' },
+                           { start: 0x004e00, end: 0x004fff, name: 'CJK Unified Ideographs [4]' },
+                           { start: 0x005000, end: 0x005fff, name: 'CJK Unified Ideographs [5]' },
+                           { start: 0x006000, end: 0x006fff, name: 'CJK Unified Ideographs [6]' },
+                           { start: 0x007000, end: 0x007fff, name: 'CJK Unified Ideographs [7]' },
+                           { start: 0x008000, end: 0x008fff, name: 'CJK Unified Ideographs [8]' },
+                           { start: 0x009000, end: 0x009fff, name: 'CJK Unified Ideographs [9]' },
+                       ],
+                   },
+                   {
+                       start: 0x00a000, end: 0x00abff, name: 'General Script (Asia & Africa)',
+                       detail: [
+                           { start: 0x00a000, end: 0x00a48f, name: 'Yi Syllables' },
+                           { start: 0x00a490, end: 0x00a4cf, name: 'Yi Radicals' },
+                           { start: 0x00a4d0, end: 0x00a4ff, name: 'Lisu' },
+                           { start: 0x00a500, end: 0x00a63f, name: 'Vai' },
+                           { start: 0x00a640, end: 0x00a69f, name: 'Cyrillic Extended-B' },
+                           { start: 0x00a6a0, end: 0x00a6ff, name: 'Bamum' },
+                           { start: 0x00a700, end: 0x00a71f, name: 'Modifier Tone Letters' },
+                           { start: 0x00a720, end: 0x00a7ff, name: 'Latin Extended-D' },
+                           { start: 0x00a800, end: 0x00a82f, name: 'Syloti Nagri' },
+                           { start: 0x00a830, end: 0x00a83f, name: 'Common Indic Number Forms' },
+                           { start: 0x00a840, end: 0x00a87f, name: 'Phags-pa' },
+                           { start: 0x00a880, end: 0x00a8df, name: 'Saurashtra' },
+                           { start: 0x00a8e0, end: 0x00a8ff, name: 'Devanagari Extended' },
+                           { start: 0x00a900, end: 0x00a92f, name: 'Kayah Li' },
+                           { start: 0x00a930, end: 0x00a95f, name: 'Rejang' },
+                           { start: 0x00a960, end: 0x00a97f, name: 'Hangul Jamo Extended-A' },
+                           { start: 0x00a980, end: 0x00a9df, name: 'Javanese' },
+                           { start: 0x00a9e0, end: 0x00a9ff, name: 'Myanmar Extended-B' },
+                           { start: 0x00aa00, end: 0x00aa5f, name: 'Cham' },
+                           { start: 0x00aa60, end: 0x00aa7f, name: 'Myanmar Extended-A' },
+                           { start: 0x00aa80, end: 0x00aadf, name: 'Tai Viet' },
+                           { start: 0x00aae0, end: 0x00aaff, name: 'Meetei Mayek Extensions' },
+                           { start: 0x00ab00, end: 0x00ab2f, name: 'Ethiopic Extended-A' },
+                           { start: 0x00ab30, end: 0x00ab6f, name: 'Latin Extended-E' },
+                           { start: 0x00ab70, end: 0x00abbf, name: 'Cherokee Supplement' },
+                           { start: 0x00abc0, end: 0x00abff, name: 'Meetei Mayek' },
+                       ],
+                   },
+                   {
+                       start: 0x00ac00, end: 0x00d7ff, name: 'Hangul Syllables',
+                       detail: [
+                           { start: 0x00ac00, end: 0x00afff, name: 'Hangul Syllables [A]' },
+                           { start: 0x00b000, end: 0x00bfff, name: 'Hangul Syllables [B]' },
+                           { start: 0x00c000, end: 0x00cfff, name: 'Hangul Syllables [C]' },
+                           { start: 0x00d000, end: 0x00d7af, name: 'Hangul Syllables [D]' },
+                           { start: 0x00d7b0, end: 0x00d7ff, name: 'Hangul Jamo Extended-B' },
+                       ],
+                   },
+                   {
+                       start: 0x00d800, end: 0x00dfff, name: 'Surrogate Codes',
+                       detail: [
+                           { start: 0x00d800, end: 0x00dfff, name: 'Surrogate Codes' },
+                       ],
+                   },
+                   {
+                       start: 0x00e000, end: 0x00f8ff, name: 'Private Use',
+                       detail: [
+                           { start: 0x00e000, end: 0x00efff, name: 'Private Use [E]' },
+                           { start: 0x00f000, end: 0x00f8ff, name: 'Private Use [F]' },
+                       ],
+                   },
+                   {
+                       start: 0x00f900, end: 0x00ffff, name: 'Compatibility & Specials',
+                       detail: [
+                           { start: 0x00f900, end: 0x00faff, name: 'CJK Compatibility Ideographs' },
+                           { start: 0x00fb00, end: 0x00fb4f, name: 'Alphabetic Presentation Forms' },
+                           { start: 0x00fb50, end: 0x00fdff, name: 'Arabic Presentation Forms-A' },
+                           { start: 0x00fe00, end: 0x00fe0f, name: 'Variation Selectors' },
+                           { start: 0x00fe10, end: 0x00fe1f, name: 'Vertical Forms' },
+                           { start: 0x00fe20, end: 0x00fe2f, name: 'Combining Half Marks' },
+                           { start: 0x00fe30, end: 0x00fe4f, name: 'CJK Compatibility Forms' },
+                           { start: 0x00fe50, end: 0x00fe6f, name: 'Small Form Variants' },
+                           { start: 0x00fe70, end: 0x00feff, name: 'Arabic Presentation Forms-B' },
+                           { start: 0x00ff00, end: 0x00ffef, name: 'Halfwidth and Fullwidth Forms' },
+                           { start: 0x00fff0, end: 0x00ffff, name: 'Specials' },
+                       ],
+                   },
+               ],
+             },
+             {/* 1 */
+                 start: 0x010000, end: 0x01ffff, aname: 'SMP', name: 'Supplementary Multilingual Plane',
+              simple: [
+                  {
+                      start: 0x010000, end: 0x0107ff, name: 'General Script',
+                      detail: [
+                          { start: 0x010000, end: 0x01007f, name: 'Linear B Syllabary' },
+                          { start: 0x010080, end: 0x0100ff, name: 'Linear B Ideograms' },
+                          { start: 0x010100, end: 0x01013f, name: 'Aegean Numbers' },
+                          { start: 0x010140, end: 0x01018f, name: 'Ancient Greek Numbers' },
+                          { start: 0x010190, end: 0x0101cf, name: 'Ancient Symbols' },
+                          { start: 0x0101d0, end: 0x0101ff, name: 'Phaistos Disc' },
+                          { start: 0x010200, end: 0x01027f, name: UnicodeTable.undefinedName },
+                          { start: 0x010280, end: 0x01029f, name: 'Lycian' },
+                          { start: 0x0102a0, end: 0x0102df, name: 'Carian' },
+                          { start: 0x0102e0, end: 0x0102ff, name: 'Coptic Epact Numbers' },
+                          { start: 0x010300, end: 0x01032f, name: 'Old Italic' },
+                          { start: 0x010330, end: 0x01034f, name: 'Gothic' },
+                          { start: 0x010350, end: 0x01037f, name: 'Old Permic' },
+                          { start: 0x010380, end: 0x01039f, name: 'Ugaritic' },
+                          { start: 0x0103a0, end: 0x0103df, name: 'Old Persian' },
+                          { start: 0x0103e0, end: 0x0103ff, name: UnicodeTable.undefinedName },
+                          { start: 0x010400, end: 0x01044f, name: 'Deseret' },
+                          { start: 0x010450, end: 0x01047f, name: 'Shavian' },
+                          { start: 0x010480, end: 0x0104af, name: 'Osmanya' },
+                          { start: 0x0104b0, end: 0x0104ff, name: 'Osage' },
+                          { start: 0x010500, end: 0x01052f, name: 'Elbasan' },
+                          { start: 0x010530, end: 0x01056f, name: 'Caucasian Albanian' },
+                          { start: 0x010570, end: 0x0105bf, name: 'Vithkuqi' },
+                          { start: 0x0105c0, end: 0x0105ff, name: 'Todhri' },
+                          { start: 0x010600, end: 0x01077f, name: 'Linear A' },
+                          { start: 0x010780, end: 0x0107bf, name: 'Latin Extended-F' },
+                          { start: 0x0107c0, end: 0x0107ff, name: UnicodeTable.undefinedName },
+                      ],
+                  },
+                  {
+                      start: 0x010800, end: 0x010fff, name: 'General Script (RTL)',
+                      detail: [
+                          { start: 0x010800, end: 0x01083f, name: 'Cypriot Syllabary' },
+                          { start: 0x010840, end: 0x01085f, name: 'Imperial Aramaic' },
+                          { start: 0x010860, end: 0x01087f, name: 'Palmyrene' },
+                          { start: 0x010880, end: 0x0108af, name: 'Nabataean' },
+                          { start: 0x0108b0, end: 0x0108df, name: UnicodeTable.undefinedName },
+                          { start: 0x0108e0, end: 0x0108ff, name: 'Hatran' },
+                          { start: 0x010900, end: 0x01091f, name: 'Phoenician' },
+                          { start: 0x010920, end: 0x01093f, name: 'Lydian' },
+                          { start: 0x010940, end: 0x01095f, name: 'Sidetic' },
+                          { start: 0x010960, end: 0x01097f, name: UnicodeTable.undefinedName },
+                          { start: 0x010980, end: 0x01099f, name: 'Meroitic Hieroglyphs' },
+                          { start: 0x0109a0, end: 0x0109ff, name: 'Meroitic Cursive' },
+                          { start: 0x010a00, end: 0x010a5f, name: 'Kharoshthi' },
+                          { start: 0x010a60, end: 0x010a7f, name: 'Old South Arabian' },
+                          { start: 0x010a80, end: 0x010a9f, name: 'Old North Arabian' },
+                          { start: 0x010aa0, end: 0x010abf, name: UnicodeTable.undefinedName },
+                          { start: 0x010ac0, end: 0x010aff, name: 'Manichaean' },
+                          { start: 0x010b00, end: 0x010b3f, name: 'Avestan' },
+                          { start: 0x010b40, end: 0x010b5f, name: 'Inscriptional Parthian' },
+                          { start: 0x010b60, end: 0x010b7f, name: 'Inscriptional Pahlavi' },
+                          { start: 0x010b80, end: 0x010baf, name: 'Psalter Pahlavi' },
+                          { start: 0x010bb0, end: 0x010bff, name: UnicodeTable.undefinedName },
+                          { start: 0x010c00, end: 0x010c4f, name: 'Old Turkic' },
+                          { start: 0x010c50, end: 0x010c7f, name: UnicodeTable.undefinedName },
+                          { start: 0x010c80, end: 0x010cff, name: 'Old Hungarian' },
+                          { start: 0x010d00, end: 0x010d3f, name: 'Hanifi Rohingya' },
+                          { start: 0x010d40, end: 0x010d8f, name: 'Garay' },
+                          { start: 0x010d90, end: 0x010dff, name: UnicodeTable.undefinedName },
+                          { start: 0x010e00, end: 0x010e5f, name: UnicodeTable.undefinedName },
+                          { start: 0x010e60, end: 0x010e7f, name: 'Rumi Numeral Symbols' },
+                          { start: 0x010e80, end: 0x010ebf, name: 'Yezidi' },
+                          { start: 0x010ec0, end: 0x010eff, name: 'Arabic Extended-C' },
+                          { start: 0x010f00, end: 0x010f2f, name: 'Old Sogdian' },
+                          { start: 0x010f30, end: 0x010f6f, name: 'Sogdian' },
+                          { start: 0x010f70, end: 0x010faf, name: 'Old Uyghur' },
+                          { start: 0x010fb0, end: 0x010fdf, name: 'Chorasmian' },
+                          { start: 0x010fe0, end: 0x010fff, name: 'Elymaic' },
+                      ],
+                  },
+                  {
+                      start: 0x011000, end: 0x011fff, name: 'General Script',
+                      detail: [
+                          { start: 0x011000, end: 0x01107f, name: 'Brahmi' },
+                          { start: 0x011080, end: 0x0110cf, name: 'Kaithi' },
+                          { start: 0x0110d0, end: 0x0110ff, name: 'Sora Sompeng' },
+                          { start: 0x011100, end: 0x01114f, name: 'Chakma' },
+                          { start: 0x011150, end: 0x01117f, name: 'Mahajani' },
+                          { start: 0x011180, end: 0x0111df, name: 'Sharada' },
+                          { start: 0x0111e0, end: 0x0111ff, name: 'Sinhala Archaic Numbers' },
+                          { start: 0x011200, end: 0x01124f, name: 'Khojki' },
+                          { start: 0x011250, end: 0x01127f, name: UnicodeTable.undefinedName },
+                          { start: 0x011280, end: 0x0112af, name: 'Multani' },
+                          { start: 0x0112b0, end: 0x0112ff, name: 'Khudawadi' },
+                          { start: 0x011300, end: 0x01137f, name: 'Grantha' },
+                          { start: 0x011380, end: 0x0113ff, name: 'Tulu-Tigalari' },
+                          { start: 0x011400, end: 0x01147f, name: 'Newa' },
+                          { start: 0x011480, end: 0x0114df, name: 'Tirhuta' },
+                          { start: 0x0114e0, end: 0x01157f, name: UnicodeTable.undefinedName },
+                          { start: 0x011580, end: 0x0115ff, name: 'Siddham' },
+                          { start: 0x011600, end: 0x01165f, name: 'Modi' },
+                          { start: 0x011660, end: 0x01167f, name: 'Mongolian Supplement' },
+                          { start: 0x011680, end: 0x0116cf, name: 'Takri' },
+                          { start: 0x0116d0, end: 0x0116ff, name: 'Myanmar Extended-C' },
+                          { start: 0x011700, end: 0x01174f, name: 'Ahom' },
+                          { start: 0x011750, end: 0x0117ff, name: UnicodeTable.undefinedName },
+                          { start: 0x011800, end: 0x01184f, name: 'Dogra' },
+                          { start: 0x011850, end: 0x01189f, name: UnicodeTable.undefinedName },
+                          { start: 0x0118a0, end: 0x0118ff, name: 'Warang Citi' },
+                          { start: 0x011900, end: 0x01195f, name: 'Dives Akuru' },
+                          { start: 0x011960, end: 0x01199f, name: UnicodeTable.undefinedName },
+                          { start: 0x0119a0, end: 0x0119ff, name: 'Nandinagari' },
+                          { start: 0x011a00, end: 0x011a4f, name: 'Zanabazar Square' },
+                          { start: 0x011a50, end: 0x011aaf, name: 'Soyombo' },
+                          { start: 0x011ab0, end: 0x011abf, name: 'Unified Canadian Aboriginal Syllabics Extended-A' },
+                          { start: 0x011ac0, end: 0x011aff, name: 'Pau Cin Hau' },
+                          { start: 0x011b00, end: 0x011b5f, name: 'Devanagari Extended-A' },
+                          { start: 0x011b60, end: 0x011b7f, name: 'Sharada Supplement' },
+                          { start: 0x011b80, end: 0x011bbf, name: UnicodeTable.undefinedName },
+                          { start: 0x011bc0, end: 0x011bff, name: 'Sunuwar' },
+                          { start: 0x011c00, end: 0x011c6f, name: 'Bhaiksuki' },
+                          { start: 0x011c70, end: 0x011cbf, name: 'Marchen' },
+                          { start: 0x011cc0, end: 0x011cff, name: UnicodeTable.undefinedName },
+                          { start: 0x011d00, end: 0x011d5f, name: 'Masaram Gondi' },
+                          { start: 0x011d60, end: 0x011daf, name: 'Gunjala Gondi' },
+                          { start: 0x011db0, end: 0x011def, name: 'Tolong Siki' },
+                          { start: 0x011df0, end: 0x011edf, name: UnicodeTable.undefinedName },
+                          { start: 0x011ee0, end: 0x011eff, name: 'Makasar' },
+                          { start: 0x011f00, end: 0x011f5f, name: 'Kawi' },
+                          { start: 0x011f60, end: 0x011faf, name: UnicodeTable.undefinedName },
+                          { start: 0x011fb0, end: 0x011fbf, name: 'Lisu Supplement' },
+                          { start: 0x011fc0, end: 0x011fff, name: 'Tamil Supplement' },
+                      ],
+                  },
+                  {
+                      start: 0x012000, end: 0x015fff, name: 'Cuneiform & Hieroglyphic',
+                      detail: [
+                          { start: 0x012000, end: 0x0123ff, name: 'Cuneiform' },
+                          { start: 0x012400, end: 0x01247f, name: 'Cuneiform Numbers and Punctuation' },
+                          { start: 0x012480, end: 0x01254f, name: 'Early Dynastic Cuneiform' },
+                          { start: 0x012550, end: 0x012f8f, name: UnicodeTable.undefinedName },
+                          { start: 0x012f90, end: 0x012fff, name: 'Cypro-Minoan' },
+                          { start: 0x013000, end: 0x01342f, name: 'Egyptian Hieroglyphs' },
+                          { start: 0x013430, end: 0x01345f, name: 'Egyptian Hieroglyph Format Controls' },
+                          { start: 0x013460, end: 0x013fff, name: 'Egyptian Hieroglyphs Extended-A [3]' },
+                          { start: 0x014000, end: 0x0143ff, name: 'Egyptian Hieroglyphs Extended-A [4]' },
+                          { start: 0x014400, end: 0x01467f, name: 'Anatolian Hieroglyphs' },
+                          { start: 0x014680, end: 0x014fff, name: UnicodeTable.undefinedName },
+                          { start: 0x015000, end: 0x015fff, name: UnicodeTable.undefinedName },
+                      ],
+                  },
+                  {
+                      start: 0x016000, end: 0x016fff, name: 'General Script',
+                      detail: [
+                          { start: 0x016000, end: 0x0160ff, name: UnicodeTable.undefinedName },
+                          { start: 0x016100, end: 0x01613f, name: 'Gurung Khema' },
+                          { start: 0x016140, end: 0x0167ff, name: UnicodeTable.undefinedName },
+                          { start: 0x016800, end: 0x016a3f, name: 'Bamum Supplement' },
+                          { start: 0x016a40, end: 0x016a6f, name: 'Mro' },
+                          { start: 0x016a70, end: 0x016acf, name: 'Tangsa' },
+                          { start: 0x016ad0, end: 0x016aff, name: 'Bassa Vah' },
+                          { start: 0x016b00, end: 0x016b8f, name: 'Pahawh Hmong' },
+                          { start: 0x016b90, end: 0x016d3f, name: UnicodeTable.undefinedName },
+                          { start: 0x016d40, end: 0x016d7f, name: 'Kirat Rai' },
+                          { start: 0x016d80, end: 0x016e3f, name: UnicodeTable.undefinedName },
+                          { start: 0x016e40, end: 0x016e9f, name: 'Medefaidrin' },
+                          { start: 0x016ea0, end: 0x016edf, name: 'Beria Erfe' },
+                          { start: 0x016ee0, end: 0x016eff, name: UnicodeTable.undefinedName },
+                          { start: 0x016f00, end: 0x016f9f, name: 'Miao' },
+                          { start: 0x016fa0, end: 0x016fdf, name: UnicodeTable.undefinedName },
+                          { start: 0x016fe0, end: 0x016fff, name: 'Ideographic Symbols and Punctuation' },
+                      ],
+                  },
+                  {
+                      start: 0x017000, end: 0x01bbff, name: 'Ideographic Script',
+                      detail: [
+                          { start: 0x017000, end: 0x017fff, name: 'Tangut [7]' },
+                          { start: 0x018000, end: 0x0187ff, name: 'Tangut [8]' },
+                          { start: 0x018800, end: 0x018aff, name: 'Tangut Components' },
+                          { start: 0x018b00, end: 0x018cff, name: 'Khitan Small Script' },
+                          { start: 0x018d00, end: 0x018d1f, name: 'Tangut Supplement' },
+                          { start: 0x018d20, end: 0x018d7f, name: UnicodeTable.undefinedName },
+                          { start: 0x018d80, end: 0x018dff, name: 'Tangut Components Supplement' },
+                          { start: 0x018e00, end: 0x018fff, name: UnicodeTable.undefinedName },
+                          { start: 0x019000, end: 0x019fff, name: UnicodeTable.undefinedName },
+                          { start: 0x01a000, end: 0x01afef, name: UnicodeTable.undefinedName },
+                          { start: 0x01aff0, end: 0x01afff, name: 'Kana Extended-B' },
+                          { start: 0x01b000, end: 0x01b0ff, name: 'Kana Supplement' },
+                          { start: 0x01b100, end: 0x01b12f, name: 'Kana Extended-A' },
+                          { start: 0x01b130, end: 0x01b16f, name: 'Small Kana Extension' },
+                          { start: 0x01b170, end: 0x01b2ff, name: 'Nushu' },
+                          { start: 0x01b300, end: 0x01bbff, name: UnicodeTable.undefinedName },
+                      ],
+                  },
+                  {
+                      start: 0x01bc00, end: 0x01cfff, name: 'General Script',
+                      detail: [
+                          { start: 0x01bc00, end: 0x01bc9f, name: 'Duployan' },
+                          { start: 0x01bca0, end: 0x01bcaf, name: 'Shorthand Format Controls' },
+                          { start: 0x01bcb0, end: 0x01bfff, name: UnicodeTable.undefinedName },
+                          { start: 0x01c000, end: 0x01cbff, name: UnicodeTable.undefinedName },
+                          { start: 0x01cc00, end: 0x01cebf, name: 'Symbols for Legacy Computing Supplement' },
+                          { start: 0x01cec0, end: 0x01ceff, name: 'Miscellaneous Symbols Supplement' },
+                          { start: 0x01cf00, end: 0x01cfcf, name: 'Znamenny Musical Notation' },
+                          { start: 0x01cfd0, end: 0x01cfff, name: UnicodeTable.undefinedName },
+                      ],
+                  },
+                  {
+                      start: 0x01d000, end: 0x01e7ff, name: 'Symbols',
+                      detail: [
+                          { start: 0x01d000, end: 0x01d0ff, name: 'Byzantine Musical Symbols' },
+                          { start: 0x01d100, end: 0x01d1ff, name: 'Musical Symbols' },
+                          { start: 0x01d200, end: 0x01d24f, name: 'Ancient Greek Musical Notation' },
+                          { start: 0x01d250, end: 0x01d2bf, name: UnicodeTable.undefinedName },
+                          { start: 0x01d2c0, end: 0x01d2df, name: 'Kaktovik Numerals' },
+                          { start: 0x01d2e0, end: 0x01d2ff, name: 'Mayan Numerals' },
+                          { start: 0x01d300, end: 0x01d35f, name: 'Tai Xuan Jing Symbols' },
+                          { start: 0x01d360, end: 0x01d37f, name: 'Counting Rod Numerals' },
+                          { start: 0x01d380, end: 0x01d3ff, name: UnicodeTable.undefinedName },
+                          { start: 0x01d400, end: 0x01d7ff, name: 'Mathematical Alphanumeric Symbols' },
+                          { start: 0x01d800, end: 0x01daaf, name: 'Sutton SignWriting' },
+                          { start: 0x01dab0, end: 0x01deff, name: UnicodeTable.undefinedName },
+                          { start: 0x01df00, end: 0x01dfff, name: 'Latin Extended-G' },
+                          { start: 0x01e000, end: 0x01e02f, name: 'Glagolitic Supplement' },
+                          { start: 0x01e030, end: 0x01e08f, name: 'Cyrillic Extended-D' },
+                          { start: 0x01e090, end: 0x01e0ff, name: UnicodeTable.undefinedName },
+                          { start: 0x01e100, end: 0x01e14f, name: 'Nyiakeng Puachue Hmong' },
+                          { start: 0x01e150, end: 0x01e28f, name: UnicodeTable.undefinedName },
+                          { start: 0x01e290, end: 0x01e2bf, name: 'Toto' },
+                          { start: 0x01e2c0, end: 0x01e2ff, name: 'Wancho' },
+                          { start: 0x01e300, end: 0x01e4cf, name: UnicodeTable.undefinedName },
+                          { start: 0x01e4d0, end: 0x01e4ff, name: 'Nag Mundari' },
+                          { start: 0x01e500, end: 0x01e5cf, name: UnicodeTable.undefinedName },
+                          { start: 0x01e5d0, end: 0x01e5ff, name: 'Ol Onal' },
+                          { start: 0x01e600, end: 0x01e6bf, name: UnicodeTable.undefinedName },
+                          { start: 0x01e6c0, end: 0x01e6ff, name: 'Tai Yo' },
+                          { start: 0x01e700, end: 0x01e7df, name: UnicodeTable.undefinedName },
+                          { start: 0x01e7e0, end: 0x01e7ff, name: 'Ethiopic Extended-B' },
+                      ],
+                  },
+                  {
+                      start: 0x01e800, end: 0x01efff, name: 'General Script (RTL)',
+                      detail: [
+                          { start: 0x01e800, end: 0x01e8df, name: 'Mende Kikakui' },
+                          { start: 0x01e8e0, end: 0x01e8ff, name: UnicodeTable.undefinedName },
+                          { start: 0x01e900, end: 0x01e95f, name: 'Adlam' },
+                          { start: 0x01e960, end: 0x01ec6f, name: UnicodeTable.undefinedName },
+                          { start: 0x01ec70, end: 0x01ecbf, name: 'Indic Siyaq Numbers' },
+                          { start: 0x01ecc0, end: 0x01ecff, name: UnicodeTable.undefinedName },
+                          { start: 0x01ed00, end: 0x01ed4f, name: 'Ottoman Siyaq Numbers' },
+                          { start: 0x01ed50, end: 0x01edff, name: UnicodeTable.undefinedName },
+                          { start: 0x01ee00, end: 0x01eeff, name: 'Arabic Mathematical Alphabetic Symbols' },
+                          { start: 0x01ef00, end: 0x01efff, name: UnicodeTable.undefinedName },
+                      ],
+                  },
+                  {
+                      start: 0x01f000, end: 0x01ffff, name: 'General Script',
+                      detail: [
+                          { start: 0x01f000, end: 0x01f02f, name: 'Mahjong Tiles' },
+                          { start: 0x01f030, end: 0x01f09f, name: 'Domino Tiles' },
+                          { start: 0x01f0a0, end: 0x01f0ff, name: 'Playing Cards' },
+                          { start: 0x01f100, end: 0x01f1ff, name: 'Enclosed Alphanumeric Supplement' },
+                          { start: 0x01f200, end: 0x01f2ff, name: 'Enclosed Ideographic Supplement' },
+                          { start: 0x01f300, end: 0x01f5ff, name: 'Miscellaneous Symbols and Pictographs' },
+                          { start: 0x01f600, end: 0x01f64f, name: 'Emoticons' },
+                          { start: 0x01f650, end: 0x01f67f, name: 'Ornamental Dingbats' },
+                          { start: 0x01f680, end: 0x01f6ff, name: 'Transport and Map Symbols' },
+                          { start: 0x01f700, end: 0x01f77f, name: 'Alchemical Symbols' },
+                          { start: 0x01f780, end: 0x01f7ff, name: 'Geometric Shapes Extended' },
+                          { start: 0x01f800, end: 0x01f8ff, name: 'Supplemental Arrows-C' },
+                          { start: 0x01f900, end: 0x01f9ff, name: 'Supplemental Symbols and Pictographs' },
+                          { start: 0x01fa00, end: 0x01fa6f, name: 'Chess Symbols' },
+                          { start: 0x01fa70, end: 0x01faff, name: 'Symbols and Pictographs Extended-A' },
+                          { start: 0x01fb00, end: 0x01fbff, name: 'Symbols for Legacy Computing' },
+                          { start: 0x01fc00, end: 0x01ff7f, name: UnicodeTable.undefinedName },
+                          { start: 0x01ff80, end: 0x01ffff, name: 'Unassigned' },
+                      ],
+                  },
+              ],
+             },
+             {/* 2 */
+                 start: 0x020000, end: 0x02ffff, aname: 'SIP', name: 'Supplementary Ideographic Plane',
+              simple: [
+                  {
+                      start: 0x020000, end: 0x02ffff, name: 'Supplementary Ideographic',
+                      detail: [
+                          { start: 0x020000, end: 0x020fff, name: 'CJK Unified Ideographs Extension B [0]' },
+                          { start: 0x021000, end: 0x021fff, name: 'CJK Unified Ideographs Extension B [1]' },
+                          { start: 0x022000, end: 0x022fff, name: 'CJK Unified Ideographs Extension B [2]' },
+                          { start: 0x023000, end: 0x023fff, name: 'CJK Unified Ideographs Extension B [3]' },
+                          { start: 0x024000, end: 0x024fff, name: 'CJK Unified Ideographs Extension B [4]' },
+                          { start: 0x025000, end: 0x025fff, name: 'CJK Unified Ideographs Extension B [5]' },
+                          { start: 0x026000, end: 0x026fff, name: 'CJK Unified Ideographs Extension B [6]' },
+                          { start: 0x027000, end: 0x027fff, name: 'CJK Unified Ideographs Extension B [7]' },
+                          { start: 0x028000, end: 0x028fff, name: 'CJK Unified Ideographs Extension C [8]' },
+                          { start: 0x029000, end: 0x029fff, name: 'CJK Unified Ideographs Extension C [9]' },
+                          { start: 0x02a000, end: 0x02afff, name: 'CJK Unified Ideographs Extension C [A]' },
+                          { start: 0x02b000, end: 0x02b73f, name: 'CJK Unified Ideographs Extension C [B]' },
+                          { start: 0x02b740, end: 0x02b81f, name: 'CJK Unified Ideographs Extension D [B]' },
+                          { start: 0x02b820, end: 0x02ceaf, name: 'CJK Unified Ideographs Extension E [B,C]' },
+                          { start: 0x02ceb0, end: 0x02dfff, name: 'CJK Unified Ideographs Extension F [C,D]' },
+                          { start: 0x02e000, end: 0x02ebef, name: 'CJK Unified Ideographs Extension F [E]' },
+                          { start: 0x02ebf0, end: 0x02ee5f, name: 'CJK Unified Ideographs Extension I [E]' },
+                          { start: 0x02ee60, end: 0x02efff, name: UnicodeTable.undefinedName + ' [E]' },
+                          { start: 0x02f000, end: 0x02f7ff, name: UnicodeTable.undefinedName + ' [F]' },
+                          { start: 0x02f800, end: 0x02fa1f, name: 'CJK Compatibility Ideographs Supplement' },
+                          { start: 0x02fa20, end: 0x02ff7f, name: UnicodeTable.undefinedName },
+                          { start: 0x02ff80, end: 0x02ffff, name: 'Unassigned' },
+                      ],
+                  },
+              ],
+             },
+             {/* 3 */
+                 start: 0x030000, end: 0x03ffff, aname: 'TIP', name: 'Tertiary Ideographic Plane',
+              simple: [
+                  {
+                      start: 0x030000, end: 0x03ffff, name: 'Tertiary Ideographic',
+                      detail: [
+                          { start: 0x030000, end: 0x030fff, name: 'CJK Unified Ideographs Extension G [0]' },
+                          { start: 0x031000, end: 0x03134f, name: 'CJK Unified Ideographs Extension G [1]' },
+                          { start: 0x031350, end: 0x0323af, name: 'CJK Unified Ideographs Extension H [1,2]' },
+                          { start: 0x0323b0, end: 0x03347f, name: 'CJK Unified Ideographs Extension J [2,3]' },
+                          { start: 0x033480, end: 0x034fff, name: UnicodeTable.undefinedName + ' [3]' },
+                          UnicodeTable.makeAreaTable(3, UnicodeTable.undefinedName, 11, 4),
+                          { start: 0x03f000, end: 0x03ff7f, name: UnicodeTable.undefinedName + ' [F]' },
+                          { start: 0x03ff80, end: 0x03ffff, name: 'Unassigned' },
+                      ].flat(),
+                  },
+              ],
+             },
+             /* 4..13 */ [...Array(10)].map((_, i) => UnicodeTable.makeReservedAreaTable(i + 4)),
+             {/* 14 */
+                 start: 0x0e0000, end: 0x0effff, aname: '制御', name: 'Plane 14 (Reserved)',
+              simple: [
+                  {
+                      start: 0x0e0000, end: 0x0e0fff, name: 'Default_Ignorable_Code_Point',
+                      detail: [
+                          { start: 0x0e0000, end: 0x0e007f, name: 'Tags' },
+                          { start: 0x0e0080, end: 0x0e00ff, name: UnicodeTable.undefinedName },
+                          { start: 0x0e0100, end: 0x0e01ef, name: 'Variation Selectors Supplement' },
+                          { start: 0x0e01f0, end: 0x0e0fff, name: UnicodeTable.undefinedName + ' [0]' },
+                      ],
+                  },
+                  {
+                      start: 0x0e0000, end: 0x0e0fff, name: 'Plane 14 (Reserved)',
+                      detail: [
+                          UnicodeTable.makeAreaTable(14, UnicodeTable.undefinedName, 14, 1),
+                          { start: 0x0ef000, end: 0x0ef7ff, name: UnicodeTable.undefinedName + ' [F]' },
+                          { start: 0x0eff80, end: 0x0effff, name: 'Unassigned' },
+                      ].flat(),
+                  },
+              ],
+             },
+             {/* 15 */
+                 start: 0x0f0000, end: 0x0fffff, aname: '外字A', name: 'Supplementary Private Use Area-A',
+              simple: UnicodeTable.makeSimpleAreaTable(15, 'Supplementary Private Use Area-A'),
+             },
+             {/* 16 */
+                 start: 0x100000, end: 0x10ffff, aname: '外字B', name: 'Supplementary Private Use Area-B',
+              simple: UnicodeTable.makeSimpleAreaTable(16, 'Supplementary Private Use Area-B'),
+             },
+         ].flat();
+
+         static codeMaskSetTable = [
+             '00370,8,9','+10,0-3,b,d','+20,2',
+             '00530','+20,7,8','+30,b,c',
+             '00590','+30,8-f','+20,b-e','+10,5-f',
+             '00700,e','+40,b,c',
+             '007b0,2-f',
+             '007f0,b,c',
+             '00820,e,f','+10,f',
+             '00850,c,d,f',
+             '00860,b-f',
+             '00880,f','+10,2-7',
+             '00980,4,d,e','+10,1,2','+10,9','+10,1,3-5,a,b',
+             /**/ '+10,5,6,9,a,f','+10,0-6,8-b,e','+10,4,5','+10,f',
+             '00a00,0,4,b-e','+10,1,2','+10,9','+10,1,4,7,a,b,d',
+             /**/ '+10,3-6,9,a,e,f','+10,0,2-8,d,f','+10,0-5','+10,7-f',
+             '00a80,0,4,e','+10,2','+10,9','+10,1,4,a,b',
+             /**/ '+10,6,a,e,f','+10,1-f','+10,4,5','+10,2-8',
+             '00b00,0,4,d,e','+10,1,2','+10,9','+10,1,4,a,b','+10,5,6,9,a,e,f',
+             /**/ '+10,0-4,8-b,e','+10,4,5','+10,8-f',
+             '00b80,0,1,4,b-d','+10,1,6-8,b,d','+10,0-2,5-7,b-d','+10,a-d',
+             /**/ '+10,3-5,9,e,f','+10,1-6,8-f','+10,0-5','+10,b-f',
+             '00c00,d','+10,1','+10,9','+10,a,b','+10,5,9,e,f',
+             /**/ '+10,0-5,7,b,c,e,f','+10,4,5','+10,0-6',
+             '00c80,d','+10,1','+10,9','+10,4,a,b','+10,5,9,e,f',
+             /**/ '+10,0-4,7-b,f','+10,4,5','+10,0,3-f',
+             '00d00,d','+10,1','+30,5,9','+10,0-3','+10,4,5',
+             '00d80,0,4','+10,7-9','+20,2,c,e,f','+10,7-9,b-e',
+             /**/ '+10,5,7','+10,0-5','+10,0,1,5-f',
+             '00e00,0','+30,b-e','+20,c-f','+10,0-1f',
+             '00e80,0,3,5,b','+20,4,6','+10,e,f','+10,5,7,f','+10,a,b','+10,0-1f',
+             '00f40,8','+20,d-f','+10,0','+20,8','+20,d','+10,d','+10,b-f','+10,0-1f',
+             '010c0,6,8-c,e,f',
+             '01240,9,e,f','+10,7,9,e,f','+30,9,e,f','+30,1,6,7,f',
+             /**/ '+10,1,6,7','+10,7','+40,1,6,7','+40,b,c','+20,d-f',
+             '01390,a-f',
+             '013f0,6,7,e,f',
+             '01690,d-f',
+             '016f0,9-f',
+             '01710,6-e',
+             '01730,7-f',
+             '01750,4-f',
+             '01760,d','+10,1,4-f',
+             '017d0,e,f','+10,a-f','+10,a-f',
+             '01810,a-f','+60,9-f','+30,b-f',
+             '018f0,6-f',
+             '01910,f','+10,c-f','+10,c-f','+10,1-3',
+             '01960,e,f','+10,5-f',
+             '019a0,c-f','+20,a-f','+10,b-d',
+             '01a10,c,d',
+             '01a50,f','+20,d,e','+10,a-f','+10,a-f','+10,e,f',
+             '01ad0,e,f','+10,c-f','+10,0-f',
+             '01b40,d',
+             '01bf0,4-b',
+             '01c30,8-a','+10,a-c',
+             '01c80,b-f',
+             '01cb0,b,c',
+             '01cc0,8-f',
+             '01cf0,b-f',
+             '01f10,6,7,e,f','+30,6,7,e,f','+10,8,a,c,e','+20,e,f',
+             /**/ '+40,5','+10,5','+10,4,5,c','+20,0,1,5,f',
+             '02060,5',
+             '02070,2,3','+10,f','+10,d-f',
+             '020c0,2-f',
+             '020f0,1-f',
+             '02180,c-f',
+             '02420,a-1f',
+             '02440,b-1f',
+             '02b70,4,5',
+             '02cf0,4-8',
+             '02d20,6,8-c,e,f',
+             '02d60,8-e','+10,1-e',
+             '02d90,7-f','+10,7,f','+10,7,f','+10,7,f','+10,7,f',
+             '02e50,e-2f',
+             '02e90,a','+60,4-f',
+             '02fd0,6-f',
+             '03040,0','+50,7,8',
+             '03100,0-4',
+             '03130,0','+50,f',
+             '031e0,6-e',
+             '03210,f',
+             '0a480,d-f',
+             '0a4c0,7-f',
+             '0a620,c-1f',
+             '0a6f0,8-f',
+             '0a7d0,d-f','+10,0-f','+10,0',
+             '0a820,d-f',
+             '0a830,a-f',
+             '0a870,8-f',
+             '0a8c0,6-d','+10,a-f',
+             '0a950,4-e',
+             '0a970,d-f',
+             '0a9c0,e','+10,a-d',
+             '0a9f0,f',
+             '0aa30,7-f','+10,e,f','+10,a,b',
+             '0aac0,3-f','+10,0-a',
+             '0aaf0,7-f',
+             '0ab00,0,7,8,f','+10,0,7-f','+10,7,f',
+             '0ab60,c-f',
+             '0abe0,e,f','+10,a-f',
+             '0d7a0,4-f',
+             '0d7c0,7-a','+30,c-f',
+             '0fad0,a-2f',
+             '0fb00,7-f','+10,0-2,8-c','+20,7,d,f','+10,2,5',
+             '0fe10,a-f',
+             '0fe50,3','+10,7,c-f',
+             '0fe70,5','+80,d,e',
+             '0ff00',
+             '0ffb0,f','+10,0,1,8,9','+10,0,1,8,9,d-f','+10,7,f',
+             '0fff0,0-8',
+
+             '10000,c','+20,7','+10,b,e','+10,e,f','+10,e,f','+10,0-1f',
+             '100f0,b-f',
+             '10100,3-6','+30,4-6',
+             '10180,f',
+             '10190,d-f','+10,1-2f',
+             '101f0,e,f',
+             '10200,0-7f',
+             '10290,d-f',
+             '102d0,1-f',
+             '102f0,c-f',
+             '10320,4-c',
+             '10340,b-f',
+             '10370,b-f',
+             '10390,e',
+             '103c0,4-7','+10,6-f',
+             '103e0,0-1f',
+             '10490,e,f','+10,a-f',
+             '104d0,4-7','+20,c-f',
+             '10520,8-f',
+             '10560,4-e',
+             '10570,b','+10,b','+10,3,6','+10,2','+10,2,a,d-f',
+             '105f0,4-f',
+             '10730,7-f','+20,6-f','+10,7-1f',
+             '10780,6','+30,1,b-f',
+             '107c0,0-3f',
+             '10800,6,7,9','+30,6,9-b,d,e',
+             '10850,6',
+             '10890,f','+10,0-6',
+             '108b0,0-2f',
+             '108f0,3,6-a',
+             '10910,c-e',
+             '10930,a-e',
+             '10950,a-f',
+             '10960,0-1f',
+             '109b0,8-b','+20,0,1',
+             '10a00,4,7-b','+10,4,8','+20,6,7,b-e','+10,9-f','+10,9-f',
+             '10aa0,0-1f',
+             '10ae0,7-a','+10,7-f',
+             '10b30,6-8',
+             '10b50,6,7',
+             '10b70,3-7',
+             '10b90,2-8,d-f','+10,0-8',
+             '10bb0,0-4f',
+             '10c40,9-f',
+             '10c50,0-2f',
+             '10cb0,3-f','+40,3-9',
+             '10d20,8-f','+10,a-f',
+             '10d60,6-8','+20,6-d',
+             '10d90,0-6f',
+             '10e00,0-5f',
+             '10e70,f',
+             '10ea0,a,e,f','+10,2-f',
+             '10ec0,0,1,8-f','+10,9-29',
+             '10f20,8-f',
+             '10f50,a-1f',
+             '10f80,a-2f',
+             '10fc0,c-1f',
+             '10ff0,7-f',
+             '11040,e,f','+10,0,1','+20,6-e',
+             '110c0,3-c,e,f',
+             '110e0,9-f','+10,a-f',
+             '11130,5','+10,8-f',
+             '11170,7-f',
+             '111e0,0','+10,5-f',
+             '11210,2','+30,0-f',
+             '11250,0-2f',
+             '11280,7,9,e','+10,e','+10,a-f',
+             '112e0,b-f','+10,a-f',
+             '11300,4,d,e','+10,1,2','+10,9','+10,1,4,a','+10,5,6,9,a,e,f',
+             /**/ '+10,1-6,8-c','+10,4,5,d-f','+10,5-f',
+             '11380,a,c,d,f','+30,6','+10,1,3,4,6,b','+10,6,9-f','+10,0,3-1f',
+             '11450,c','+10,2-1f',
+             '114c0,8-f','+10,a-f',
+             '114e0,0-1f',
+             '11500,0-7f',
+             '115b0,6,7','+20,e,f','+10,0-1f',
+             '11640,5-f','+10,a-f',
+             '11660,d-f','+10,0-f',
+             '116b0,a-f','+10,a-f',
+             '116e0,4-1f',
+             '11710,b,c','+10,c-f','+20,7-f',
+             '11750,0-af',
+             '11830,c-f','+10,0-f',
+             '11850,0-4f',
+             '118f0,3-e',
+             '11900,7,8,a,b','+10,4,7','+20,6,9,a','+10,7-f','+10,a-f',
+             '11960,0-3f',
+             '119a0,8,9','+30,8,9','+10,5-f','+10,0-f',
+             '11a40,8-f',
+             '11aa0,3-f',
+             '11af0,9-f',
+             '11b00,a-5f',
+             '11b60,8-1f',
+             '11b80,0-3f',
+             '11be0,2-f','+10,a-f',
+             '11c00,9','+30,7','+10,6-f','+20,d-f',
+             '11c90,0,1','+10,8','+10,7-f',
+             '11cc0,0-3f',
+             '11d00,7,a','+30,7-9,b,e','+10,8-f','+10,a-f',
+             '11d60,6,9','+20,f','+10,2,9-f','+10,a-f',
+             '11dd0,c-f','+10,a-f',
+             '11df0,0-f',
+             '11e00,0-df',
+             '11ef0,9-f',
+             '11f10,1','+20,b-d','+20,b-f',
+             '11f60,0-4f',
+             '11fb0,1-f',
+             '11ff0,2-e',
+             '12390,a-f','+10,0-5f',
+             '12460,f','+10,5-f',
+             '12540,4-f',
+             '12550,0-af',
+             '12600,0-8ff',
+             '12f00,0-8f',
+             '12ff0,3-f',
+             '13450,6-f',
+             '143f0,b-f',
+             '14640,7-f','+10,0-2f',
+             '14680,0-7f',
+             '14700,0-8ff',
+             '15000,0-fff',
+             '16000,0-ff',
+             '16130,a-f',
+             '16140,0-6bf',
+             '16a30,9-f',
+             '16a50,f','+10,a-d',
+             '16ab0,f','+10,a-f',
+             '16ae0,e,f','+10,6-f',
+             '16b40,6-f','+10,a','+10,2','+10,8-c',
+             '16b90,0-6f',
+             '16c00,0-ff',
+             '16d00,0-3f',
+             '16d70,a-f',
+             '16d80,0-7f',
+             '16e00,0-3f',
+             '16e90,b-f',
+             '16eb0,9,a','+20,4-f',
+             '16ee0,0-1f',
+             '16f40,b-e','+40,8-e',
+             '16fa0,0-3f',
+             '16fe0,5-f','+10,7-f',
+             '18cd0,6-f','+10,0-1f',
+             '18d10,f',
+             '18d20,0-5f',
+             '18df0,3-f',
+             '18e00,0-1ff',
+             '19000,0-fff',
+             '1a000,0-fef',
+             '1aff0,4,c,f',
+             '1b120,3-f',
+             '1b130,0,1,3-1f','+20,3,4,6-f','+10,0-3,8-f',
+             '1b2f0,c-f',
+             '1b300,0-8ff',
+             '1bc60,b-f','+10,d-f','+10,9-f','+10,a,b',
+             '1bca0,4-f',
+             '1bcb0,0-4f',
+             '1bd00,0-2ff',
+             '1c000,0-bff',
+             '1ceb0,4-9',
+             '1ced0,1-f','+20,1-f',
+             '1cf20,e,f','+20,7-f','+80,4-f',
+             '1cfd0,0-2f',
+             '1d0f0,6-f',
+             '1d130,7,8','+b0,b-f','+10,0-f',
+             '1d240,6-f',
+             '1d250,0-6f',
+             '1d2d0,4-f',
+             '1d2f0,4-f',
+             '1d350,7-f',
+             '1d370,9-f',
+             '1d380,0-7f',
+             '1d450,5','+40,d','+10,0,1,3,4,7,8,d','+10,a,c','+10,4','+40,6,b,c',
+             /**/ '+10,5,d','+20,a,f','+10,5,7-9','+10,1','+150,6,7','+120,c,d',
+             '1da80,c-f','+10,0-a','+10,0',
+             '1dab0,0-4f',
+             '1db00,0-3ff',
+             '1df10,f','+10,f','+10,0-4,b-cf',
+             '1e000,7','+10,9,a','+10,2,5,b-f',
+             '1e060,e-2e',
+             '1e090,0-6f',
+             '1e120,d-f','+10,e,f','+10,a-d',
+             '1e150,0-af',
+             '1e200,0-8f',
+             '1e2a0,f','+10,0-f',
+             '1e2f0,a-e',
+             '1e300,0-1cf',
+             '1e4f0,a-f',
+             '1e500,0-cf',
+             '1e5f0,b-e',
+             '1e600,0-bf',
+             '1e6d0,f','+20,6-d',
+             '1e700,0-df',
+             '1e7e0,7,c,f','+10,f',
+             '1e8c0,5,6','+10,7-f',
+             '1e8e0,0-1f',
+             '1e940,c-f','+10,a-d',
+             '1e960,0-9f',
+             '1ea00,0-1ff',
+             '1ec00,0-6f',
+             '1ec70,0','+40,5-f',
+             '1ecc0,0-3f',
+             '1ed00,0','+30,e,f','+10,0-f',
+             '1ed50,0-af',
+             '1ee00,4','+20,0,3,5,6,8','+10,3,8,a,c-f','+10,0,1,3-6,8,a,c',
+             /**/ '+10,0,3,5,6,8,a,c,e','+10,0,3,5,6,b','+10,3,8,d,f',
+             /**/ '+10,a','+10,c-f','+10,0,4,a','+10,c-f','+10,0-2f','+30,2-f',
+             '1ef00,0-ff',
+             '1f020,c-f',
+             '1f090,4-f',
+             '1f0a0,f','+10,0','+10,0','+10,0','+20,6-f',
+             '1f1a0,e,f','+10,0-35',
+             '1f200,3-f','+30,c-f','+10,9-f','+10,2-f','+10,6-f','+10,0-8f',
+             '1f6d0,8-b','+10,d-f','+10,d-f',
+             '1f7d0,a-f','+10,c-f','+10,1-f',
+             '1f800,c-f','+40,8-f','+10,a-f','+30,8-f','+20,e,f','+10,c-f','+10,2-f','+10,9-2f',
+             '1fa50,8-f','+10,e,f',
+             '1fa70,d-f','+10,b-d','+40,7,9-c','+10,d,e','+10,b-e','+10,9-f',
+             '1fbf0,b-f',
+             '1fc00,0-2ff',
+             '1ff00,0-7f',
+             '1ff80,0-7d',
+
+             '2ebe0,1-f',
+             '2ee50,e-f',
+             '2ee60,0-19f',
+             '2f000,0-7ff',
+             '2fa10,e-f',
+             '2fa20,0-4df',
+             '2ff00,0-7f',
+             '2ff80,0-7d',
+
+             '31340,a-f',
+             '33470,a-f',
+             '33480,0-7f',
+             '33500,0-aff',
+             '34000,0-bf7f',
+             '3ff80,0-7d',
+
+             '40000,0-ff7f', '4ff80,0-7d',
+             '50000,0-ff7f', '5ff80,0-7d',
+             '60000,0-ff7f', '6ff80,0-7d',
+             '70000,0-ff7f', '7ff80,0-7d',
+             '80000,0-ff7f', '8ff80,0-7d',
+             '90000,0-ff7f', '9ff80,0-7d',
+             'a0000,0-ff7f', 'aff80,0-7d',
+             'b0000,0-ff7f', 'bff80,0-7d',
+             'c0000,0-ff7f', 'cff80,0-7d',
+             'd0000,0-ff7f', 'dff80,0-7d',
+
+             'e0000,0-ff',
+             'e01f0,0-f',
+             'e0200,0-dff',
+             'e1000,0-efff',
+             'eff00,0-7f',
+             'eff80,0-7d',
+
+             '0fff80,0-7d',
+             '10ff80,0-7d',
+
+             '110000,0-ffff',
+         ];
+         static codeMaskSet = UnicodeTable.makeMaskSet(UnicodeTable.codeMaskSetTable);
+
+         /*
+          *
+          */
+
+         static specialCharacter = {
+             0x0000: 'NUL', 0x0001: 'SOH', 0x0002: 'STX', 0x0003: 'ETX',
+             0x0004: 'EOT', 0x0005: 'ENQ', 0x0006: 'ACK', 0x0007: 'BEL',
+             0x0008: 'BS',  0x0009: 'HT',  0x000a: 'LF',         0x000b: 'VT',
+             0x000c: 'FF',  0x000d: 'CR',  0x000e: 'SO',         0x000f: 'SI',
+             0x0010: 'DLE', 0x0011: 'DC1', 0x0012: 'DC2', 0x0013: 'DC3',
+             0x0014: 'DC4', 0x0015: 'NAK', 0x0016: 'SYN', 0x0017: 'ETB',
+             0x0018: 'CAN', 0x0019: 'EM',  0x001a: 'SUB', 0x001b: 'ESC',
+             0x001c: 'FS',  0x001d: 'GS',  0x001e: 'RS',         0x001f: 'US',
+             0x0020: 'SP',
+             0x007f: 'DEL',
+             0x0080: 'XXX', 0x0081: 'XXX', 0x0082: 'BPH', 0x0083: 'NBH',
+             0x0084: 'IND', 0x0085: 'NEL', 0x0086: 'SSA', 0x0087: 'ESA',
+             0x0088: 'HTS', 0x0089: 'HTJ', 0x008a: 'VTS', 0x008b: 'PLD',
+             0x008c: 'PLU', 0x008d: 'RI',  0x008e: 'SS2', 0x008f: 'SS3',
+             0x0090: 'DCS', 0x0091: 'PU1', 0x0092: 'PU2', 0x0093: 'STS',
+             0x0094: 'CCH', 0x0095: 'MW',  0x0096: 'SPA', 0x0097: 'EPA',
+             0x0098: 'SOS', 0x0099: 'XXX', 0x009a: 'SCI', 0x009b: 'CSI',
+             0x009c: 'ST',  0x009d: 'OSC', 0x009e: 'PM',         0x009f: 'APC',
+             0x00a0: 'NB\nSP',  0x00ad: 'SHY\n−',
+
+             0x034f: 'CGJ',
+             0x0600: '\u0600',  0x0601: '\u0601',  0x0602: '\u0602',     0x0603: '\u0603',
+             0x0604: '\u0604',  0x0605: '\u0605',
+             0x061c: 'ALM',
+             0x06dd: '\u06dd',
+             0x070f: '\u070f\nSAM',
+             0x0890: '\u0890',  0x0891: '\u0891',
+             0x08e2: '\u08e2',
+             0x0cf1: '\u0cf1',  0x0cf2: '\u0cf2',
+             0x0d4e: '\u0d4e',
+             0x0f0c: '\u0f0c\nNB',
+             0x1039: '\u1039',
+             0x115F: 'HC\nF',
+             0x1160: 'HJ\nF',
+             0x1680: '\u1680',
+             0x17b4: 'KIV\nAQ', 0x17b5: 'KIV\nAA',
+             0x17d2: '\u17d2',
+             0x180b: 'FV\nS1',
+             0x180c: 'FV\nS2',  0x180d: 'FV\nS3',  0x180e: 'MV\nS',      0x180f: 'FV\nS4',
+             0x1a60: '\u1a60',
+             0x1bab: '\u1bab',
+             0x1cf5: '\u1cf5', 0x1cf6: '\u1cf6',
+
+             0x2000: 'NQ\nSP',  0x2001: 'MQ\nSP',  0x2002: 'EN\nSP',     0x2003: 'EM\nSP',
+             0x2004: '3/M\nSP', 0x2005: '4/M\nSP', 0x2006: '6/M\nSP', 0x2007: 'F\nSP',
+             0x2008: 'P\nSP',   0x2009: 'TH\nSP',  0x200a: 'H\nSP',      0x200b: 'ZW\nSP',
+             0x200c: 'ZW\nNJ',  0x200d: 'ZW\nJ',          0x200e: 'LRM',         0x200f: 'RLM',
+             0x2011: 'NB\n‑',
+             0x2028: 'L\nSEP',  0x2029: 'P\nSEP',  0x202a: 'LRE',        0x202b: 'RLE',
+             0x202c: 'PDF',        0x202d: 'LRO',         0x202e: 'RLO',         0x202f: 'NNB\nSP',
+             0x205f: 'MM\nSP',
+             0x2060: 'WJ',         0x2061: 'ƒ()',         0x2062: '×',           0x2063: ',',
+             0x2064: '＋',                                                0x2066: 'LRI',         0x2067: 'RLI',
+             0x2068: 'FSI',        0x2069: 'PDI',         0x206a: 'I\nSS',       0x206b: 'A\nSS',
+             0x206c: 'I\nAFS',  0x206d: 'A\nAFS',  0x206e: 'NA\nDS',     0x206f: 'NO\nDS',
+             0x2d7f: '\u2d7f',  0x2e3a: '2M\n\u2e3a', 0x2e3b: '3M\n\u2e3b',
+             0x3000: 'ID\nSP',  0x303e: '\u303e',
+             0x3164: 'HF',
+             0x31ef: '…',
+
+             0xaaf6: '\uaaf6',
+
+             0xfeff: 'ZWN\nBSP',
+             0xffa0: 'HW\nHF',
+             0xfff9: 'IA\nA',   0xfffa: 'IA\nS',          0xfffb: 'IA\nT',
+             0xfffc: 'OBJ',
+
+             0x10a3f: '\ud802\ude3f',
+             0x11003: '\ud804\udc03',
+             0x11004: '\ud804\udc04',
+             0x1107f: 'BNJ',
+             0x110bd: '\ud804\udcbc',
+             0x110cd: '\ud804\udcbc\n\xa0',
+             0x11133: '\ud804\udd33',
+             0x111c2: '\ud804\uddc2', 0x111c3: '\ud804\uddc3',
+             0x113d0: '\ud804\udfd0', 0x113d1: '\ud804\udfd1',
+             0x11460: '\ud805\udc60', 0x11461: '\ud805\udc61',
+             0x1193e: '\ud806\udd3e', 0x1193f: '\ud806\udd3f',
+             0x11941: '\ud806\udd41',
+             0x11a3a: '\ud806\ude3a',
+             0x11a47: '\ud806\ude47',
+             0x11a84: '\ud806\ude84', 0x11a85: '\ud806\ude85',
+             0x11a86: '\ud806\ude86', 0x11a87: '\ud806\ude87',
+             0x11a88: '\ud806\ude88', 0x11a89: '\ud806\ude89',
+             0x11a99: '\ud806\ude99',
+             0x11d45: '\ud807\udd45', 0x11d46: '\ud807\udd46',
+             0x11d97: '\ud807\udd97',
+             0x11f02: '\ud807\udf02', 0x11f42: '\ud807\udf42',
+
+             0x13430: ':', 0x13431: '\ud80d\udc31',
+             0x13432: '\ud80d\udc32', 0x13433: '\ud80d\udc33',
+             0x13434: '\ud80d\udc34', 0x13435: '\ud80d\udc35',
+             0x13436: '+', 0x13437: '(', 0x13438: ')',
+             0x13439: '\ud80d\udc39',
+             0x1343a: '\ud80d\udc3a', 0x1343b: '\ud80d\udc3b',
+             0x1343c: '\ud80d\udc3c', 0x1343d: '\ud80d\udc3d',
+             0x1343e: '\ud80d\udc3e', 0x1343f: '\ud80d\udc3f',
+             0x13440: '⭤', 0x13441: 'FB', 0x13442: 'HB',
+             0x13447: '\ud80d\udc47',
+             0x13448: '\ud80d\udc48', 0x13449: '\ud80d\udc49',
+             0x1344a: '\ud80d\udc4a', 0x1344b: '\ud80d\udc4b',
+             0x1344c: '\ud80d\udc4c', 0x1344d: '\ud80d\udc4d',
+             0x1344e: '\ud80d\udc4e', 0x1344f: '\ud80d\udc4f',
+             0x13450: '\ud80d\udc50', 0x13451: '\ud80d\udc51',
+             0x13452: '\ud80d\udc52', 0x13453: '\ud80d\udc53',
+             0x13454: '\ud80d\udc54', 0x13455: '\ud80d\udc55',
+
+             0x16f8f: '\ud81b\udf8f',
+             0x16f90: '\ud81b\udf90', 0x16f91: '\ud81b\udf91',
+             0x16f92: '\ud81b\udf92',
+             0x16fe4: 'KSS\nF',
+
+             0x1bc9d: 'DT\nLS',
+             0x1bca0: '\ud82f\udca0', 0x1bca1: '\ud82f\udca1',
+             0x1bca2: '\ud82f\udca2', 0x1bca3: '\ud82f\udca3',
+
+             0x1d159: 'NULL\nNOTE\nHEAD',
+             0x1d173: 'BEGIN\nBEAM', 0x1d174: 'END\nBEAM',
+             0x1d175: 'BEGIN\nTIE',     0x1d176: 'END\nTIE',
+             0x1d177: 'BEGIN\nSLUR', 0x1d178: 'END\nSLUR',
+             0x1d179: 'BEGIN\nPHR.', 0x1d17a: 'END\nPHR.',
+
+             0x1da9b: 'SW\nF2',
+             0x1da9c: 'SW\nF3', 0x1da9d: 'SW\nF4',      0x1da9e: 'SW\nF5',      0x1da9f: 'SW\nF6',
+             0x1daa1: 'SW\nR2', 0x1daa2: 'SW\nR3',      0x1daa3: 'SW\nR4',
+             0x1daa4: 'SW\nR5', 0x1daa5: 'SW\nR6',      0x1daa6: 'SW\nR7',      0x1daa7: 'SW\nR8',
+             0x1daa8: 'SW\nR9', 0x1daa9: 'SW\nR10', 0x1daaa: 'SW\nR11', 0x1daab: 'SW\nR12',
+             0x1daac: 'SW\nR13', 0x1daad: 'SW\nR14', 0x1daae: 'SW\nR15', 0x1daaf: 'SW\nR16',
+
+             0xe0001: 'BEGIN\n\ud83c\udff7', 0xe007f: 'END\n\ud83c\udff7',
+         };
+         static controlCharacterMap = UnicodeTable.defineProperties(
+             UnicodeTable.specialCharacter,
+             [...Array(95)].map((_, i) => ([0xe0020 + i, `${String.fromCharCode(0x20+i)}\n\ud83c\udff7`])),
+             [...Array(16)].map((_, i) => ([0x0fe00 + i, `VS${(i+1).toString()}`])),
+             [...Array(240)].map((_, i) => ([0xe0100 + i, `VS\n${(i+17).toString()}`])),
+         );
+
+         /*
+          *
+          */
+
+         static noneCharacter = new Set([
+             [...Array(0x800)].map((_, i) => i + 0xd800),
+             [...Array(32)].map((_, i) => i + 0xfdd0),
+             [...Array(17)].map((_, i) => (i << 16))
+                           .map(v => [v + 0xfffe, v + 0xffff]).flat(),
+         ].flat());
+
+         /*
+          *
+          */
+
+         static binarySearch(table, value, cmp) {
+             let lp = 0;
+             let rp = table.length;
+
+             while (lp < rp) {
+                 const mp = (lp + rp) >> 1;
+                 const cv = cmp(value, table[mp]);
+                 if (cv == 0)
+                     return mp;
+                 if (cv > 0)
+                     lp = mp + 1;
+                 else
+                     rp = mp;
+             }
+             return -1;
+         }
+
+         static cmpCode(code, data) {
+             return (code < data.start ? -1 :
+                            code > data.end ? 1 : 0);
+         }
+
+         static getCodeTableInfo(p, s, d) {
+             const plane = UnicodeTable.planeTable[p];
+             const simple = plane ? plane.simple[s] : null;
+             const detail = simple ? simple.detail[d] : null;
+             return {
+                 planeIndex: plane ? p : -1, plane: plane,
+                 simpleInex: simple ? s : -1, simple: simple,
+                 detailIndex: detail ? d : -1, detail: detail,
+             }
+         }
+
+         static getCodeTable(code) {
+             const S = UnicodeTable;
+             const search = S.binarySearch;
+             const cmp = S.cmpCode;
+
+             let plane = null;
+             let simple = null;
+             let detail = null;
+
+             let p = code >> 16;
+             let s = -1;
+             let d = -1;
+
+             if (0 <= p && p <= 16) {
+                 plane = S.planeTable[p];
+                 const simpleTable = plane.simple;
+                 s = search(simpleTable, code, cmp);
+                 if (s >= 0) {
+                     simple = simpleTable[s];
+                     const detailTable = simple.detail;
+                     d = search(detailTable, code, cmp);
+                     if (d >= 0)
+                         detail = detailTable[d];
+                 }
+             }
+             return {
+                 planeIndex: p, plane: plane,
+                 simpleInex: s, simple: simple,
+                 detailIndex: d, detail: detail,
+             }
+         }
+
+         static getPrevCodeTable(curr) {
+             const S = UnicodeTable;
+
+             let plane = curr.plane;
+             let simple = curr.simple;
+             let detail = curr.detail;
+             let p = curr.planeIndex;
+             let s = curr.simpleInex;
+             let d = curr.detailIndex;
+
+             do {
+                 if (!(detail = simple.detail[--d])) {
+                     if (!(simple = plane.simple[--s])) {
+                         if (!(plane = S.planeTable[--p])) {
+                             p = s = d = -1;
+                             break;
+                         }
+                         simple = plane.simple[s = plane.simple.length - 1];
+                     }
+                     detail = simple.detail[d = simple.detail.length - 1];
+                 }
+             } while (false);
+             return {
+                 planeIndex: p, plane: plane,
+                 simpleInex: s, simple: simple,
+                 detailIndex: d, detail: detail,
+             }
+         }
+
+         static getNextCodeTable(curr) {
+             const S = UnicodeTable;
+
+             let plane = curr.plane;
+             let simple = curr.simple;
+             let detail = curr.detail;
+             let p = curr.planeIndex;
+             let s = curr.simpleInex;
+             let d = curr.detailIndex;
+
+             do {
+                 if (!(detail = simple.detail[++d])) {
+                     if (!(simple = plane.simple[++s])) {
+                         if (!(plane = S.planeTable[++p])) {
+                             p = s = d = -1;
+                             break;
+                         }
+                         simple = plane.simple[s = 0];
+                     }
+                     detail = simple.detail[d = 0];
+                 }
+             } while (false);
+
+             plane = S.planeTable[p];
+             simple = plane ? plane.simple[s] : null;
+             detail = simple ? simple.detail[d] : null;
+             return {
+                 planeIndex: p, plane: plane,
+                 simpleInex: s, simple: simple,
+                 detailIndex: d, detail: detail,
+             }
+         }
+
+         static *detailIter() {
+             const S = UnicodeTable;
+             let curr = S.getCodeTable(0);
+             while (curr.planeIndex >= 0) {
+                 yield curr;
+                 curr = S.getNextCodeTable(curr);
+             }
+         }
+     }
+
+     const concatAll = l => l.flat(Infinity).join('');
+
+     const genReverseEntries =
+         o => Object.fromEntries(Object.keys(o).map(k => [o[k], k]));
+
+     const viewCharsChangeF = { 16: 32, 32: 48, 48: 64, 64: 16 }
+     const viewCharsChangeB = genReverseEntries(viewCharsChangeF);
+     var viewChars = 16;
+
+     const viewFontSizeChangeF = {
+         'xx-small': 'x-small',
+         'x-small': 'small',
+         'small': 'medium',
+         'medium': 'large',
+         'large': 'x-large',
+         'x-large': 'xx-large',
+         'xx-large': 'xxx-large',
+         'xxx-large': 'xx-small',
+     };
+     const viewFontSizeChangeB = genReverseEntries(viewFontSizeChangeF);
+     var viewFontSize = 'medium';
+
+     var lastTagId = null;
+
+     function fmtX(x) { return (x.toString(16).toUpperCase()); }
+     function fmt02X(x) { return ('00' + x.toString(16).toUpperCase()).slice(-2); }
+     function fmt03X(x) { return ('000' + x.toString(16).toUpperCase()).slice(-3); }
+     function fmt04X(x) { return ('0000' + x.toString(16).toUpperCase()).slice(-4); }
+     function fmt06X(x) { return ('000000' + x.toString(16).toUpperCase()).slice(-6); }
+
+     function makeTagId(pos) {
+         const p = pos.planeIndex;
+         const s = pos.simpleInex;
+         const d = pos.detailIndex;
+         return (pos && pos.detail) ? `area-${p}-${s}-${d}` : null;
+     }
+
+     function parseTagId(id) {
+         const s = id.split('-');
+         return s[0] != 'area' ? null : [
+             Number(s[1]),
+             Number(s[2]),
+             Number(s[3]),
+         ];
+     }
+
+     function getTagById(name) {
+         return document.getElementById(name);
+     }
+
+     function clrActive() {
+         if (lastTagId)
+             getTagById(lastTagId).classList.remove('active');
+         lastTagId = null;
+     }
+     function setActive(did) {
+         if (lastTagId == did)
+             return;
+         clrActive();
+
+         const sid = did.replace(/-[^-]*$/, "");
+         const pid = sid.replace(/-[^-]*$/, "");
+         const dtag = getTagById(did);
+         const stag = getTagById(sid);
+         const ptag = getTagById(pid);
+
+         dtag.classList.add('active');
+         stag.open = true;
+         ptag.open = true;
+
+         getTagById(did + '-start')
+             .scrollIntoView({block: 'nearest', inline: 'center'});
+
+         lastTagId = did;
+         setCodeChar();
+     }
+     function setActiveByPos(pos) {
+         const did = makeTagId(pos);
+         if (did)
+             setActive(did);
+     }
+
+     function getPosFromId(id) {
+         const tid = parseTagId(id);
+         return tid ? UnicodeTable.getCodeTableInfo(...tid) : null;
+     }
+
+     /*
+      *
+      */
+
+     function encodeHTML(s) {
+         return s.replaceAll('&', '&amp;')
+                 .replaceAll('<', '&lt;')
+                 .replaceAll('>', '&gt;');
+     }
+
+     function setCodeList() {
+         const openPlane = new Set([0,1,2,3,14]);
+         const checkPlane = (plane => openPlane.has(plane.start >> 16));
+         const checkSimple = (simple => false);
+         const makeDetail = ((detail, l0, l1, l2) => [
+             '<tr>', '<td>',
+             `<div class="fs-small cursor-pointer" id="area-${l0}-${l1}-${l2}" onclick="onClickList(this)">`,
+             `<code id="area-${l0}-${l1}-${l2}-start">${fmt06X(detail.start)}</code> ${detail.name}`,
+             '</div>', '</td>', '</tr>',
+         ]);
+         const makeSimple = ((simple, l0, l1) => [
+             '<tr>', '<td>',
+             `<details${ checkSimple(simple) ? ' open' : ''} id="area-${l0}-${l1}">`,
+             `<summary class="fs-small cursor-pointer">${simple.name}</summary>`,
+             '<div>', '<table class="ml-1em">',
+             simple.detail.map((v, l2) => makeDetail(v, l0, l1, l2)),
+             '</table>', '</div>', '</details>', '</td>', '</tr>',
+         ]);
+         const makePlane = ((plane, l0) => [
+             '<tr>', '<td>',
+             `<details${ checkPlane(plane) ? ' open' : ''} id="area-${l0}">`,
+             `<summary class="fs-small cursor-pointer">${plane.name}</summary>`,
+             '<div>', '<table class="ml-1em">',
+             plane.simple.map((v, l1) => makeSimple(v, l0, l1)),
+             '</table>', '</div>', '</details>', '</td>', '</tr>',
+         ]);
+
+         tagCode.innerHTML = concatAll([
+             '<table class="codemap">',
+             UnicodeTable.planeTable.map((v, i) => makePlane(v, i)),
+             '</table>',
+         ]);
+     }
+
+     function buildCodeChar(detail) {
+         const smallerTag = (s => `<span style="font-size: smaller;">${s}</span>`);
+         const xsmallerTag = (s => smallerTag(smallerTag(s)));
+         const xxsmallerTag = (s => smallerTag(xsmallerTag(s)));
+
+         const mask = UnicodeTable.codeMaskSet;
+         const ctrl = UnicodeTable.controlCharacterMap;
+         const nchr = UnicodeTable.noneCharacter;
+
+         const transpose = tagTranspose.checked;
+         const literal = tagLiteral.checked;
+         const name = encodeHTML(detail.name);
+         const start = detail.start;
+         const end = detail.end;
+         const width = viewChars;
+         const fsize = `style="font-size: ${viewFontSize};"`;
+
+         const vstart = Number(`0x${tagCodeStart.value}`);
+         if (!vstart || vstart < start || vstart > end)
+             tagCodeStart.value = fmt06X(start);
+         tagCodeEnd.innerText = fmt06X(end);
+
+         const html = [
+             '<h3>', name, '</h3>',
+             '<table class="thin charset">',
+         ];
+
+         html.push('<tr>');
+         html.push('<th></th>');
+         if (!transpose) {
+             for (let x = 0; x < width; ++x)
+                 html.push(
+                     `<th class="code" ${fsize}>`,
+                     smallerTag(width <= 16 ? fmtX(x) : fmt02X(x)),
+                     '</th>'
+                 );
+         } else {
+             for (let y = start; y <= end; y += width) {
+                 const h = (y >> 4).toString(16).toUpperCase();
+                 const scp = ((y < 0x100) ? '00' + h :
+                              (y < 0x1000) ? '0' + h : h);
+                 html.push(`<th class="code" ${fsize}>`, xxsmallerTag(scp), '</th>');
+             }
+         }
+         html.push('</tr>');
+
+         const hexStr = (code => concatAll(code < 0x10000 ? [
+             fmt02X((code >> 8) & 0xff), '<br/>',
+             fmt02X(code & 0xff)
+         ] : [
+             fmt03X((code >> 12) & 0xfff), '<br/>',
+             fmt03X(code & 0xfff)
+         ]));
+
+         const divTag = ((tattr, dattr, dstr) => [
+             `<td class="${tattr}" ${fsize}>`,
+             `<div class="${dattr}">`, xsmallerTag(dstr), '</div>',
+             '</td>'
+         ]);
+         const divCopyTag = ((code, tattr, dattr, dstr) => [
+             `<td class="${tattr}" ${fsize} onclick="copyText('&#x${code.toString(16)};')">`,
+             `<div class="${dattr}">`, xsmallerTag(dstr), '</div>',
+             '</td>'
+         ]);
+
+         const hexTag = ((code, tattr, dattr) =>
+             divTag(tattr, dattr, hexStr(code)));
+         const hexCopyTag = ((code, tattr, dattr) =>
+             divCopyTag(code, tattr, dattr, hexStr(code)));
+
+         const plane = (start >> 16);
+
+         const setCode = ((code) => {
+             if (!literal) {
+                 const name = ctrl[code];
+                 if (name) {
+                     const mode = nchr.has(code) ? 'nochar' :
+                                  mask.has(code) ? 'undef' : 'avail';
+                     html.push(divCopyTag(code, mode, 'spechar',
+                                          name.replaceAll('\n', '<br>')));
+                     return;
+                 }
+                 if (nchr.has(code)) {
+                     html.push(hexTag(code, 'nochar', 'spechar'));
+                     return;
+                 }
+                 if (mask.has(code)) {
+                     html.push(hexCopyTag(code, 'undef', 'spechar'));
+                     return;
+                 }
+             }
+             const mode = code > end ? 'nosup' : 'avail';
+             const text = `&#x${code.toString(16)};`;
+             html.push(`<td class="${mode}" ${fsize} onclick="copyText('${text}')">`, text, '</td>');
+         });
+
+         if (!transpose) {
+             for (let y = start; y <= end; y += width) {
+                 html.push('<tr>');
+                 html.push(`<th class="code" ${fsize}>`, smallerTag(fmt06X(y)), '</th>');
+                 for (let x = 0; x < width; ++x)
+                     setCode(y + x);
+                 html.push('</tr>');
+             }
+         } else {
+             for (let x = 0; x < width; ++x) {
+                 html.push('<tr>');
+                 html.push(
+                     `<th class="code" ${fsize}>`,
+                     smallerTag(width <= 16 ? fmtX(x) : fmt02X(x)),
+                     '</th>'
+                 );
+                 for (let y = start; y <= end; y += width)
+                     setCode(y + x);
+                 html.push('</tr>');
+             }
+         }
+
+         html.push('</table>');
+         return concatAll(html);
+     }
+
+     function setCodeChar() {
+         if (!lastTagId) {
+             tagChar.innerHTML = '';
+             return;
+         }
+
+         getTagById(`tagWidth${viewChars}`).checked = true;
+         getTagById('tagWidthName').innerText =
+             getTagById('tagTranspose').checked ? '高' : '幅';
+         getTagById(`tagFS${viewFontSize.replace('-', '')}`).checked = true;
+
+         const curr = getPosFromId(lastTagId);
+         tagChar.innerHTML = buildCodeChar(curr.detail);
+     }
+
+     function setWidth(tag) {
+         viewChars = Number(tag.value);
+         setCodeChar();
+     }
+
+     function setFontSize(tag) {
+         viewFontSize = tag.value;
+         setCodeChar();
+     }
+
+     const hexChars = new Set('0123456789ABCDEFabcdef');
+
+     function setCodePoint() {
+         const hex = [...tagCodeStart.value]
+             .map(v => hexChars.has(v) ? v : '').join('');
+         tagCodeStart.value = hex;
+
+         setActiveByPos(UnicodeTable.getCodeTable(Number(`0x0${hex}`)));
+     }
+
+     /*
+      *
+      */
+
+     function moveToHome() {
+         setActive('area-0-0-0');
+     }
+     function prevCodeArea() {
+         setActiveByPos(UnicodeTable.getPrevCodeTable(getPosFromId(lastTagId)));
+     }
+     function nextCodeArea() {
+         setActiveByPos(UnicodeTable.getNextCodeTable(getPosFromId(lastTagId)));
+     }
+
+     function onClickList(tag) {
+         setActive(tag.id);
+     }
+
+     function onKeyDown(event) {
+         const mod_shift = 1;
+         const mod_ctrl = 2;
+         const mod_alt = 4;
+         const mod_meta = 8;
+         const modifier = (
+             (event.shiftKey ? mod_shift : 0) |
+             (event.ctrlKey ? mod_ctrl : 0) |
+             (event.altKey ? mod_alt : 0) |
+             (event.metaKey ? mod_meta : 0));
+
+         if (document.activeElement == tagCodeStart) {
+             return;
+         }
+
+         switch (event.key) {
+             case 'z':
+                 if (!modifier) {
+                     tagCodeStart.focus();
+                     return;
+                 }
+                 break;
+
+             case 'w':
+                 if (!(modifier & ~mod_shift)) {
+                     viewChars = Number(viewCharsChangeF[viewChars]);
+                     setCodeChar();
+                     return;
+                 }
+                 break;
+             case 'W':
+                 if (!(modifier & ~mod_shift)) {
+                     viewChars = Number(viewCharsChangeB[viewChars]);
+                     setCodeChar();
+                     return;
+                 }
+                 break;
+
+             case '0':
+                 if (!modifier) {
+                     viewFontSize = 'medium';
+                     setCodeChar();
+                     return;
+                 }
+                 break;
+             case '+':
+             case 's':
+                 if (!(modifier & ~mod_shift)) {
+                     viewFontSize = viewFontSizeChangeF[viewFontSize];
+                     setCodeChar();
+                     return;
+                 }
+                 break;
+             case '-':
+             case 'S':
+                 if (!(modifier & ~mod_shift)) {
+                     viewFontSize = viewFontSizeChangeB[viewFontSize];
+                     setCodeChar();
+                     return;
+                 }
+                 break;
+
+             case 'L':
+             case 'l':
+                 if (!(modifier & ~mod_shift)) {
+                     const tag = getTagById('tagLiteral');
+                     tag.checked = !tag.checked;
+                     setCodeChar();
+                     return;
+                 }
+                 break;
+
+             case 'T':
+             case 't':
+                 if (!(modifier & ~mod_shift)) {
+                     const tag = getTagById('tagTranspose');
+                     tag.checked = !tag.checked;
+                     setCodeChar();
+                     return;
+                 }
+                 break;
+         }
+
+         switch (event.code) {
+             case 'Home':
+                 if (modifier)
+                     break;
+                 moveToHome();
+                 return
+             case 'ArrowUp':
+                 if (modifier)
+                     break;
+                 prevCodeArea();
+                 event.preventDefault();
+                 return;
+             case 'ArrowDown':
+                 if (modifier)
+                     break;
+                 nextCodeArea();
+                 event.preventDefault();
+                 return;
+         }
+     }
+
+     function copyText(text) { navigator.clipboard.writeText(text); }
+
+     window.onload = function() {
+         setCodeList();
+         moveToHome();
+
+         document.addEventListener('keydown', onKeyDown);
+     }
+
+    </script>
+  </body>
+</html>

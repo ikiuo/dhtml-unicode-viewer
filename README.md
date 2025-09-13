@@ -2,13 +2,10 @@
 
 ストレージ上の HTML ファイル サイズを小さくしたいので文字表を動的に生成して表示します。
 
-- unicode-viewer1.html -- Unicode 文字表その１
-- unicode-viewer2.html -- Unicode 文字表その２
+- unicode-viewer1.html -- Unicode 文字表その１ (14.0)
+- unicode-viewer2.html -- Unicode 文字表その２ (14.0)
+- unicode-viewer3.html -- Unicode 文字表その３ (17.0)
 - country-flags.html -- 国旗表
-
-## Unicode 文字表
-
-Unicode 14.0 における分類を選択して文字表を設定に応じて表示します。
 
 ## 国旗表
 
