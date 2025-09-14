@@ -44,9 +44,9 @@
                  [...Array(26)].map((_, j) =>
                      `<td><span onclick="toClipboard('${flagChar(i, j)}')">${flagChar(i, j)}</span></td>`),
                  '</tr>',
-             ].flat().join('')),
+             ]),
              '</table>',
-         ].flat().join('');
+         ].flat(Infinity).join('');
      }
 
     </script>
